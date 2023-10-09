@@ -1,0 +1,15 @@
+package pieces;
+
+/**
+ * Represents a queen chess piece.
+ */
+public class Queen extends ChessPiece {
+
+    /**
+     * Creates a queen chess piece.
+     * @param isWhite true if the piece is white, false if the piece is black
+     */
+    public Queen(boolean isWhite, boolean hasMoved) {
+        super(isWhite, hasMoved);
+    }
+}
