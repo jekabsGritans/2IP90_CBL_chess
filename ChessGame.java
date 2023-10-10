@@ -29,7 +29,31 @@ class ChessGame {
     // store unique square where en passant capture is possible, null if not possible
     ChessPosition enPassantTargetSquare;
 
+    public static void main(String[] args) {
+        ChessGame game = new ChessGame();
+        game.printBoard();
+    }
 
+    /**
+     * Print the chess board to the console.
+     */
+    public void printBoard() {
+        String colLabels = "  a b d d e f g h  ";
+
+        System.out.println(colLabels); // column labels
+
+        for (int i = 0; i < 8; i++) {
+            System.out.print(8 - i + " "); // line number
+            for (ChessPosition pos : board[i]) {
+                System.out.print(pos + " "); // pieces
+            }
+            System.out.println(8 - i); // line number
+        }
+
+        System.out.println(colLabels); // column lavels
+    }
+
+    
     /**
      * Initialize chess piece.
      * @param piece FEN character for the piece
@@ -71,7 +95,24 @@ class ChessGame {
      */
     public ChessGame(String fen) {
         // FEN string format
-        String regex = "([rnbqkpRNBQKP1-8\\/]+) ([bw]) ([-KQkq]+) ([-a-h1-8]+) (\\d+) (\\d+)";  
+        String regex = "^" // beginning of string
+            + "(" // begin piece placement group
+                + "[rnbqkpRNBQKP1-8]+\\/"
+                + "[rnbqkpRNBQKP1-8]+\\/"
+                + "[rnbqkpRNBQKP1-8]+\\/"
+                + "[rnbqkpRNBQKP1-8]+\\/"
+                + "[rnbqkpRNBQKP1-8]+\\/"
+                + "[rnbqkpRNBQKP1-8]+\\/"
+                + "[rnbqkpRNBQKP1-8]+\\/"
+                + "[rnbqkpRNBQKP1-8]+"
+            + ")" // end piece placement group
+            + "\\s([wb])" // active color
+            + "\\s([KQkq]{1,4}|-)" // castling availability
+            + "\\s([a-h][36]|-)" // en passant target square
+            + "\\s(\\d+)" // halfmove clock
+            + "\\s(\\d+)" // fullmove number
+            + "$"; // end of string
+        
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(fen);
 
@@ -83,6 +124,12 @@ class ChessGame {
             String enPassantTargetSquareStr = matcher.group(4);
             String halfmoveClock = matcher.group(5);
             String fullmoveNumber = matcher.group(6);
+
+            System.out.println("active color: " + activeColor);
+            System.out.println("castling availability: " + castlingAvailability);
+            System.out.println("en passant target square: " + enPassantTargetSquareStr);
+            System.out.println("halfmove clock: " + halfmoveClock);
+            System.out.println("fullmove number: " + fullmoveNumber);
 
             board = initBoard(piecePositions, castlingAvailability);
             enPassantTargetSquare = getPosition(enPassantTargetSquareStr);
@@ -102,11 +149,17 @@ class ChessGame {
      * @return the board position object
      */
     public ChessPosition getPosition(String fenPosition) {
+        if (fenPosition.equals("-")) {
+            return null;
+        }
+
         int x = 8 - Character.getNumericValue(fenPosition.charAt(1));
         int y = fenPosition.charAt(0) - 'a';
         return board[x][y];
     }
 
+
+    //TODO: Rewrite this, completely incorrect
     /**
      * Initialize a filled board from FEN string components.
      * @param piecePositions FEN string component for piece positions
@@ -182,6 +235,6 @@ class ChessGame {
      * Initializes the board to the starting position.
      */
     public ChessGame() {
-        this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq");
+        this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
 }
