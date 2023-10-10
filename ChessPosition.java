@@ -11,6 +11,17 @@ public class ChessPosition {
     int y;
 
     /**
+     * String representation of the position.
+     */
+    public String toString() {
+        if (piece == null) {
+            return " ";
+        } else {
+            return piece.name();
+        }
+    }
+
+    /**
      * Creates a chess position.
      * @param x x coordinate on the board
      * @param y y coordinate on the board

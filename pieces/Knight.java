@@ -5,6 +5,9 @@ package pieces;
  */
 public class Knight extends ChessPiece {
     
+    public String name() {
+        return this.isWhite() ? "N" : "n";
+    }
     /**
      * Creates a knight chess piece.
      * @param isWhite true if the piece is white, false if the piece is black

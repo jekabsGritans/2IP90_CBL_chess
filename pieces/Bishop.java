@@ -3,7 +3,11 @@ package pieces;
 /**
  * Represents a bishop chess piece.
  */
-public class Bishop extends ChessPiece{
+public class Bishop extends ChessPiece {
+
+    public String name() {
+        return this.isWhite() ? "B" : "b";
+    }
 
     /**
      * Creates a bishop chess piece.

@@ -9,6 +9,12 @@ public abstract class ChessPiece {
     boolean hasMoved;
 
     /**
+     * Return string representation of the piece.
+     * @return FEN name of the piece
+     */
+    public abstract String name();
+
+    /**
      * Default constructor for a chess piece.
      * @param isWhite true if the piece is white, false if the piece is black
      * @param hasMoved true if the piece has moved, false otherwise
