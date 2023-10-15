@@ -13,10 +13,9 @@ public class King extends ChessPiece {
     /**
      * Creates a king piece.
      * @param isWhite true if the piece is white, false if the piece is black
-     * @param hasMoved true if the piece has moved, false otherwise
      */
-    public King(boolean isWhite, boolean hasMoved) {
-        super(isWhite, hasMoved);
+    public King(boolean isWhite) {
+        super(isWhite);
     }
 
 }

@@ -8,12 +8,12 @@ public class Pawn extends ChessPiece {
     public String name() {
         return this.isWhite() ? "P" : "p";
     }
+
     /**
      * Creates a pawn chess piece.
      * @param isWhite true if the piece is white, false if the piece is black
-     * @param hasMoved true if the piece has moved, false otherwise
      */
-    public Pawn(boolean isWhite, boolean hasMoved) {
-        super(isWhite, hasMoved);
+    public Pawn(boolean isWhite) {
+        super(isWhite);
     }
 }

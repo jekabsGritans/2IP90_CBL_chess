@@ -32,4 +32,20 @@ public class ChessPosition {
         this.x = x;
         this.y = y;
     }
+
+    /**
+     * Set the piece at this position.
+     * @param piece the piece at this position or null if the position is empty
+     */
+    public void setPiece(ChessPiece piece) {
+        this.piece = piece;
+    }
+
+    /**
+     * Get the piece at this position.
+     * @return the piece at this position or null if the position is empty
+     */
+    public ChessPiece getPiece() {
+        return this.piece;
+    }
 }
