@@ -49,7 +49,7 @@ public class ChessBoard {
      * @param from the position from which the piece is moved
      * @param to the position to which the piece is moved
      */
-    public void movePiece(Position from, Position to) {
+    public void movePiece(BoardPosition from, BoardPosition to) {
         ChessPiece fromPiece = getPiece(from);
 
         if (fromPiece == null) {
@@ -66,7 +66,7 @@ public class ChessBoard {
      * @param piece the piece to place
      * @param pos the position to place the piece at
      */
-    public void placePiece(ChessPiece piece, Position pos) {
+    public void placePiece(ChessPiece piece, BoardPosition pos) {
         board[pos.x][pos.y] = piece;
         piece.setPosition(pos);
     }
@@ -75,7 +75,7 @@ public class ChessBoard {
      * Removes a piece from the board.
      * @param pos the position to remove the piece from
      */
-    public void removePiece(Position pos) {
+    public void removePiece(BoardPosition pos) {
         ChessPiece piece = getPiece(pos);
 
         if (piece != null) {
@@ -118,7 +118,7 @@ public class ChessBoard {
      * @param pos the position 
      * @return the piece at the given position
      */
-    public ChessPiece getPiece(Position pos) {
+    public ChessPiece getPiece(BoardPosition pos) {
         return getPiece(pos.x, pos.y);
     }
 
@@ -128,7 +128,7 @@ public class ChessBoard {
      * @return the piece at the given position
      */
     public ChessPiece getPiece(String algPos) {
-        Position pos = new Position(algPos);
+        BoardPosition pos = new BoardPosition(algPos);
         return getPiece(pos.x, pos.y);
     }
 
@@ -145,7 +145,7 @@ public class ChessBoard {
     /**
      * Represents a position on the board.
      */
-    public class Position {
+    public class BoardPosition {
         public final int x;
         public final int y;
 
@@ -154,7 +154,7 @@ public class ChessBoard {
          * @param x x coordinate
          * @param y y coordinate
          */
-        public Position(int x, int y) {
+        public BoardPosition(int x, int y) {
             if (!checkInBounds(x, y)) {
                 throw new IllegalArgumentException("Invalid position");
             }
@@ -166,7 +166,7 @@ public class ChessBoard {
          * Creates a position.
          * @param algPos the algebraic representation of the position
          */
-        public Position(String algPos) {
+        public BoardPosition(String algPos) {
             this.x = 8 - Character.getNumericValue(algPos.charAt(1));
             this.y = algPos.charAt(0) - 'a';
         }
@@ -193,7 +193,7 @@ public class ChessBoard {
          * @param pos the other position
          * @return true if the position matches, false otherwise
          */
-        public boolean equals(Position pos) {
+        public boolean equals(BoardPosition pos) {
             return this.x == pos.x && this.y == pos.y;
         }
     }

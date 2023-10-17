@@ -30,7 +30,7 @@ public class ChessPiece {
     public final PieceColor color;
 
     // position is also stored here to not have to traverse the board to find the piece
-    private ChessBoard.Position position;
+    private ChessBoard.BoardPosition position;
 
     // for translating FEN characters to chess pieces and vice versa
     // Note: FEN_CHAR order must match Type enum order,
@@ -80,7 +80,7 @@ public class ChessPiece {
      * Gets the position of the chess piece.
      * @return the position of the chess piece
      */
-    public ChessBoard.Position getPosition() {
+    public ChessBoard.BoardPosition getPosition() {
         return position;
     }
 
@@ -88,7 +88,7 @@ public class ChessPiece {
      * Sets the position of the chess piece.
      * @param position the position of the chess piece
      */
-    void setPosition(ChessBoard.Position position) {
+    void setPosition(ChessBoard.BoardPosition position) {
         // this method is package-private because the position should only be changed by the board
         // in order to keep the board and piece states consistent
         this.position = position;
