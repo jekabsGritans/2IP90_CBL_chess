@@ -35,7 +35,6 @@ public class GameMain {
 
         scenes.add(menuScene);
         scenes.add(gameScene);
-        gameScene.init();
         bindScene(gameScene);
     }
 

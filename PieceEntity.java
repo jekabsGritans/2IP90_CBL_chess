@@ -11,10 +11,11 @@ class PieceEntity extends Entity {
     PieceType pieceType;
     PieceColor pieceColor;
 
-    public PieceEntity(PieceType pieceType) {
+    public PieceEntity(PieceType pieceType, PieceColor pieceColor) {
+        super();
         this.pieceType = pieceType;
-        this.pieceColor = PieceColor.WHITE;
-        initTexture();
+        this.pieceColor = pieceColor;
+        //initTexture();
     }
 
     public void initMouseEvents() { 
@@ -31,7 +32,6 @@ class PieceEntity extends Entity {
         String texPath = System.getProperty("user.dir");
         File texFile = new File(texPath, pieceType.name() + ".png");
         loadTexture(texFile);
-
     }
 
     @Override

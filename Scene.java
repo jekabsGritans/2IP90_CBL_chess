@@ -1,6 +1,10 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 class Scene {
   ArrayList<Entity> entities  = new ArrayList<Entity>();
@@ -11,10 +15,8 @@ class Scene {
     frame = new JFrame();
     frame.setSize(900, 900);
     frame.setLayout(null);
-  }
-
-  public void init() {
-
+    frame.setTitle("Chess Game");
+    frame.setLocationRelativeTo(null);
   }
 
   public Scene(ArrayList<Entity> entities) {
@@ -41,7 +43,7 @@ class Scene {
       if(entities.get(i).zLayer > entity.zLayer || (i < entities.size()-1 && entities.get(i+1).zLayer > entity.zLayer)) {
         entities.add(i, entity);
       }
-      frame.add(entity.label);
     }
+    frame.add(entity.graphic);
   }
 }

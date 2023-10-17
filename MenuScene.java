@@ -6,13 +6,4 @@ public class MenuScene extends Scene {
         super();
         frame.getContentPane().setBackground(Color.YELLOW);
     }
-
-    @Override
-    public void init() {
-        initButtons();
-    }
-
-    public void initButtons() {
-
-    }
 }
