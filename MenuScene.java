@@ -7,8 +7,6 @@ public class MenuScene extends Scene {
         frame.getContentPane().setBackground(Color.YELLOW);
     }
 
-
-
     @Override
     public void init() {
         initButtons();
