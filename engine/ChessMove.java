@@ -1,6 +1,6 @@
 package engine;
 
-import engine.board.ChessBoard.Position;
+import engine.board.ChessBoard.BoardPosition;
 import engine.board.ChessPiece;
 
 /**
@@ -13,16 +13,16 @@ public final class ChessMove {
     // Builder pattern is used to construct moves since there are many optional parameters
 
     // required parameters
-    public final Position from;
-    public final Position to;
+    public final BoardPosition from;
+    public final BoardPosition to;
     public final ChessPiece movedPiece;
 
     // optional parameters
     public final ChessPiece capturedPiece; // default null
     public final ChessPiece promotionPiece; // default null
-    public final Position enPassantAttack; // default null
-    public final Position castlingRookFrom; // default null
-    public final Position castlingRookTo; // default null
+    public final BoardPosition enPassantAttack; // default null
+    public final BoardPosition castlingRookFrom; // default null
+    public final BoardPosition castlingRookTo; // default null
 
     /**
      * Construct a chess move.
@@ -43,16 +43,16 @@ public final class ChessMove {
      */
     public static class MoveBuilder {
         // required parameters
-        private Position from;
-        private Position to;
+        private BoardPosition from;
+        private BoardPosition to;
         private ChessPiece movedPiece;
 
         // optional parameters
         private ChessPiece capturedPiece = null;
         private ChessPiece promotionPiece = null;
-        private Position enPassantAttack = null;
-        private Position castlingRookFrom = null;
-        private Position castlingRookTo = null;
+        private BoardPosition enPassantAttack = null;
+        private BoardPosition castlingRookFrom = null;
+        private BoardPosition castlingRookTo = null;
 
 
         /**
@@ -61,7 +61,7 @@ public final class ChessMove {
          * @param to the position to which the piece is moved
          * @param movedPiece the piece that is moved
          */
-        public MoveBuilder(Position from, Position to, ChessPiece movedPiece) {
+        public MoveBuilder(BoardPosition from, BoardPosition to, ChessPiece movedPiece) {
             this.from = from;
             this.to = to;
             this.movedPiece = movedPiece;
@@ -92,7 +92,7 @@ public final class ChessMove {
          * @param enPassantAttack the position of the pawn that is captured en passant
          * @return this move builder
          */
-        public MoveBuilder enPassantAttack(Position enPassantAttack) {
+        public MoveBuilder enPassantAttack(BoardPosition enPassantAttack) {
             this.enPassantAttack = enPassantAttack;
             return this;
         }
@@ -103,7 +103,8 @@ public final class ChessMove {
          * @param rookTo the position to which the rook is moved
          * @return this move builder
          */
-        public MoveBuilder castlingMove(Position rookFrom, Position rookTo, ChessPiece rook) {
+        public MoveBuilder castlingMove(
+            BoardPosition rookFrom, BoardPosition rookTo, ChessPiece rook) {
             this.castlingRookFrom = rookFrom;
             this.castlingRookTo = rookTo;
             return this;

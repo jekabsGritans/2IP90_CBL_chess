@@ -67,6 +67,6 @@ public class ChessGame {
         public boolean canBlackCastleKingside;
         public boolean canBlackCastleQueenside;
 
-        public ChessBoard.Position enPassantTarget;
+        public ChessBoard.BoardPosition enPassantTarget;
     }
 }
