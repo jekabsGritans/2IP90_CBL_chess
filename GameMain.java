@@ -35,8 +35,16 @@ public class GameMain {
 
         scenes.add(menuScene);
         scenes.add(gameScene);
+        gameScene.init();
+        bindScene(gameScene);
+    }
 
-        menuScene.init();
-        currentScene = menuScene;
+    public void bindScene(Scene newScene) {
+        if(currentScene != null) {
+            currentScene.frame.setVisible(false);
+        }
+
+        newScene.frame.setVisible(true);
+        currentScene = newScene;
     }
 }

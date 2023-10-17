@@ -1,5 +1,7 @@
 import java.awt.Color;
 
+import engine.board.ChessPiece.PieceType;
+
 public class ChessScene extends Scene {
 
     public ChessScene() {
@@ -9,10 +11,14 @@ public class ChessScene extends Scene {
 
     @Override
     public void init() {
-        initWhiteBoard();
+        initChessBoard();
     }
 
-    public void initWhiteBoard() {
+    public void initWhitePieces() {
+        entities.add(0, null);
+    }
 
+    public void initChessBoard() {
+        entities.add(new PieceEntity(PieceType.PAWN));
     }
 }
