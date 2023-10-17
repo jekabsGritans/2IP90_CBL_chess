@@ -9,7 +9,7 @@ public class ChessPiece {
     /**
      * Enum for the type of chess piece.
      */
-    public enum Type {
+    public enum PieceType {
         PAWN,
         KNIGHT,
         BISHOP,
@@ -21,13 +21,13 @@ public class ChessPiece {
     /**
      * Enum for the color of the chess piece.
      */
-    public enum Color {
+    public enum PieceColor {
         WHITE,
         BLACK
     }
     
-    public final Type type;
-    public final Color color;
+    public final PieceType type;
+    public final PieceColor color;
 
     // position is also stored here to not have to traverse the board to find the piece
     private ChessBoard.Position position;
@@ -36,7 +36,7 @@ public class ChessPiece {
     // Note: FEN_CHAR order must match Type enum order,
     // but this is simple and fine since chess pieces are fixed
     private static final char[] FEN_CHARS = {'p', 'n', 'b', 'r', 'q', 'k'};
-    private static final Type[] TYPES = Type.values();
+    private static final PieceType[] TYPES = PieceType.values();
 
     /**
      * Creates a chess piece from a FEN character.
@@ -53,7 +53,7 @@ public class ChessPiece {
         }
 
         this.type = TYPES[charIndex];
-        this.color = isUpper ? Color.WHITE : Color.BLACK;
+        this.color = isUpper ? PieceColor.WHITE : PieceColor.BLACK;
     }
 
     /**
@@ -63,7 +63,7 @@ public class ChessPiece {
     public Character getFenCharacter() {
         int typeIndex = type.ordinal();
         char fenChar = FEN_CHARS[typeIndex];
-        return color == Color.WHITE ? Character.toUpperCase(fenChar) : fenChar;
+        return color == PieceColor.WHITE ? Character.toUpperCase(fenChar) : fenChar;
     }
 
     /**
@@ -71,7 +71,7 @@ public class ChessPiece {
      * @param type the type of chess piece
      * @param color the color of the chess piece
      */
-    public ChessPiece(Type type, Color color) {
+    public ChessPiece(PieceType type, PieceColor color) {
         this.type = type;
         this.color = color;
     }

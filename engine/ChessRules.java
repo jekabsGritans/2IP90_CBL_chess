@@ -72,7 +72,7 @@ public class ChessRules {
      * Add en passant target following double pawn move.
      */
     private static void updateEnPassantTarget(ChessGame.GameState state, ChessMove move) {
-        boolean isPawn = move.movedPiece.type == ChessPiece.Type.PAWN;
+        boolean isPawn = move.movedPiece.type == ChessPiece.PieceType.PAWN;
         if (isPawn && Math.abs(move.from.y - move.to.y) == 2) {
             state.enPassantTarget = move.to;
         } else {
@@ -85,16 +85,16 @@ public class ChessRules {
      */
     private static void updateCastlingRights(
         ChessBoard board, ChessGame.GameState state, ChessMove move) {
-        if (move.movedPiece.type == ChessPiece.Type.KING) {
-            if (move.movedPiece.color == ChessPiece.Color.WHITE) {
+        if (move.movedPiece.type == ChessPiece.PieceType.KING) {
+            if (move.movedPiece.color == ChessPiece.PieceColor.WHITE) {
                 state.canWhiteCastleKingside = false;
                 state.canWhiteCastleQueenside = false;
             } else {
                 state.canBlackCastleKingside = false;
                 state.canBlackCastleQueenside = false;
             }
-        } else if (move.movedPiece.type == ChessPiece.Type.ROOK) {
-            if (move.movedPiece.color == ChessPiece.Color.WHITE) {
+        } else if (move.movedPiece.type == ChessPiece.PieceType.ROOK) {
+            if (move.movedPiece.color == ChessPiece.PieceColor.WHITE) {
                 if (move.from.equals("a1")) {
                     state.canWhiteCastleQueenside = false;
                 } else if (move.from.equals("h1")) {
