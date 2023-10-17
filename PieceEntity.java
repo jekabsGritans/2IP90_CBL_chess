@@ -1,3 +1,4 @@
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -11,11 +12,13 @@ class PieceEntity extends Entity {
     PieceType pieceType;
     PieceColor pieceColor;
 
+
     public PieceEntity(PieceType pieceType, PieceColor pieceColor) {
         super();
         this.pieceType = pieceType;
         this.pieceColor = pieceColor;
         //initTexture();
+        setSize(new Point(80, 80));
     }
 
     public void initMouseEvents() { 

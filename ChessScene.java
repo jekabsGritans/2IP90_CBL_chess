@@ -11,18 +11,48 @@ public class ChessScene extends Scene {
     static Point boardPos = new Point(50, 50);
     static Point boardSize = new Point(800, 800);
     static int tileAmount = 8;
+    static double pieceSizeModifier = 0.5;
 
     public ChessScene() {
         super();
         frame.getContentPane().setBackground(Color.GRAY);
-        initChessBoard();
+        initWhitePieces();
+        initBoard();
     }
-
+ 
     public void initWhitePieces() {
-        entities.add(0, null);
+        double tileSize = boardSize.x / tileAmount;
+        // Initialize white pieces
+        for(int x = 0 ; x < tileAmount; x++) {
+            for(int y = 0; y < 2; y++) {
+                PieceEntity piece = new PieceEntity(PieceType.BISHOP, PieceColor.WHITE);
+                Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
+                piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
+                piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;
+
+                piece.setPos(piecePos);
+                piece.setSize(new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier)));
+                piece.setColor(Color.PINK);
+                addEntity(piece);
+            }
+        }
+        // Initialize Black pieces
+        for(int x = 0 ; x < tileAmount; x++) {
+            for(int y = tileAmount-2; y < tileAmount; y++) {
+                PieceEntity piece = new PieceEntity(PieceType.BISHOP, PieceColor.WHITE);
+                Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
+                piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
+                piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;
+
+                piece.setPos(piecePos);
+                piece.setSize(new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier)));
+                piece.setColor(Color.BLUE);
+                addEntity(piece);
+            }
+        }
     }
 
-    public void initChessBoard() {
+    public void initBoard() {
         // Initialize FloorTiles
         for(int x = 0; x < tileAmount; x++) {
             for(int y = 0; y < tileAmount; y++) {
