@@ -6,6 +6,7 @@ import javax.swing.JLabel;
 
 import engine.board.ChessPiece.PieceColor;
 import engine.board.ChessPiece.PieceType;
+import java.util.*;
 
 public class ChessScene extends Scene {
     static Point boardPos = new Point(50, 50);
@@ -22,33 +23,44 @@ public class ChessScene extends Scene {
  
     public void initWhitePieces() {
         double tileSize = boardSize.x / tileAmount;
-        // Initialize white pieces
+        Point pieceSize = new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier));
+        ArrayList<Point> startPositions = new ArrayList<Point>();
+        PieceType[] startTypes = new PieceType[] {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+        // Initialize white positions
         for(int x = 0 ; x < tileAmount; x++) {
-            for(int y = 0; y < 2; y++) {
-                PieceEntity piece = new PieceEntity(PieceType.BISHOP, PieceColor.WHITE);
+            for(int y = tileAmount-1; y >= tileAmount-2; y--) {
                 Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
                 piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
                 piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;
-
-                piece.setPos(piecePos);
-                piece.setSize(new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier)));
-                piece.setColor(Color.PINK);
-                addEntity(piece);
+                startPositions.add(piecePos);
             }
         }
-        // Initialize Black pieces
+
+        // Initialize white pieces
+        for(int i = 0; i < tileAmount*2; i++) {
+            PieceType newType = i < tileAmount ? startTypes[i] : PieceType.PAWN;
+            PieceEntity newPiece = new PieceEntity(newType, PieceColor.WHITE);
+            newPiece.setSize(pieceSize);
+            newPiece.setPos(startPositions.get(i));
+            addEntity(newPiece);
+        }
+        // Initialize black positions
+        startPositions = new ArrayList<Point>();
         for(int x = 0 ; x < tileAmount; x++) {
-            for(int y = tileAmount-2; y < tileAmount; y++) {
-                PieceEntity piece = new PieceEntity(PieceType.BISHOP, PieceColor.WHITE);
+            for(int y = 0; y < 2; y++) {
                 Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
                 piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
                 piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;
-
-                piece.setPos(piecePos);
-                piece.setSize(new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier)));
-                piece.setColor(Color.BLUE);
-                addEntity(piece);
+                startPositions.add(piecePos);
             }
+        }
+        // Initialize black pieces
+        for(int i = 0; i < tileAmount*2; i++) {
+            PieceType newType = i < tileAmount ? startTypes[i] : PieceType.PAWN;
+            PieceEntity newPiece = new PieceEntity(newType, PieceColor.BLACK);
+            newPiece.setSize(pieceSize);
+            newPiece.setPos(startPositions.get(i));
+            addEntity(newPiece);
         }
     }
 

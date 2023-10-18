@@ -10,15 +10,16 @@ public class GameMain {
 
     public void startGame() {
         initScenes();
+        InputManager.init();
         while(true) {
             renderLoop();
+            updateLoop();
+            InputManager.update();
         }
     }
 
     public void updateLoop() {
-        while(true) {
-            currentScene.update();
-        }
+        currentScene.update();
     }
 
     public void renderLoop() {
