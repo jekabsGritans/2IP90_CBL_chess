@@ -8,8 +8,10 @@ import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.JLabel;
+import javax.swing.text.Position;
 
 import engine.ChessMove;
+import engine.board.ChessPiece;
 import engine.board.ChessPiece.PieceColor;
 import engine.board.ChessPiece.PieceType;
 
@@ -18,7 +20,9 @@ class PieceEntity extends Entity implements MouseListener {
     PieceColor pieceColor;
     Point lastMousePos;
     ChessScene board;
-    ArrayList<ChessMove> currentPossibleMoves = new ArrayList<ChessMove>();
+    ChessPiece piece;
+    ArrayList<Point> currentPossibleMoves = new ArrayList<Point>();
+    Point origPos = getPos();
     private PieceType pieceType;
     
 
@@ -31,10 +35,13 @@ class PieceEntity extends Entity implements MouseListener {
         initMouseEvents();
     }
     public void mousePressed(MouseEvent e) {
+        currentPossibleMoves = board.getPossibleMovePositions(this);
+        origPos = getPos();
         dragging = true;
      }
  
      public void mouseReleased(MouseEvent e) {
+        stopDrag();
         dragging = false;
      }
  
@@ -68,7 +75,24 @@ class PieceEntity extends Entity implements MouseListener {
         if(pieceColor == PieceColor.BLACK) {
             setColor(Color.BLUE);
         } else if(pieceColor == PieceColor.WHITE) {
-             setColor(Color.PINK);
+            setColor(Color.PINK);
+        }
+    }
+
+    public void stopDrag() {
+        Point closestPos = origPos;
+        for(int i = 0; i < currentPossibleMoves.size(); i++) {
+            Point curPos = currentPossibleMoves.get(i);
+            if(Math.sqrt(Math.pow(getPos().x-closestPos.x, 2)+Math.pow(getPos().y-closestPos.y, 2)) > Math.sqrt(Math.pow(getPos().x-curPos.x, 2)+Math.pow(getPos().y-curPos.y, 2))) {
+                closestPos = curPos;
+            }
+        }
+        double distance = Math.sqrt(Math.pow(getPos().x-closestPos.x, 2)+Math.pow(getPos().y-closestPos.y, 2));
+        //If in the same tile as the possible move, move to the possible move, otherwise go back to original position
+        if(distance < board.boardSize.x/board.tileAmount && distance != 0) {
+            setPos(closestPos);    
+        } else {
+            setPos(origPos);
         }
     }
 

@@ -4,24 +4,49 @@ import java.awt.Point;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
+import engine.ChessGame;
+import engine.board.ChessPiece;
 import engine.board.ChessPiece.PieceColor;
 import engine.board.ChessPiece.PieceType;
 import java.util.*;
 
 public class ChessScene extends Scene {
-    static Point boardPos = new Point(50, 50);
-    static Point boardSize = new Point(800, 800);
-    static int tileAmount = 8;
-    static double pieceSizeModifier = 0.5;
+    Point boardPos = new Point(50, 50);
+    Point boardSize = new Point(800, 800);
+    int tileAmount = 8;
+    double pieceSizeModifier = 0.5;
+    ChessGame game;
+    
 
     public ChessScene() {
         super();
         frame.getContentPane().setBackground(Color.GRAY);
-        initWhitePieces();
+        initGame();
+        initPieces();
         initBoard();
     }
+
+    public ArrayList<Point> getPossibleMovePositions(PieceEntity piece) {
+        //getMoves(piece)
+        ArrayList<Point> possiblePositions = new ArrayList<Point>();
+        //possiblePositions = getMoves(piece);
+        possiblePositions.add(new Point(piece.getPos().x, piece.getPos().y-(boardSize.y/tileAmount)));
+        possiblePositions.add(new Point(piece.getPos().x, piece.getPos().y+(boardSize.y/tileAmount)));
+        possiblePositions.add(new Point(piece.getPos().x+(boardSize.x/tileAmount), piece.getPos().y));
+        possiblePositions.add(new Point(piece.getPos().x-(boardSize.x/tileAmount), piece.getPos().y));
+        possiblePositions.add(new Point(piece.getPos().x-(boardSize.x/tileAmount), piece.getPos().y-(boardSize.y/tileAmount)));
+        possiblePositions.add(new Point(piece.getPos().x+(boardSize.x/tileAmount), piece.getPos().y+(boardSize.y/tileAmount)));
+        possiblePositions.add(new Point(piece.getPos().x-(boardSize.x/tileAmount), piece.getPos().y+(boardSize.y/tileAmount)));
+        possiblePositions.add(new Point(piece.getPos().x+(boardSize.x/tileAmount), piece.getPos().y-(boardSize.y/tileAmount)));
+
+        return possiblePositions;
+    }
+
+    public void initGame() {
+        game = new ChessGame();
+    }
  
-    public void initWhitePieces() {
+    public void initPieces() {
         double tileSize = boardSize.x / tileAmount;
         Point pieceSize = new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier));
         ArrayList<Point> startPositions = new ArrayList<Point>();
@@ -74,5 +99,10 @@ public class ChessScene extends Scene {
                 addEntity(tile);
             }
         }
+    }
+
+    public void addEntity(PieceEntity entity) {
+        super.addEntity(entity);
+        entity.board = this;
     }
 }

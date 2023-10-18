@@ -33,7 +33,6 @@ public class GameMain {
         MenuScene menuScene = new MenuScene();
         ChessScene gameScene = new ChessScene();
 
-
         scenes.add(menuScene);
         scenes.add(gameScene);
         bindScene(gameScene);
