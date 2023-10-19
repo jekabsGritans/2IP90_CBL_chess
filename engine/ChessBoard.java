@@ -132,8 +132,7 @@ public class ChessBoard {
             System.out.print(8 - i + " "); // line number
             for (byte piece : board[i]) {
                 // represent empty square as whitespace not '1'
-                char c = ChessPiece.isType(piece, ChessPiece.Empty)
-                    ? ' ' : ChessPiece.getFenCharacter(piece);
+                char c = ChessPiece.isEmpty(piece) ? ' ' : ChessPiece.getFenCharacter(piece);
                 System.out.print(c + " "); // pieces
             }
             System.out.println(8 - i); // line number
@@ -159,7 +158,7 @@ public class ChessBoard {
     public void makeMove(Move move) {
         byte piece = getPiece(move.from);
 
-        if (ChessPiece.isType(piece, ChessPiece.Empty)) {
+        if (ChessPiece.isEmpty(piece)) {
             throw new IllegalArgumentException("No piece at " + move.from);
         }
 

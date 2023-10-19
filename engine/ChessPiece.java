@@ -43,6 +43,24 @@ public class ChessPiece {
         // 24 is 11 000, so this operation zeroes out type bits and only compares color bits
         return (piece & 24) == color;
     }
+
+    /**
+     * Checks if a piece is empty.
+     * @param piece the piece to check
+     * @return true if the piece is empty, false otherwise
+     */
+    public static boolean isEmpty(byte piece) {
+        return isType(piece, Empty);
+    }
+
+    /**
+     * Checks if a piece is white.
+     * @param piece the piece to check
+     * @return true if the piece is white, false otherwise
+     */
+    public static boolean isWhite(byte piece) {
+        return isColor(piece, White);
+    }
      
     // for translating FEN characters to piece bytes and vice versa
     // Note: FEN_CHAR indices must match type values

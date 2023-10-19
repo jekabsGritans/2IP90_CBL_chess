@@ -14,6 +14,33 @@ public class RuleEngine {
      */
     public List<Move> getValidMoves(GameState state) {
         List<Move> moves = new ArrayList<Move>(0);
+        boolean isWhite = state.isWhiteMove();
+        ChessBoard board = state.board();
+
+        for (int rowIdx = 0; rowIdx < 8; rowIdx++) {
+            for (int colIdx = 0; colIdx < 8; colIdx++) {
+                byte piece = board.getPiece(rowIdx, colIdx);
+                ChessBoard.Position pos = new ChessBoard.Position(rowIdx, colIdx);
+
+                // dummy moves, allow 1 step in any direction
+                if (!ChessPiece.isEmpty(piece) && ChessPiece.isWhite(piece) == isWhite) {
+                    // horizontal
+                    if (board.checkInBounds(rowIdx, colIdx - 1)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx, colIdx - 1)));
+                    if (board.checkInBounds(rowIdx, colIdx + 1)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx, colIdx + 1)));
+
+                    // vertical
+                    if (board.checkInBounds(rowIdx + 1, colIdx)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx + 1, colIdx)));
+                    if (board.checkInBounds(rowIdx - 1, colIdx)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx - 1, colIdx)));
+
+                    // diagonal
+                    if (board.checkInBounds(rowIdx + 1, colIdx + 1)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx + 1, colIdx + 1)));
+                    if (board.checkInBounds(rowIdx - 1, colIdx - 1)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx - 1, colIdx - 1)));
+                    if (board.checkInBounds(rowIdx + 1, colIdx - 1)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx + 1, colIdx - 1)));
+                    if (board.checkInBounds(rowIdx - 1, colIdx + 1)) moves.add(new Move(pos, new ChessBoard.Position(rowIdx - 1, colIdx + 1)));
+                }
+            }
+        }
+
         return moves;
     }
 
