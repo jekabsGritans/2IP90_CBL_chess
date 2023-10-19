@@ -38,6 +38,7 @@ public class ChessPiece {
      * e.g. ChessPiece.isColor(piece, ChessPiece.White)
      * @param piece the piece to check
      * @param color the color to check for
+     * @return true if the piece is of the given color, false otherwise
      */
     public static boolean isColor(byte piece, byte color) {
         // 24 is 11 000, so this operation zeroes out type bits and only compares color bits
