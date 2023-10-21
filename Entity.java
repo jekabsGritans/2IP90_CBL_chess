@@ -1,8 +1,11 @@
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -12,6 +15,8 @@ public class Entity {
     private Point size = new Point(100, 100);
     private Color color = Color.PINK;
     BufferedImage texture;
+    Image textureImage;
+    JLabel textureComponent = new JLabel();
     int zLayer = 0;
     JPanel graphic;
 
@@ -45,19 +50,27 @@ public class Entity {
     public void setSize(Point newSize) {
         size = newSize;
         updateTransform();
+        updateTextureSize();
     }
 
     public Point getSize() {
         return size;
     }
 
-    private void updateTransform() {
+    public void updateTransform() {
         graphic.setBounds(pos.x, pos.y, size.x, size.y);
         graphic.setBackground(color);
     }
 
+    public void updateTextureSize() {
+        if(textureImage != null) {
+            textureComponent.setIcon(new ImageIcon(textureImage.getScaledInstance(size.x, size.y, Image.SCALE_DEFAULT)));
+        }
+    }
+
     public void loadTexture(File texFile) {
-        //texture = new ImageIO.read(texFile);
-        //label = new JLabel(new ImageIcon(texture));
+        textureImage = new ImageIcon(texFile.getAbsolutePath()).getImage();
+        updateTextureSize();
+        graphic.add(textureComponent);
     }
 }

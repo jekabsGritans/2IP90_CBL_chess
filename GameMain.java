@@ -1,6 +1,10 @@
 import java.util.ArrayList;
 
 public class GameMain {
+    enum SCENES {
+        MENU,
+        GAME
+    }
     ArrayList<Scene> scenes = new ArrayList<Scene>();
     Scene currentScene;
 
@@ -23,19 +27,19 @@ public class GameMain {
     }
 
     public void renderLoop() {
-        if(!currentScene.frame.isVisible()) {
-            currentScene.frame.setVisible(true);
-        }
         currentScene.render();
     }
 
     public void initScenes() {
         MenuScene menuScene = new MenuScene();
         ChessScene gameScene = new ChessScene();
+        menuScene.game = this;
+        gameScene.game = this;
 
         scenes.add(menuScene);
         scenes.add(gameScene);
-        bindScene(gameScene);
+
+        loadScene(SCENES.GAME);
     }
 
     public void bindScene(Scene newScene) {
@@ -45,5 +49,9 @@ public class GameMain {
 
         newScene.frame.setVisible(true);
         currentScene = newScene;
+    }
+
+    public void loadScene(SCENES newScene) {
+        bindScene(scenes.get(newScene.ordinal()));
     }
 }

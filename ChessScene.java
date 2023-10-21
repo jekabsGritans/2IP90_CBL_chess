@@ -14,8 +14,8 @@ public class ChessScene extends Scene {
     Point boardPos = new Point(50, 50);
     Point boardSize = new Point(800, 800);
     int tileAmount = 8;
-    double pieceSizeModifier = 0.5;
-    ChessGame game;
+    double pieceSizeModifier = 0.8;
+    ChessGame chessGame;
     
 
     public ChessScene() {
@@ -43,7 +43,7 @@ public class ChessScene extends Scene {
     }
 
     public void initGame() {
-        game = new ChessGame();
+        chessGame = new ChessGame();
     }
  
     public void initPieces() {
@@ -52,8 +52,8 @@ public class ChessScene extends Scene {
         ArrayList<Point> startPositions = new ArrayList<Point>();
         PieceType[] startTypes = new PieceType[] {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
         // Initialize white positions
-        for(int x = 0 ; x < tileAmount; x++) {
-            for(int y = tileAmount-1; y >= tileAmount-2; y--) {
+        for(int y = tileAmount-1; y >= tileAmount-2; y--) {
+            for(int x = 0 ; x < tileAmount; x++) {
                 Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
                 piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
                 piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;
@@ -71,8 +71,8 @@ public class ChessScene extends Scene {
         }
         // Initialize black positions
         startPositions = new ArrayList<Point>();
-        for(int x = 0 ; x < tileAmount; x++) {
-            for(int y = 0; y < 2; y++) {
+        for(int y = 0; y < 2; y++) {
+            for(int x = 0; x < tileAmount; x++) {
                 Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
                 piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
                 piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;

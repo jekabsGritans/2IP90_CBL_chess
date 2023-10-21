@@ -40,18 +40,18 @@ class PieceEntity extends Entity implements MouseListener {
         dragging = true;
      }
  
-     public void mouseReleased(MouseEvent e) {
+    public void mouseReleased(MouseEvent e) {
         stopDrag();
         dragging = false;
-     }
- 
-     public void mouseEntered(MouseEvent e) {
+    }
 
-     }
- 
-     public void mouseExited(MouseEvent e) {
+    public void mouseEntered(MouseEvent e) {
 
-     }
+    }
+
+    public void mouseExited(MouseEvent e) {
+
+    }
  
     public void mouseClicked(MouseEvent e) {
 
@@ -63,20 +63,19 @@ class PieceEntity extends Entity implements MouseListener {
 
     public void setType(PieceType newType) {
         pieceType = newType;
-        //initTexture();
+        initTexture();
     }
 
     public void initTexture() {
-        /* 
-        String texPath = System.getProperty("user.dir");
-        File texFile = new File(texPath, pieceType.name() + ".png");
-        loadTexture(texFile);
-        */
+        String pieceString = "textures\\" + pieceType.name();
         if(pieceColor == PieceColor.BLACK) {
-            setColor(Color.BLUE);
+            pieceString += "Black.png";
         } else if(pieceColor == PieceColor.WHITE) {
-            setColor(Color.PINK);
+            pieceString += "White.png";
         }
+        String texPath = System.getProperty("user.dir");
+        File texFile = new File(texPath + '\\' + pieceString);
+        loadTexture(texFile);
     }
 
     public void stopDrag() {
@@ -101,5 +100,11 @@ class PieceEntity extends Entity implements MouseListener {
         if(dragging) {
             setPos(new Point(getPos().x+InputManager.deltaMousePos.x, getPos().y+InputManager.deltaMousePos.y));
         }
+    }
+
+    @Override
+    public void updateTransform() {
+        // Override so color not set on updateTransform for this entity, as it uses textures
+        graphic.setBounds(getPos().x, getPos().y, getSize().x, getSize().y);
     }
 }

@@ -13,6 +13,7 @@ class Scene {
   ArrayList<Entity> entities  = new ArrayList<Entity>();
   String name;
   JFrame frame;
+  GameMain game;
 
   public Scene() {
     frame = new JFrame();
@@ -23,6 +24,7 @@ class Scene {
   }
 
   public Scene(ArrayList<Entity> entities) {
+    this();
     for(int i = 0; i < entities.size(); i++) {
       addEntity(entities.get(i));
     }
