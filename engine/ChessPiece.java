@@ -33,6 +33,11 @@ public class ChessPiece {
         return (piece & 7) == type;
     }
 
+    /**
+     * Gets the name (String) of the piece type.
+     * @param type the piece type
+     * @return the name of the piece type
+     */
     public static String typeToString(byte type) {
         switch(type) {
             case Pawn:
