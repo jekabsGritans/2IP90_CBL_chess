@@ -6,6 +6,8 @@ public class GameMain {
         GAME
     }
     ArrayList<Scene> scenes = new ArrayList<Scene>();
+    Scene menuScene;
+    Scene playerVSPlayerScene;
     Scene currentScene;
 
     public static void main(String[] args) {
@@ -31,15 +33,12 @@ public class GameMain {
     }
 
     public void initScenes() {
-        MenuScene menuScene = new MenuScene();
-        ChessScene gameScene = new ChessScene();
+        menuScene = new MenuScene();
+        playerVSPlayerScene = new ChessScene();
         menuScene.game = this;
-        gameScene.game = this;
+        playerVSPlayerScene.game = this;
 
-        scenes.add(menuScene);
-        scenes.add(gameScene);
-
-        loadScene(SCENES.GAME);
+        bindScene(menuScene);
     }
 
     public void bindScene(Scene newScene) {
@@ -49,9 +48,5 @@ public class GameMain {
 
         newScene.frame.setVisible(true);
         currentScene = newScene;
-    }
-
-    public void loadScene(SCENES newScene) {
-        bindScene(scenes.get(newScene.ordinal()));
     }
 }

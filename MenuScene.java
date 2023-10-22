@@ -1,21 +1,33 @@
 import java.awt.Color;
 import java.awt.Point;
+import java.io.File;
 
 public class MenuScene extends Scene {
     public MenuScene() {
         super();
-        frame.getContentPane().setBackground(Color.YELLOW);
+        frame.getContentPane().setBackground(Color.gray);
         initButtons();
+        initBanner();
     }
 
     public void initButtons() {
-        StartButton startButton = new StartButton();
-        startButton.setPos(new Point(200, 200));
-        startButton.setColor(Color.magenta);
+        PlayerVSPlayerButton startButton = new PlayerVSPlayerButton();
+        startButton.setPos(new Point(280, 500));
+        startButton.setColor(Color.LIGHT_GRAY);
         addEntity(startButton);
     }
 
-    public void addEntity(StartButton entity) {
+    public void initBanner() {
+        Entity banner = new Entity();
+        banner.setPos(new Point(280, 50));
+        banner.setSize(new Point(300, 200));
+        String bannerPath = System.getProperty("user.dir") + "\\textures\\banner.png";
+        File bannerFile = new File(bannerPath);
+        banner.loadTexture(bannerFile);
+        addEntity(banner);
+    }
+
+    public void addEntity(PlayerVSPlayerButton entity) {
         super.addEntity(entity);
         entity.menu = this;
     }

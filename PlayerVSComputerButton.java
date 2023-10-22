@@ -5,16 +5,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class StartButton extends Entity implements MouseListener {
+public class PlayerVSComputerButton extends Entity implements MouseListener {
     MenuScene menu;
-    public StartButton() {
+    public PlayerVSComputerButton() {
         super();
         setSize(new Point(300, 100));
         initMouseEvents();
     }
 
     public void mouseReleased(MouseEvent e) {
-        //        menu.game.loadScene(menu.game.SCENES.GAME);
+        menu.game.bindScene(menu.game.playerVSPlayerScene);
     }
 
     public void mouseEntered(MouseEvent e) {
@@ -26,6 +26,10 @@ public class StartButton extends Entity implements MouseListener {
     }
  
     public void mouseClicked(MouseEvent e) {
+
+    }
+    
+    public void mousePressed(MouseEvent e) {
 
     }
 

@@ -22,6 +22,7 @@ public class Entity {
 
     public Entity() {
         graphic = new JPanel();
+        graphic.setOpaque(false);
         updateTransform();
     }
 
@@ -59,7 +60,9 @@ public class Entity {
 
     public void updateTransform() {
         graphic.setBounds(pos.x, pos.y, size.x, size.y);
-        graphic.setBackground(color);
+        if(color != Color.PINK) {
+            graphic.setBackground(color);
+        }
     }
 
     public void updateTextureSize() {
