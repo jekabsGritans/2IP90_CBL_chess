@@ -33,6 +33,25 @@ public class ChessPiece {
         return (piece & 7) == type;
     }
 
+    public static String typeToString(byte type) {
+        switch(type) {
+            case Pawn:
+                return "Pawn";
+            case Knight:
+                return "Knight";
+            case Bishop:
+                return "Bishop";
+            case Rook:
+                return "Rook";
+            case Queen:
+                return "Queen";
+            case King:
+                return "King";
+            default:
+                return "Empty";
+        }
+    }
+
     /**
      * Checks if a piece is a certain color.
      * e.g. ChessPiece.isColor(piece, ChessPiece.White)

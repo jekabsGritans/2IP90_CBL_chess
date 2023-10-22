@@ -10,23 +10,20 @@ import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.text.Position;
 
-import engine.ChessMove;
-import engine.board.ChessPiece;
-import engine.board.ChessPiece.PieceColor;
-import engine.board.ChessPiece.PieceType;
+import engine.ChessPiece;
 
 class PieceEntity extends Entity implements MouseListener {
     boolean dragging = false;
-    PieceColor pieceColor;
+    byte pieceColor;
     Point lastMousePos;
     ChessScene board;
     ChessPiece piece;
     ArrayList<Point> currentPossibleMoves = new ArrayList<Point>();
     Point origPos = getPos();
-    private PieceType pieceType;
+    private byte pieceType;
     
 
-    public PieceEntity(PieceType pieceType, PieceColor pieceColor) {
+    public PieceEntity(byte pieceType, byte pieceColor) {
         super();
         this.pieceType = pieceType;
         this.pieceColor = pieceColor;
@@ -61,16 +58,16 @@ class PieceEntity extends Entity implements MouseListener {
         graphic.addMouseListener(this);
     }
 
-    public void setType(PieceType newType) {
+    public void setType(byte newType) {
         pieceType = newType;
         initTexture();
     }
 
     public void initTexture() {
-        String pieceString = "textures\\" + pieceType.name();
-        if(pieceColor == PieceColor.BLACK) {
+        String pieceString = "textures\\" + ChessPiece.typeToString(pieceType);
+        if(ChessPiece.isColor(pieceColor, ChessPiece.Black)) {
             pieceString += "Black.png";
-        } else if(pieceColor == PieceColor.WHITE) {
+        } else {
             pieceString += "White.png";
         }
         String texPath = System.getProperty("user.dir");

@@ -5,9 +5,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import engine.ChessGame;
-import engine.board.ChessPiece;
-import engine.board.ChessPiece.PieceColor;
-import engine.board.ChessPiece.PieceType;
+import engine.ChessPiece;
 import java.util.*;
 
 public class ChessScene extends Scene {
@@ -43,14 +41,14 @@ public class ChessScene extends Scene {
     }
 
     public void initGame() {
-        chessGame = new ChessGame();
+        chessGame = new ChessGame(null, null);
     }
  
     public void initPieces() {
         double tileSize = boardSize.x / tileAmount;
         Point pieceSize = new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier));
         ArrayList<Point> startPositions = new ArrayList<Point>();
-        PieceType[] startTypes = new PieceType[] {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+        byte[] startTypes = new byte[] {ChessPiece.Rook, ChessPiece.Knight, ChessPiece.Bishop, ChessPiece.Queen, ChessPiece.King, ChessPiece.Bishop, ChessPiece.Knight, ChessPiece.Rook};
         // Initialize white positions
         for(int y = tileAmount-1; y >= tileAmount-2; y--) {
             for(int x = 0 ; x < tileAmount; x++) {
@@ -63,8 +61,8 @@ public class ChessScene extends Scene {
 
         // Initialize white pieces
         for(int i = 0; i < tileAmount*2; i++) {
-            PieceType newType = i < tileAmount ? startTypes[i] : PieceType.PAWN;
-            PieceEntity newPiece = new PieceEntity(newType, PieceColor.WHITE);
+            byte newType = i < tileAmount ? startTypes[i] : ChessPiece.Pawn;
+            PieceEntity newPiece = new PieceEntity(newType, ChessPiece.White);
             newPiece.setSize(pieceSize);
             newPiece.setPos(startPositions.get(i));
             addEntity(newPiece);
@@ -81,8 +79,8 @@ public class ChessScene extends Scene {
         }
         // Initialize black pieces
         for(int i = 0; i < tileAmount*2; i++) {
-            PieceType newType = i < tileAmount ? startTypes[i] : PieceType.PAWN;
-            PieceEntity newPiece = new PieceEntity(newType, PieceColor.BLACK);
+            byte newType = i < tileAmount ? startTypes[i] : ChessPiece.Pawn;
+            PieceEntity newPiece = new PieceEntity(newType, ChessPiece.Black);
             newPiece.setSize(pieceSize);
             newPiece.setPos(startPositions.get(i));
             addEntity(newPiece);
@@ -93,7 +91,7 @@ public class ChessScene extends Scene {
         // Initialize FloorTiles
         for(int x = 0; x < tileAmount; x++) {
             for(int y = 0; y < tileAmount; y++) {
-                PieceColor tileColor = (y+(x+1*tileAmount)) % 2 == 0 ? PieceColor.BLACK : PieceColor.WHITE;
+                byte tileColor = (y+(x+1*tileAmount)) % 2 == 0 ? ChessPiece.Black : ChessPiece.White;
                 FloorTileEntity tile = new FloorTileEntity(tileColor);
                 tile.setPos(new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y));
                 addEntity(tile);

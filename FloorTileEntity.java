@@ -1,11 +1,11 @@
 import java.awt.Color;
 
-import engine.board.ChessPiece.PieceColor;
+import engine.ChessPiece;
 
 public class FloorTileEntity extends Entity {
-    public FloorTileEntity(PieceColor floorColor) {
+    public FloorTileEntity(byte floorColor) {
         super();
-        Color graphicColor = floorColor == PieceColor.BLACK ? Color.BLACK : Color.WHITE;
+        Color graphicColor = ChessPiece.isColor(floorColor, ChessPiece.Black) ? Color.BLACK : Color.WHITE;
         setColor(graphicColor);
     }
 }

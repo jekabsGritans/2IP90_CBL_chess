@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import engine.ChessMove;
+import engine.ChessBoard.Move;
 
 class Scene {
   ArrayList<Entity> entities  = new ArrayList<Entity>();
@@ -58,7 +58,7 @@ class Scene {
     frame.add(entity.graphic);
   }
 
-  public Point MoveToPos(ChessMove move) {
+  public Point MoveToPos(Move move) {
     return null;
   }
 }
