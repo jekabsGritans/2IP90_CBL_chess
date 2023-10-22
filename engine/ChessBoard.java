@@ -6,7 +6,7 @@ package engine;
  */
 public class ChessBoard {
     // pieces stored as bytes (see ChessPiece.java)
-    private final byte[][] board; // 8x8 board
+    private final byte[] board; // 1D array for easier offsets.
 
     // for testing
     public static void main(String[] args) {
@@ -19,7 +19,7 @@ public class ChessBoard {
      * @param fenPiecePositions FEN string component representing the piece positions
      */
     public ChessBoard(String fenPiecePlacement) {
-        this.board = new byte[8][8];
+        this.board = new byte[64];
         this.fillBoard(fenPiecePlacement);
     }
 
@@ -28,12 +28,10 @@ public class ChessBoard {
      * @param board the board to copy
      */
     public ChessBoard(ChessBoard board) {
-        this.board = new byte[8][8];
+        this.board = new byte[64];
 
-        for (int rowIdx = 0; rowIdx < 8; rowIdx++) {
-            for (int colIdx = 0; colIdx < 8; colIdx++) {
-                this.board[rowIdx][colIdx] = board.board[rowIdx][colIdx];
-            }
+        for (int i = 0; i < 64; i++) {
+            this.board[i] = board.board[i];
         }
     }
 
@@ -55,7 +53,7 @@ public class ChessBoard {
                     colIdx += numEmptySquares;
                 } else {
                     byte piece = ChessPiece.getPieceFromFenCharacter(fenChar);
-                    board[rowIdx][colIdx] = piece;
+                    setPiece(rowIdx, colIdx, piece);
                     colIdx++;
                 }
             }
@@ -63,61 +61,41 @@ public class ChessBoard {
     }
 
     /**
-     * Sets the piece at the given position.
+     * Sets the piece at the given 2D position.
      * @param row the row index from top
      * @param col the column index from left
      * @param piece the piece
      */
     public void setPiece(int row, int col, byte piece) {
-        board[row][col] = piece;
+        board[63 - row * 8 - col] = piece;
     }
 
     /**
-     * Gets the piece at the given position.
+     * Gets the piece at the given 2D position.
      * @param row the row index from top
      * @param col the column index from left
      * @return the piece
      */
     public byte getPiece(int row, int col) {
-        return board[row][col];
+        return board[63 - row * 8 - col];
     }
 
     /**
-     * Sets the piece at the given position.
-     * @param pos the position
+     * Sets the piece at the given 1D position.
+     * @param pos the 1D position
      * @param piece the piece
      */
-    public void setPiece(Position pos, byte piece) {
-        board[pos.row()][pos.col()] = piece;
+    public void setPiece(int pos, byte piece) {
+        board[pos] = piece;
     }
 
     /**
-     * Gets the piece at the given position.
-     * @param pos the position
+     * Gets the piece at the given 1D position.
+     * @param pos the 1D position
      * @return the piece
      */
-    public byte getPiece(Position pos) {
-        return board[pos.row()][pos.col()];
-    }
-
-    /**
-     * Sets the piece at the given position.
-     * @param algPos the algebraic representation of the position
-     * @param piece the piece
-     */
-    public void setPiece(String algPos, byte piece) {
-        Position pos = new Position(algPos);
-        setPiece(pos, piece);
-    }
-
-    /**
-     * Gets the piece at the given position.
-     * @param algPos the algebraic representation of the position
-     * @return the piece
-     */
-    public byte getPiece(String algPos) {
-        Position pos = new Position(algPos);
-        return getPiece(pos);
+    public byte getPiece(int pos) {
+        return board[pos];
     }
 
     /**
@@ -128,27 +106,18 @@ public class ChessBoard {
 
         System.out.println(colLabels); // column labels
 
-        for (int i = 0; i < 8; i++) {
-            System.out.print(8 - i + " "); // line number
-            for (byte piece : board[i]) {
+        for (int row = 0; row < 8; row++) {
+            System.out.print(8 - row + " "); // line number
+            for (int col = 0; col < 8; col++) {
                 // represent empty square as whitespace not '1'
+                byte piece = getPiece(row, col);
                 char c = ChessPiece.isEmpty(piece) ? ' ' : ChessPiece.getFenCharacter(piece);
                 System.out.print(c + " "); // pieces
             }
-            System.out.println(8 - i); // line number
+            System.out.println(8 - row); // line number
         }
 
         System.out.println(colLabels); // column labels
-    }
-
-    /**
-     * Checks if coordinates are in bounds of the board.
-     * @param row row index from top
-     * @param col column index from left
-     * @return true if position is in bounds
-     */
-    public boolean checkInBounds(int row, int col) {
-        return (row >= 0 && row <= 7 && col >= 0 && col <= 7);
     }
 
     /**
@@ -156,18 +125,18 @@ public class ChessBoard {
      * @param move the move to make
      */
     public void makeMove(Move move) {
-        byte piece = getPiece(move.from);
+        byte piece = getPiece(move.from1D);
 
         if (ChessPiece.isEmpty(piece)) {
-            throw new IllegalArgumentException("No piece at " + move.from);
+            throw new IllegalArgumentException("No piece at " + move.from1D);
         }
 
-        setPiece(move.to, piece);
-        setPiece(move.from, ChessPiece.Empty);
+        setPiece(move.to1D, piece);
+        setPiece(move.from1D, ChessPiece.Empty);
     }
 
     /**
-     * Represents a position on the board.
+     * Represents a 2D position on the board.
      */
     public record Position(int row, int col) {
         /**
@@ -177,19 +146,40 @@ public class ChessBoard {
         public Position(String algPos) {
             this(8 - Character.getNumericValue(algPos.charAt(1)), algPos.charAt(0) - 'a');
         }
-
-        /**
-         * Checks if a position equals another position.
-         * @param algPos the algebraic representation of the position
-         * @return true if the positions are equal
-         */
-        public boolean equals(String algPos) {
-            return this.equals(new Position(algPos));
-        }
     }
 
     /**
      * Represents a move on the board.
      */
-    public record Move(Position from, Position to) {}
+    public class Move {
+        // engine can still access 1D coordinates
+        final int from1D;
+        final int to1D;
+
+        /**
+         * Creates a move from 1D coordinates.
+         * @param from1D the 1D index of the piece to move
+         * @param to1D the 1D index of the destination
+         */
+        public Move(int from1D, int to1D) {
+            this.from1D = from1D;
+            this.to1D = to1D;
+        }
+
+        /**
+         * Gets the position of the piece to move.
+         * @return the position of the piece to move
+         */
+        public Position getFrom() {
+            return new Position(from1D / 8, from1D % 8);
+        }
+
+        /**
+         * Gets the destination of the move.
+         * @return the destination of the move
+         */
+        public Position getTo() {
+            return new Position(to1D / 8, to1D % 8);
+        }
+    }
 }
