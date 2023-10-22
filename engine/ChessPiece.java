@@ -22,6 +22,26 @@ public class ChessPiece {
     public static final byte Black = 16; // 10 000
 
     /**
+     * Gets the type of the piece.
+     * @param piece the piece
+     * @return the type of the piece
+     */
+    public static byte getType(byte piece) {
+        // 7 is 00 111, so this operation zeroes out color bits and only returns type bits
+        return (byte) (piece & 7);
+    }
+
+    /**
+     * Gets the color of the piece.
+     * @param piece
+     * @return the color of the piece
+     */
+    public static byte getColor(byte piece) {
+        // 24 is 11 000, so this operation zeroes out type bits and only returns color bits
+        return (byte) (piece & 24);
+    }
+
+    /**
      * Checks if a piece is a certain type.
      * e.g. ChessPiece.isType(piece, ChessPiece.Pawn)
      * @param piece the piece to check
@@ -29,8 +49,7 @@ public class ChessPiece {
      * @return true if the piece is of the given type, false otherwise
      */
     public static boolean isType(byte piece, byte type) {
-        // 7 is 00 111, so this operation zeroes out color bits and only compares type bits 
-        return (piece & 7) == type;
+        return getType(piece) == type;
     }
 
     /**
@@ -65,8 +84,7 @@ public class ChessPiece {
      * @return true if the piece is of the given color, false otherwise
      */
     public static boolean isColor(byte piece, byte color) {
-        // 24 is 11 000, so this operation zeroes out type bits and only compares color bits
-        return (piece & 24) == color;
+        return getColor(piece) == color;
     }
 
     /**
