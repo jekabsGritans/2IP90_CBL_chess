@@ -32,12 +32,18 @@ class PieceEntity extends Entity implements MouseListener {
         initMouseEvents();
     }
     public void mousePressed(MouseEvent e) {
+        if(!ChessPiece.isColor(pieceColor, board.turnColor)) {
+            return;
+        }
         currentPossibleMoves = board.getPossibleMovePositions(this);
         origPos = getPos();
         dragging = true;
      }
  
     public void mouseReleased(MouseEvent e) {
+        if(!dragging) {
+            return;
+        }
         stopDrag();
         dragging = false;
     }
@@ -90,6 +96,7 @@ class PieceEntity extends Entity implements MouseListener {
         } else {
             setPos(origPos);
         }
+        board.nextTurn();
     }
 
     @Override

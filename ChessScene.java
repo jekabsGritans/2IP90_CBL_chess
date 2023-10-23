@@ -14,6 +14,7 @@ public class ChessScene extends Scene {
     int tileAmount = 8;
     double pieceSizeModifier = 0.8;
     ChessGame chessGame;
+    byte turnColor = ChessPiece.White;
     
 
     public ChessScene() {
@@ -38,6 +39,11 @@ public class ChessScene extends Scene {
         possiblePositions.add(new Point(piece.getPos().x+(boardSize.x/tileAmount), piece.getPos().y-(boardSize.y/tileAmount)));
 
         return possiblePositions;
+    }
+
+    public void nextTurn() {
+
+        turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
     }
 
     public void initGame() {
