@@ -7,13 +7,12 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import engine.ChessBoard.Move;
-
 class Scene {
   ArrayList<Entity> entities  = new ArrayList<Entity>();
   String name;
   JFrame frame;
   GameMain game;
+  public static int maxEntities = 1000;
 
   public Scene() {
     frame = new JFrame();
@@ -58,7 +57,8 @@ class Scene {
     frame.add(entity.graphic);
   }
 
-  public Point MoveToPos(Move move) {
-    return null;
+  public void removeEntity(Entity entity) {
+    entities.remove(entity);
+    frame.remove(entity.graphic);
   }
 }
