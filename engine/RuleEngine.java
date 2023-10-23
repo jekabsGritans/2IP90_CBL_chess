@@ -1,5 +1,6 @@
 package engine;
 
+import engine.ChessGame.CastlingRights;
 import engine.ChessGame.GameState;
 import engine.ChessBoard.Move;
 import java.util.ArrayList;
@@ -9,16 +10,6 @@ import java.util.List;
  * All chess rules are implemented here.
  */
 public class RuleEngine {
-
-    // valid 1d move directions for each piece
-    private static final int[] WHITE_PAWN_DIRS = new int[] {-1, 1, 8}; 
-    private static final int[] BLACK_PAWN_DIRS = new int[] {-1, 1, -8};
-    private static final int[] KNIGHT_DIRS = new int[] {-17, -15, -10, -6, 6, 10, 15, 17};
-    private static final int[] BISHOP_DIRS = new int[] {-9, -7, 7, 9};
-    private static final int[] ROOK_DIRS = new int[] {-8, -1, 1, 8};
-    private static final int[] QUEEN_DIRS = new int[] {-9, -8, -7, -1, 1, 7, 8, 9};
-    private static final int[] KING_DIRS = new int[] {-9, -8, -7, -1, 1, 7, 8, 9};
-
     /**
      * Gets a list of all legal moves for the current player.
      * @param state the game state
@@ -37,7 +28,9 @@ public class RuleEngine {
      */
     public boolean isKingInCheck(GameState state) {
         // copy of state with opposite color
-        GameState newState = new GameState(state.board(), !state.isWhiteMove(), null, null);
+        GameState newState = new GameState(
+            state.board(), !state.isWhiteMove(), state.castlingRights(), null, null);
+
         return canCaptureKing(newState);
     }
 
@@ -47,14 +40,65 @@ public class RuleEngine {
      * @param move the move to make
      * @return the new game state
      */
-    public GameState previewMove(GameState state, Move move) {
+    public GameState makeMove(GameState state, Move move) {
         ChessBoard boardCopy = new ChessBoard(state.board());
         boolean isWhiteMove = state.isWhiteMove();
+        CastlingRights castlingRights = state.castlingRights();
 
         boardCopy.makeMove(move);
-        GameState newState = new GameState(boardCopy, !isWhiteMove, move, state);
+
+        CastlingRights newCastlingRights = updateCastlingRights(castlingRights, move);
+        GameState newState = new GameState(boardCopy, !isWhiteMove, newCastlingRights, move, state);
 
         return newState;
+    }
+    
+    /**
+     * Infers the last move from the en passant target square.
+     * @param board the board
+     * @param target the en passant target square in algebraic notation
+     * @param isWhiteMove whether it is white's move
+     * @return the last move
+     */
+    public Move inferEnPassantMove(ChessBoard board, String target, boolean isWhiteMove) {
+        // the position that the enemy pawn skipped
+        ChessBoard.Position skipped = new ChessBoard.Position(target);
+        int skipped1D = skipped.row() * 8 + skipped.col();
+
+        // the positions that the enemy pawn moved to and from
+        // note: isWhiteMove means that enemy was black
+        int from = isWhiteMove ? skipped1D - 8 : skipped1D + 8; // one piece behind skipped
+        int to = isWhiteMove ? skipped1D + 8 : skipped1D - 8; // one piece ahead skipped
+
+        return board.new Move(from, to);
+    }
+
+    // starting positions for castling pieces
+    final static int WK_ROOK = 7;
+    final static int WQ_ROOK = 0;
+    final static int WK = 4;
+    final static int BK_ROOK = 63;
+    final static int BQ_ROOK = 56;
+    final static int BK = 60;
+
+    /*
+     * Update castling rights after a move.
+     */
+    private CastlingRights updateCastlingRights(CastlingRights rights, Move move) {
+        return new CastlingRights(
+            rights.whiteKingSide()
+                && move.from1D != WK_ROOK && move.from1D != WK
+                && move.to1D != WK_ROOK && move.to1D != WK,
+            rights.whiteQueenSide()
+                && move.from1D != WQ_ROOK && move.from1D != WK
+                && move.to1D != WQ_ROOK && move.to1D != WK,
+            rights.blackKingSide()
+                && move.from1D != BK_ROOK && move.from1D != BK
+                && move.to1D != BK_ROOK && move.to1D != BK,
+            rights.blackQueenSide()
+                && move.from1D != BQ_ROOK && move.from1D != BK
+                && move.to1D != BQ_ROOK && move.to1D != BK
+        );
     }
 
     /*
@@ -64,7 +108,7 @@ public class RuleEngine {
         List<Move> filteredMoves = new ArrayList<Move>(0);
 
         for (Move move : moves) {
-            GameState newState = previewMove(state, move);
+            GameState newState = makeMove(state, move);
             if (!canCaptureKing(newState)) {
                 filteredMoves.add(move);
             }
@@ -112,6 +156,18 @@ public class RuleEngine {
         return moves;
     }
 
+    // VALID 1D MOVE DIRECTIONS FOR EACH PIECE TYPE
+
+    private static final int[] WHITE_PAWN_DIRS = new int[] {-1, 1, 8}; 
+    private static final int[] BLACK_PAWN_DIRS = new int[] {-1, 1, -8};
+    private static final int[] KNIGHT_DIRS = new int[] {-17, -15, -10, -6, 6, 10, 15, 17};
+    private static final int[] BISHOP_DIRS = new int[] {-9, -7, 7, 9};
+    private static final int[] ROOK_DIRS = new int[] {-8, -1, 1, 8};
+    private static final int[] QUEEN_DIRS = new int[] {-9, -8, -7, -1, 1, 7, 8, 9};
+    private static final int[] KING_DIRS = new int[] {-9, -8, -7, -1, 1, 7, 8, 9};
+
+    // METHODS FOR EACH PIECE TYPE
+
     private void addValidPawnMoves(int pos, GameState state, List<Move> moves) {
         boolean isWhite = state.isWhiteMove();
         ChessBoard board = state.board();
@@ -121,35 +177,43 @@ public class RuleEngine {
 
         // double move
         if (isWhite) {
-            // if in white starting row
-            if (pos >= 8 && pos <= 15) {
-                int newPos = pos + 16;
-                // and if two spaces ahead are empty
-                if (
-                    ChessPiece.isEmpty(board.getPiece(newPos))
-                    &&
-                    ChessPiece.isEmpty(board.getPiece(newPos - 8))
-                    ) {
-                    moves.add(board.new Move(pos, newPos));
-                }
-            }
-        } else {
-            // if in black starting row
-            if (pos >= 48 && pos <= 55) {
-                int newPos = pos - 16;
+            int forwardDiff = isWhite ? -8 : 8;
+            int startingRow = isWhite ? 6 : 1;
 
-                // and if two spaces ahead are empty
-                if (
-                    ChessPiece.isEmpty(board.getPiece(newPos))
-                    &&
-                    ChessPiece.isEmpty(board.getPiece(newPos + 8))
-                ) {
-                    moves.add(board.new Move(pos, newPos));
-                }
+            boolean clearForDoubleMove = pos / 8 == startingRow // in starting row
+                && ChessPiece.isEmpty(board.getPiece(pos + forwardDiff)) // one space ahead is empty
+                && ChessPiece.isEmpty(board.getPiece(pos + 2 * forwardDiff)); // two spaces ahead is empty
+
+            if (clearForDoubleMove) {
+                moves.add(board.new Move(pos, pos + 2 * forwardDiff));
             }
         }
 
-        // TODO en passant. need to also kill enemy pawn
+        // en passant
+        Move lastMove = state.lastMove();
+        boolean lastMoveWasDoublePawn = lastMove != null
+            && ChessPiece.isType(board.getPiece(lastMove.to1D), ChessPiece.Pawn)
+            && Math.abs(lastMove.to1D - lastMove.from1D) == 16;
+
+        if (lastMoveWasDoublePawn) {
+            boolean sameRowAdjacentColumn = pos / 8 == lastMove.to1D / 8
+                && Math.abs(pos - lastMove.to1D) == 1;
+
+            if (sameRowAdjacentColumn) {
+                int skippedPawnPos = (lastMove.from1D + lastMove.to1D) / 2;
+                moves.add(board.new EnPassantMove(pos, skippedPawnPos, lastMove.to1D));
+            }
+        }
+
+        // promotion
+        int promotionRow = isWhite ? 0 : 7;
+        if (pos / 8 == promotionRow) {
+            moves.add(board.new PromotionMove(pos, promotionRow, ChessPiece.Pawn));
+            moves.add(board.new PromotionMove(pos, promotionRow, ChessPiece.Knight));
+            moves.add(board.new PromotionMove(pos, promotionRow, ChessPiece.Bishop));
+            moves.add(board.new PromotionMove(pos, promotionRow, ChessPiece.Rook));
+            moves.add(board.new PromotionMove(pos, promotionRow, ChessPiece.Queen));
+        }
     }
 
     private void addValidKnightMoves(int pos, GameState state, List<Move> moves) {
@@ -181,8 +245,10 @@ public class RuleEngine {
         ChessBoard board = state.board();
         addValidNonSlidingMoves(pos, KING_DIRS, board, isWhite, moves);
 
-        //TODO castling. need to also move rook
+        // castling
     }
+
+    // END OF METHODS FOR EACH PIECE TYPE
 
     /*
      * Adds moves that move multiple steps to an empty/enemy square.

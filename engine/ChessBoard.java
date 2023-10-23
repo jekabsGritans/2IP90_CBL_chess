@@ -150,6 +150,27 @@ public class ChessBoard {
 
         setPiece(move.to1D, piece);
         setPiece(move.from1D, ChessPiece.Empty);
+
+        // handle special moves
+
+        if (move instanceof CastlingMove) {
+            CastlingMove castlingMove = (CastlingMove) move;
+            byte rook = getPiece(castlingMove.rookFrom1D);
+            setPiece(castlingMove.rookTo1D, rook);
+            setPiece(castlingMove.rookFrom1D, ChessPiece.Empty);
+        }
+
+        if (move instanceof EnPassantMove) {
+            EnPassantMove enPassantMove = (EnPassantMove) move;
+            setPiece(enPassantMove.capturedPawn1D, ChessPiece.Empty);
+        }
+
+        if (move instanceof PromotionMove) {
+            PromotionMove promotionMove = (PromotionMove) move;
+            byte promotionType = promotionMove.promotionType;
+            byte promotionPiece = ChessPiece.setType(piece, promotionType);
+            setPiece(move.to1D, promotionPiece);
+        }
     }
 
     /**
@@ -197,6 +218,72 @@ public class ChessBoard {
          */
         public Position getTo() {
             return new Position(to1D / 8, to1D % 8);
+        }
+
+        @Override
+        public String toString() {
+            return getFrom() + " -> " + getTo();
+        }
+    }
+
+    // SPECIAL MOVES
+    // game client doesn't see difference between special and standard moves,
+    // but private variables can be used within makeMove
+
+    /*
+     * Represents a castling move.
+     */
+    public class CastlingMove extends Move {
+        private final int rookFrom1D;
+        private final int rookTo1D;
+
+        /**
+         * Creates a castling move.
+         * @param from1D the 1D index of the king
+         * @param to1D the 1D index of the king's destination
+         * @param rookFrom1D the 1D index of the rook
+         * @param rookTo1D the 1D index of the rook's destination
+         */
+        public CastlingMove(int from1D, int to1D, int rookFrom1D, int rookTo1D) {
+            super(from1D, to1D);
+            this.rookFrom1D = rookFrom1D;
+            this.rookTo1D = rookTo1D;
+        }
+    }
+
+    /*
+     * Represents an en passant move.
+     */
+    public class EnPassantMove extends Move {
+        private final int capturedPawn1D;
+
+        /**
+         * Creates an en passant move.
+         * @param from1D the 1D index of the pawn
+         * @param to1D the 1D index of the pawn's destination
+         * @param capturedPawn1D the 1D index of the captured pawn
+         */
+        public EnPassantMove(int from1D, int to1D, int capturedPawn1D) {
+            super(from1D, to1D);
+            this.capturedPawn1D = capturedPawn1D;
+        }
+    }
+
+    /*
+     * Represents a promotion move.
+     */
+    public class PromotionMove extends Move {
+        private final byte promotionType;
+
+        /**
+         * Creates a promotion move.
+         * @param from1D the 1D index of the pawn
+         * @param to1D the 1D index of the pawn's destination
+         * @param promotionType the type of the promotion piece
+         */
+        public PromotionMove(int from1D, int to1D, byte promotionType) {
+            super(from1D, to1D);
+            this.promotionType = promotionType;
         }
     }
 }

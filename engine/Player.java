@@ -33,4 +33,13 @@ public abstract class Player {
      * @return the chosen move
      */
     public abstract Move chooseMove(GameState game, List<Move> validMoves);
+
+    /**
+     * Gets the player's chosen promotion piece. Called by the game engine when a pawn can be promoted.
+     * Chose queen if not overridden.
+     * @return the chosen promotion piece
+     */
+    public byte choosePromotionPiece(GameState game) {
+        return ChessPiece.Queen;
+    }
 }

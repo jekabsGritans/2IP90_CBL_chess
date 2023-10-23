@@ -54,6 +54,16 @@ public class ChessPiece {
     }
 
     /**
+     * Sets the type of a piece
+     * @param piece the piece
+     * @param type the type to set
+     * @return the piece with the type set
+     */
+    public static byte setType(byte piece, byte type) {
+        return (byte) (getColor(piece) | type);
+    }
+
+    /**
      * Gets the name (String) of the piece type.
      * @param type the piece type
      * @return the name of the piece type

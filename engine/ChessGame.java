@@ -30,7 +30,12 @@ public class ChessGame {
         FenParser.FenResult result = FenParser.parseFen(fen);
         ChessBoard board = new ChessBoard(result.piecePositions);
         boolean isWhiteMove = result.activeColor.equals("w");
-        gameState = new GameState(board, isWhiteMove, null, gameState);
+        CastlingRights castlingRights = new CastlingRights(result.castlingAvailability);
+
+        Move lastMove = result.enPassantTarget.equals("-")
+            ? null : ruleEngine.inferEnPassantMove(board, result.enPassantTarget, isWhiteMove);
+
+        gameState = new GameState(board, isWhiteMove, castlingRights, lastMove, null);
     }
 
     /**
@@ -47,9 +52,6 @@ public class ChessGame {
      * Plays a turn of the game and changes the current player.
      */
     private void playTurn() {
-        // deep copy of board to not mess up old game state
-        ChessBoard board = new ChessBoard(gameState.board());
-
         List<Move> legalMoves = ruleEngine.getLegalMoves(gameState);
 
         // no valid moves means checkmate or stalemate
@@ -68,10 +70,8 @@ public class ChessGame {
         // ensure this in player implementations
         Player player = gameState.isWhiteMove() ? whitePlayer : blackPlayer;
         Move move = player.chooseMove(gameState, legalMoves);
-        board.makeMove(move);
 
-        // update game state
-        gameState = new GameState(board, !gameState.isWhiteMove, move, gameState);
+        gameState = ruleEngine.makeMove(gameState, move);
     }
 
     /**
@@ -104,12 +104,36 @@ public class ChessGame {
         STALEMATE,
     }
 
+    /*
+     * Represents castling rights.
+     */
+    public record CastlingRights(
+        boolean whiteKingSide,
+        boolean whiteQueenSide,
+        boolean blackKingSide,
+        boolean blackQueenSide
+    ) {
+        /**
+         * Creates castling rights from a FEN string.
+         * @param fen the FEN string castling rights component
+         */
+        public CastlingRights(String fen) {
+            this(
+                fen.contains("K"),
+                fen.contains("Q"),
+                fen.contains("k"),
+                fen.contains("q")
+            );
+        }
+    }
+
     /**
      * Represents a snapshot of the game.
      */
     public record GameState(
         ChessBoard board,
         boolean isWhiteMove,
+        CastlingRights castlingRights,
         Move lastMove,
         GameState previousState
     ) {}
