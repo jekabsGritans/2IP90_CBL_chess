@@ -72,8 +72,15 @@ public class Entity {
     }
 
     public void loadTexture(File texFile) {
-        textureImage = new ImageIcon(texFile.getAbsolutePath()).getImage();
+        updateTextureImage(new ImageIcon(texFile.getAbsolutePath()).getImage());
         updateTextureSize();
-        graphic.add(textureComponent);
+    }
+
+    public void updateTextureImage(Image newImage) {
+        textureImage = newImage;
+        if(!graphic.isAncestorOf(textureComponent)) {
+            graphic.add(textureComponent);
+        }
+        updateTextureSize();
     }
 }

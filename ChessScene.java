@@ -1,11 +1,17 @@
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
+import engine.ChessBoard;
 import engine.ChessGame;
 import engine.ChessPiece;
+import engine.ChessBoard.ChessMove;
+import engine.ChessBoard.ChessPosition;
+
 import java.util.*;
 
 public class ChessScene extends Scene {
@@ -15,7 +21,10 @@ public class ChessScene extends Scene {
     double pieceSizeModifier = 0.8;
     ChessGame chessGame;
     byte turnColor = ChessPiece.White;
-    
+    ArrayList<ChessMove> currentPiecePossibleMoves = new ArrayList<ChessMove>();
+    ArrayList<PieceEntity> pieces = new ArrayList<PieceEntity>();
+    ArrayList<IndicatorEntity> moveIndicators = new ArrayList<IndicatorEntity>();
+    Image indicatorImage;
 
     public ChessScene() {
         super();
@@ -23,31 +32,78 @@ public class ChessScene extends Scene {
         initGame();
         initPieces();
         initBoard();
+        //initMoveIndicators();
     }
+
+    public void initMoveIndicators() {
+        for(int i = 0; i < 50; i++) {
+            IndicatorEntity indicator = new IndicatorEntity();
+            indicator.setPos(new Point(0, 0));
+            indicator.setSize(new Point((int)((boardSize.x/tileAmount)*pieceSizeModifier), (int)((boardSize.y/tileAmount)*pieceSizeModifier)));
+            moveIndicators.add(indicator);
+        }
+        frame.setVisible(true);
+    }
+
 
     public ArrayList<Point> getPossibleMovePositions(PieceEntity piece) {
-        //getMoves(piece)
+        ChessPosition piecepos = pointToChessPos(piece.getPos());
+        ArrayList<ChessMove> possibleMoves = new ArrayList<ChessMove>(chessGame.getLegalMoves(piecepos));
         ArrayList<Point> possiblePositions = new ArrayList<Point>();
-        //possiblePositions = getMoves(piece);
-        possiblePositions.add(new Point(piece.getPos().x, piece.getPos().y-(boardSize.y/tileAmount)));
-        possiblePositions.add(new Point(piece.getPos().x, piece.getPos().y+(boardSize.y/tileAmount)));
-        possiblePositions.add(new Point(piece.getPos().x+(boardSize.x/tileAmount), piece.getPos().y));
-        possiblePositions.add(new Point(piece.getPos().x-(boardSize.x/tileAmount), piece.getPos().y));
-        possiblePositions.add(new Point(piece.getPos().x-(boardSize.x/tileAmount), piece.getPos().y-(boardSize.y/tileAmount)));
-        possiblePositions.add(new Point(piece.getPos().x+(boardSize.x/tileAmount), piece.getPos().y+(boardSize.y/tileAmount)));
-        possiblePositions.add(new Point(piece.getPos().x-(boardSize.x/tileAmount), piece.getPos().y+(boardSize.y/tileAmount)));
-        possiblePositions.add(new Point(piece.getPos().x+(boardSize.x/tileAmount), piece.getPos().y-(boardSize.y/tileAmount)));
 
+        for(int i = 0; i < possibleMoves.size(); i++) {
+            possiblePositions.add(chessPosToPoint(possibleMoves.get(i).getTo()));
+            System.out.println(possibleMoves.get(i).getTo());
+        }
+        //showIndicators(possiblePositions);
+        currentPiecePossibleMoves = possibleMoves;
         return possiblePositions;
     }
-
-    public void nextTurn() {
-
+    // moveIndex being the index of the move made, which should correspond to a move kept in the currentPiecePossibleMoves list
+    public void nextTurn(int moveIndex) {
+        ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
+        chessGame.makeMove(madeMove);
+        updateBoardPieces(madeMove);
+        //removeIndicators();
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
     }
 
+    public void updateBoardPieces(ChessMove move) {
+        Point landedPos = chessPosToPoint(move.getTo());
+        for(int i = 0; i < pieces.size(); i++) {
+            if(pieces.get(i).pieceColor != turnColor && pieces.get(i).getPos().x == landedPos.x && pieces.get(i).getPos().y == landedPos.y) {   
+                removeEntity(pieces.get(i));
+            }
+        }
+    }
+
+    public void showIndicators(List<Point> positions) {
+        for(int i = 0; i < positions.size(); i++) {
+            moveIndicators.get(i).setPos(positions.get(i));
+            moveIndicators.get(i).graphic.setVisible(true);
+        }
+    }
+
+    public void removeIndicators() {
+        for(int i = 0; i < moveIndicators.size(); i++) {
+            moveIndicators.get(i).graphic.setVisible(false);
+        }
+    }
+
+    public ChessPosition pointToChessPos(Point point) {
+        int posMod = (int)(((boardSize.x/tileAmount) - ((boardSize.x/tileAmount)*pieceSizeModifier))/2);
+        int row = (point.y-posMod-boardPos.y)/(boardSize.y/tileAmount);
+        int col = (point.x-posMod-boardPos.x)/(boardSize.x/tileAmount);
+        return new ChessPosition(row, col);
+    }
+
+    public Point chessPosToPoint(ChessPosition pos) {
+        int posMod = (int)(((boardSize.x/tileAmount) - ((boardSize.x/tileAmount)*pieceSizeModifier))/2);
+        return new Point(pos.col()*(boardSize.x/tileAmount)+boardPos.x + posMod, pos.row()*(boardSize.y/tileAmount)+boardPos.y + posMod);
+    }
+
     public void initGame() {
-        chessGame = new ChessGame(null, null);
+        chessGame = new ChessGame();
     }
  
     public void initPieces() {
@@ -108,5 +164,12 @@ public class ChessScene extends Scene {
     public void addEntity(PieceEntity entity) {
         super.addEntity(entity);
         entity.board = this;
+        pieces.add(entity);
+    }
+
+    
+    public void removeEntity(PieceEntity entity) {
+        super.removeEntity(entity);
+        pieces.remove(entity);
     }
 }
