@@ -131,7 +131,19 @@ public class ChessRules {
     private static List<ChessMove> getValidPawnMoves(ChessBoard board, boolean isWhiteMove, int from) {
         int[] dirs = isWhiteMove ? WHITE_PAWN_DIRS : BLACK_PAWN_DIRS;
 
-        List<ChessMove> moves = getValidNonSlidingMoves(board, isWhiteMove, from, dirs);
+        List<ChessMove> moves = getValidNonSlidingMoves(board, isWhiteMove, from, dirs, false);
+
+        // diagonal capture TODO make neater
+        int[] diagDirs = isWhiteMove ? new int[] {-11, -13} : new int[] {11, 13};
+        for (int dir : diagDirs) {
+            int to = from + dir;
+            if (to >= 0 && to < 144) {
+                byte piece = board.getPiece(to);
+                if (!ChessPiece.isInvalid(piece) && ChessPiece.isWhite(piece) != isWhiteMove) {
+                    moves.add(board.new ChessMove(from, to));
+                }
+            }
+        }
 
         // replace with promotion moves if at end
         List<ChessMove> newMoves = new ArrayList<ChessMove>(0);
@@ -265,7 +277,13 @@ public class ChessRules {
         return moves;
     }
 
+
+    // allowCapture is true by default, only false for pawn forward moves
     private static List<ChessMove> getValidNonSlidingMoves(ChessBoard board, boolean isWhiteMove, int from, int[] directions) {
+        return getValidNonSlidingMoves(board, isWhiteMove, from, directions, true);
+    }
+
+    private static List<ChessMove> getValidNonSlidingMoves(ChessBoard board, boolean isWhiteMove, int from, int[] directions, boolean allowCapture) {
         List<ChessMove> moves = new ArrayList<ChessMove>(0);
 
         for (int dir : directions) {
