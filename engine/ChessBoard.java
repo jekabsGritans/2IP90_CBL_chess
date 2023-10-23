@@ -6,7 +6,7 @@ package engine;
  */
 public class ChessBoard {
     // pieces stored as bytes (see ChessPiece.java)
-    private final byte[] board; // 1D array for easier offsets.
+    private final byte[] board1D; // 1D array for easier offsets.
 
     // for testing
     public static void main(String[] args) {
@@ -19,19 +19,19 @@ public class ChessBoard {
      * @param fenPiecePositions FEN string component representing the piece positions
      */
     public ChessBoard(String fenPiecePlacement) {
-        this.board = new byte[64];
-        this.fillBoard(fenPiecePlacement);
+        board1D = new byte[64];
+        fillBoard(fenPiecePlacement);
     }
 
     /**
      * Creates a deep copy of a chess board.
-     * @param board the board to copy
+     * @param other the board to copy
      */
-    public ChessBoard(ChessBoard board) {
-        this.board = new byte[64];
+    public ChessBoard(ChessBoard other) {
+        board1D = new byte[64];
 
-        for (int i = 0; i < 64; i++) {
-            this.board[i] = board.board[i];
+        for (int pos1D = 0; pos1D < 64; pos1D++) {
+            board1D[pos1D] = other.board1D[pos1D];
         }
     }
 
@@ -67,7 +67,7 @@ public class ChessBoard {
      * @param piece the piece
      */
     public void setPiece(int row, int col, byte piece) {
-        board[63 - row * 8 - col] = piece;
+        board1D[63 - row * 8 - col] = piece;
     }
 
     /**
@@ -77,25 +77,42 @@ public class ChessBoard {
      * @return the piece
      */
     public byte getPiece(int row, int col) {
-        return board[63 - row * 8 - col];
+        return board1D[63 - row * 8 - col];
     }
 
     /**
      * Sets the piece at the given 1D position.
-     * @param pos the 1D position
+     * @param pos1D the 1D position (0-63)
      * @param piece the piece
      */
-    public void setPiece(int pos, byte piece) {
-        board[pos] = piece;
+    public void setPiece(int pos1D, byte piece) {
+        board1D[pos1D] = piece;
     }
 
     /**
      * Gets the piece at the given 1D position.
-     * @param pos the 1D position
+     * @param pos1D the 1D position (0-63)
      * @return the piece
      */
-    public byte getPiece(int pos) {
-        return board[pos];
+    public byte getPiece(int pos1D) {
+        return board1D[pos1D];
+    }
+
+    /**
+     * Gets the 1D position of the king.
+     * @param isWhite whether to get the white king or black king
+     * @return the 1D position of the king (0-63)
+     */
+    public int getKingPos(boolean isWhite) {
+        //TODO cache
+        for (int pos1D = 0; pos1D < 64; pos1D++) {
+            byte piece = board1D[pos1D];
+            if (ChessPiece.isType(piece, ChessPiece.King) && ChessPiece.isWhite(piece) == isWhite) {
+                return pos1D;
+            }
+        }
+
+        throw new IllegalStateException("No king found");
     }
 
     /**

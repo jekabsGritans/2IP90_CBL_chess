@@ -5,6 +5,7 @@ package engine;
  */
 public class ChessPiece {
     // Piece type and color are stored in different bits of the byte.
+    // Bytes are ints in JVM anyways, but at least this helps to distinguish them.
     // Bitwise operations are used to extract the type and color.
     // Idea credit: https://github.com/SebLague/Chess-Coding-Adventure/tree/Chess-V1-Unity
 
@@ -93,7 +94,8 @@ public class ChessPiece {
      * @return true if the piece is empty, false otherwise
      */
     public static boolean isEmpty(byte piece) {
-        return isType(piece, Empty);
+        // empty can't have a color
+        return piece == Empty;
     }
 
     /**
