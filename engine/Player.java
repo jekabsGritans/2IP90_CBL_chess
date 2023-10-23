@@ -1,7 +1,7 @@
 package engine;
 
 import java.util.List;
-import engine.ChessBoard.Move;
+import engine.ChessBoard.ChessMove;
 import engine.ChessGame.GameState;
 
 /**
@@ -32,7 +32,7 @@ public abstract class Player {
      * @param validMoves a list of valid moves to choose from
      * @return the chosen move
      */
-    public abstract Move chooseMove(GameState game, List<Move> validMoves);
+    public abstract ChessMove chooseMove(GameState game, List<ChessMove> validMoves);
 
     /**
      * Gets the player's chosen promotion piece. Called by the game engine when a pawn can be promoted.

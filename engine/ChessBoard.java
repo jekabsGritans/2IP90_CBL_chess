@@ -16,7 +16,7 @@ public class ChessBoard {
 
     /**
      * Creates a chess board.
-     * @param fenPiecePositions FEN string component representing the piece positions
+     * @param fenPieceChessPositions FEN string component representing the piece positions
      */
     public ChessBoard(String fenPiecePlacement) {
         board1D = new byte[64];
@@ -141,7 +141,7 @@ public class ChessBoard {
      * Makes a move on the board.
      * @param move the move to make
      */
-    public void makeMove(Move move) {
+    public void makeMove(ChessMove move) {
         byte piece = getPiece(move.from1D);
 
         if (ChessPiece.isEmpty(piece)) {
@@ -176,12 +176,12 @@ public class ChessBoard {
     /**
      * Represents a 2D position on the board.
      */
-    public record Position(int row, int col) {
+    public record ChessPosition(int row, int col) {
         /**
          * Creates a position from algebraic notation.
          * @param algPos the algebraic representation of the position
          */
-        public Position(String algPos) {
+        public ChessPosition(String algPos) {
             this(8 - Character.getNumericValue(algPos.charAt(1)), algPos.charAt(0) - 'a');
         }
     }
@@ -189,7 +189,7 @@ public class ChessBoard {
     /**
      * Represents a move on the board.
      */
-    public class Move {
+    public class ChessMove {
         // engine can still access 1D coordinates
         final int from1D;
         final int to1D;
@@ -199,7 +199,7 @@ public class ChessBoard {
          * @param from1D the 1D index of the piece to move
          * @param to1D the 1D index of the destination
          */
-        public Move(int from1D, int to1D) {
+        public ChessMove(int from1D, int to1D) {
             this.from1D = from1D;
             this.to1D = to1D;
         }
@@ -208,16 +208,16 @@ public class ChessBoard {
          * Gets the position of the piece to move.
          * @return the position of the piece to move
          */
-        public Position getFrom() {
-            return new Position(from1D / 8, from1D % 8);
+        public ChessPosition getFrom() {
+            return new ChessPosition(from1D / 8, from1D % 8);
         }
 
         /**
          * Gets the destination of the move.
          * @return the destination of the move
          */
-        public Position getTo() {
-            return new Position(to1D / 8, to1D % 8);
+        public ChessPosition getTo() {
+            return new ChessPosition(to1D / 8, to1D % 8);
         }
 
         @Override
@@ -233,7 +233,7 @@ public class ChessBoard {
     /*
      * Represents a castling move.
      */
-    public class CastlingMove extends Move {
+    public class CastlingMove extends ChessMove {
         private final int rookFrom1D;
         private final int rookTo1D;
 
@@ -254,7 +254,7 @@ public class ChessBoard {
     /*
      * Represents an en passant move.
      */
-    public class EnPassantMove extends Move {
+    public class EnPassantMove extends ChessMove {
         private final int capturedPawn1D;
 
         /**
@@ -272,7 +272,7 @@ public class ChessBoard {
     /*
      * Represents a promotion move.
      */
-    public class PromotionMove extends Move {
+    public class PromotionMove extends ChessMove {
         private final byte promotionType;
 
         /**

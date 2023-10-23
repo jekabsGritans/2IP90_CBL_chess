@@ -2,7 +2,7 @@ package engine;
 
 import engine.ChessGame.CastlingRights;
 import engine.ChessGame.GameState;
-import engine.ChessBoard.Move;
+import engine.ChessBoard.ChessMove;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +15,8 @@ public class RuleEngine {
      * @param state the game state
      * @return list of legal moves
      */
-    public List<Move> getLegalMoves(GameState state) {
-        List<Move> moves = getPseudoLegalMoves(state);
+    public List<ChessMove> getLegalMoves(GameState state) {
+        List<ChessMove> moves = getPseudoLegalMoves(state);
         moves = filterExposedKing(moves, state);
         return moves;
     }
@@ -40,7 +40,7 @@ public class RuleEngine {
      * @param move the move to make
      * @return the new game state
      */
-    public GameState makeMove(GameState state, Move move) {
+    public GameState makeMove(GameState state, ChessMove move) {
         ChessBoard boardCopy = new ChessBoard(state.board());
         boolean isWhiteMove = state.isWhiteMove();
         CastlingRights castlingRights = state.castlingRights();
@@ -60,9 +60,9 @@ public class RuleEngine {
      * @param isWhiteMove whether it is white's move
      * @return the last move
      */
-    public Move inferEnPassantMove(ChessBoard board, String target, boolean isWhiteMove) {
+    public ChessMove inferEnPassantMove(ChessBoard board, String target, boolean isWhiteMove) {
         // the position that the enemy pawn skipped
-        ChessBoard.Position skipped = new ChessBoard.Position(target);
+        ChessBoard.ChessPosition skipped = new ChessBoard.ChessPosition(target);
         int skipped1D = skipped.row() * 8 + skipped.col();
 
         // the positions that the enemy pawn moved to and from
@@ -70,7 +70,7 @@ public class RuleEngine {
         int from = isWhiteMove ? skipped1D - 8 : skipped1D + 8; // one piece behind skipped
         int to = isWhiteMove ? skipped1D + 8 : skipped1D - 8; // one piece ahead skipped
 
-        return board.new Move(from, to);
+        return board.new ChessMove(from, to);
     }
 
     // starting positions for castling pieces
@@ -84,7 +84,7 @@ public class RuleEngine {
     /*
      * Update castling rights after a move.
      */
-    private CastlingRights updateCastlingRights(CastlingRights rights, Move move) {
+    private CastlingRights updateCastlingRights(CastlingRights rights, ChessMove move) {
         return new CastlingRights(
             rights.whiteKingSide()
                 && move.from1D != WK_ROOK && move.from1D != WK
@@ -104,10 +104,10 @@ public class RuleEngine {
     /*
      * Removes moves that expose the king.
      */
-    private List<Move> filterExposedKing(List<Move> moves, GameState state) {
-        List<Move> filteredMoves = new ArrayList<Move>(0);
+    private List<ChessMove> filterExposedKing(List<ChessMove> moves, GameState state) {
+        List<ChessMove> filteredMoves = new ArrayList<ChessMove>(0);
 
-        for (Move move : moves) {
+        for (ChessMove move : moves) {
             GameState newState = makeMove(state, move);
             if (!canCaptureKing(newState)) {
                 filteredMoves.add(move);
@@ -120,9 +120,9 @@ public class RuleEngine {
     /*
      * Gets valid moves, not checking for exposed king.
      */
-    private List<Move> getPseudoLegalMoves(GameState state) {
+    private List<ChessMove> getPseudoLegalMoves(GameState state) {
         ChessBoard board = state.board();
-        List<Move> moves = new ArrayList<Move>(0);
+        List<ChessMove> moves = new ArrayList<ChessMove>(0);
 
         for (int i = 0; i < 64; i++) {
             byte piece = board.getPiece(i);
@@ -168,7 +168,7 @@ public class RuleEngine {
 
     // METHODS FOR EACH PIECE TYPE
 
-    private void addValidPawnMoves(int pos, GameState state, List<Move> moves) {
+    private void addValidPawnMoves(int pos, GameState state, List<ChessMove> moves) {
         boolean isWhite = state.isWhiteMove();
         ChessBoard board = state.board();
 
@@ -185,12 +185,12 @@ public class RuleEngine {
                 && ChessPiece.isEmpty(board.getPiece(pos + 2 * forwardDiff)); // two spaces ahead is empty
 
             if (clearForDoubleMove) {
-                moves.add(board.new Move(pos, pos + 2 * forwardDiff));
+                moves.add(board.new ChessMove(pos, pos + 2 * forwardDiff));
             }
         }
 
         // en passant
-        Move lastMove = state.lastMove();
+        ChessMove lastMove = state.lastMove();
         boolean lastMoveWasDoublePawn = lastMove != null
             && ChessPiece.isType(board.getPiece(lastMove.to1D), ChessPiece.Pawn)
             && Math.abs(lastMove.to1D - lastMove.from1D) == 16;
@@ -216,31 +216,31 @@ public class RuleEngine {
         }
     }
 
-    private void addValidKnightMoves(int pos, GameState state, List<Move> moves) {
+    private void addValidKnightMoves(int pos, GameState state, List<ChessMove> moves) {
         boolean isWhite = state.isWhiteMove();
         ChessBoard board = state.board();
         addValidNonSlidingMoves(pos, KNIGHT_DIRS, board, isWhite, moves);
     }
 
-    private void addValidBishopMoves(int pos, GameState state, List<Move> moves) {
+    private void addValidBishopMoves(int pos, GameState state, List<ChessMove> moves) {
         boolean isWhite = state.isWhiteMove();
         ChessBoard board = state.board();
         addValidSlidingMoves(pos, BISHOP_DIRS, board, isWhite, moves);
     }
 
-    private void addValidRookMoves(int pos, GameState state, List<Move> moves) {
+    private void addValidRookMoves(int pos, GameState state, List<ChessMove> moves) {
         boolean isWhite = state.isWhiteMove();
         ChessBoard board = state.board();
         addValidSlidingMoves(pos, ROOK_DIRS, board, isWhite, moves);
     }
 
-    private void addValidQueenMoves(int pos, GameState state, List<Move> moves) {
+    private void addValidQueenMoves(int pos, GameState state, List<ChessMove> moves) {
         boolean isWhite = state.isWhiteMove();
         ChessBoard board = state.board();
         addValidSlidingMoves(pos, QUEEN_DIRS, board, isWhite, moves);
     }
 
-    private void addValidKingMoves(int pos, GameState state, List<Move> moves) {
+    private void addValidKingMoves(int pos, GameState state, List<ChessMove> moves) {
         boolean isWhite = state.isWhiteMove();
         ChessBoard board = state.board();
         addValidNonSlidingMoves(pos, KING_DIRS, board, isWhite, moves);
@@ -254,7 +254,7 @@ public class RuleEngine {
      * Adds moves that move multiple steps to an empty/enemy square.
      * (Checks for blocking pieces)
      */
-    private void addValidSlidingMoves(int pos, int[] directions, ChessBoard board, boolean isWhite, List<Move> moves) {
+    private void addValidSlidingMoves(int pos, int[] directions, ChessBoard board, boolean isWhite, List<ChessMove> moves) {
         for (int dir : directions) {
             int newPos = pos + dir;
 
@@ -263,10 +263,10 @@ public class RuleEngine {
                 byte piece = board.getPiece(newPos);
 
                 if (piece == ChessPiece.Empty) {
-                    moves.add(board.new Move(pos, newPos));
+                    moves.add(board.new ChessMove(pos, newPos));
                 } else {
                     if (ChessPiece.isWhite(piece) != isWhite) {
-                        moves.add(board.new Move(pos, newPos));
+                        moves.add(board.new ChessMove(pos, newPos));
                     }
 
                     // continue until blocked by piece
@@ -280,7 +280,7 @@ public class RuleEngine {
     /*
      * Adds moves that move one step to an empty/enemy square.
      */
-    private void addValidNonSlidingMoves(int pos, int[] directions, ChessBoard board, boolean isWhite, List<Move> moves) {
+    private void addValidNonSlidingMoves(int pos, int[] directions, ChessBoard board, boolean isWhite, List<ChessMove> moves) {
         for (int dir : directions) {
             int newPos = pos + dir;
 
@@ -290,11 +290,11 @@ public class RuleEngine {
                 
                 // allow move to empty
                 if (ChessPiece.isEmpty(piece)) {
-                    moves.add(board.new Move(pos, newPos));
+                    moves.add(board.new ChessMove(pos, newPos));
                 } else {
                     // allow capture enemy piece
                     if (ChessPiece.isWhite(piece) != isWhite) {
-                        moves.add(board.new Move(pos, newPos));
+                        moves.add(board.new ChessMove(pos, newPos));
                     }
                 }
             }
@@ -308,12 +308,12 @@ public class RuleEngine {
 
         // don't need (non-pseudo) legal moves as it does not matter
         // if I expose my king if I can capture the enemy king right now
-        List<Move> moves = getPseudoLegalMoves(state);
+        List<ChessMove> moves = getPseudoLegalMoves(state);
 
         int enemyKingPos = state.board().getKingPos(!state.isWhiteMove());
 
         // check if any move is to the enemy king's position
-        for (Move move : moves) {
+        for (ChessMove move : moves) {
             if (move.to1D == enemyKingPos) {
                 return true;
             }

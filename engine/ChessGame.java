@@ -2,7 +2,7 @@ package engine;
 
 import java.util.List;
 import utils.FenParser;
-import engine.ChessBoard.Move;
+import engine.ChessBoard.ChessMove;
 
 /**
  * Represents a chess game. Controls the game flow.
@@ -32,7 +32,7 @@ public class ChessGame {
         boolean isWhiteMove = result.activeColor.equals("w");
         CastlingRights castlingRights = new CastlingRights(result.castlingAvailability);
 
-        Move lastMove = result.enPassantTarget.equals("-")
+        ChessMove lastMove = result.enPassantTarget.equals("-")
             ? null : ruleEngine.inferEnPassantMove(board, result.enPassantTarget, isWhiteMove);
 
         gameState = new GameState(board, isWhiteMove, castlingRights, lastMove, null);
@@ -52,7 +52,7 @@ public class ChessGame {
      * Plays a turn of the game and changes the current player.
      */
     private void playTurn() {
-        List<Move> legalMoves = ruleEngine.getLegalMoves(gameState);
+        List<ChessMove> legalMoves = ruleEngine.getLegalMoves(gameState);
 
         // no valid moves means checkmate or stalemate
         if (legalMoves.size() == 0) {
@@ -69,7 +69,7 @@ public class ChessGame {
         // trust that player chooses a valid move
         // ensure this in player implementations
         Player player = gameState.isWhiteMove() ? whitePlayer : blackPlayer;
-        Move move = player.chooseMove(gameState, legalMoves);
+        ChessMove move = player.chooseMove(gameState, legalMoves);
 
         gameState = ruleEngine.makeMove(gameState, move);
     }
@@ -134,7 +134,7 @@ public class ChessGame {
         ChessBoard board,
         boolean isWhiteMove,
         CastlingRights castlingRights,
-        Move lastMove,
+        ChessMove lastMove,
         GameState previousState
     ) {}
 }
