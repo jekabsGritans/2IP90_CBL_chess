@@ -7,10 +7,14 @@ package engine;
 public class ChessBoard {
     // pieces stored as bytes (see ChessPiece.java)
     private final byte[] board1D; // 1D array for easier offsets.
+    CastlingRights castlingRights;
+    int whiteKingPos1D;
+    int blackKingPos1D;
+    int enPassantTarget1D; // -1 if no en passant target
 
     // for testing
     public static void main(String[] args) {
-        ChessBoard board = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        ChessBoard board = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "kqKQ", "-");
         board.print();
     }
 
@@ -18,9 +22,14 @@ public class ChessBoard {
      * Creates a chess board.
      * @param fenPieceChessPositions FEN string component representing the piece positions
      */
-    public ChessBoard(String fenPiecePlacement) {
+    public ChessBoard(String fenPiecePlacement, String fenCastlingRights, String fenEnPassantTarget) {
         board1D = new byte[64];
         fillBoard(fenPiecePlacement);
+        castlingRights = new CastlingRights(fenCastlingRights);
+        whiteKingPos1D = findKing(true);
+        blackKingPos1D = findKing(false);
+        enPassantTarget1D = fenEnPassantTarget.equals("-") ?
+            -1 : new ChessPosition(fenEnPassantTarget).get1D();
     }
 
     /**
@@ -33,6 +42,11 @@ public class ChessBoard {
         for (int pos1D = 0; pos1D < 64; pos1D++) {
             board1D[pos1D] = other.board1D[pos1D];
         }
+
+        // immutable
+        castlingRights = other.castlingRights; 
+        whiteKingPos1D = other.whiteKingPos1D;
+        blackKingPos1D = other.blackKingPos1D;
     }
 
     /**
@@ -100,11 +114,8 @@ public class ChessBoard {
 
     /**
      * Gets the 1D position of the king.
-     * @param isWhite whether to get the white king or black king
-     * @return the 1D position of the king (0-63)
      */
-    public int getKingPos(boolean isWhite) {
-        //TODO cache
+    private int findKing(boolean isWhite) {
         for (int pos1D = 0; pos1D < 64; pos1D++) {
             byte piece = board1D[pos1D];
             if (ChessPiece.isType(piece, ChessPiece.King) && ChessPiece.isWhite(piece) == isWhite) {
@@ -151,28 +162,59 @@ public class ChessBoard {
         setPiece(move.to1D, piece);
         setPiece(move.from1D, ChessPiece.Empty);
 
-        // handle special moves
+        // special moves
+        if (move instanceof PawnDoubleMove) {
+            PawnDoubleMove pawnDoubleMove = (PawnDoubleMove) move;
+            enPassantTarget1D = pawnDoubleMove.enPassantTarget1D;
 
-        if (move instanceof CastlingMove) {
+        } else if (move instanceof CastlingMove) {
             CastlingMove castlingMove = (CastlingMove) move;
             byte rook = getPiece(castlingMove.rookFrom1D);
             setPiece(castlingMove.rookTo1D, rook);
             setPiece(castlingMove.rookFrom1D, ChessPiece.Empty);
-        }
 
-        if (move instanceof EnPassantMove) {
+        } else if (move instanceof EnPassantMove) {
             EnPassantMove enPassantMove = (EnPassantMove) move;
             setPiece(enPassantMove.capturedPawn1D, ChessPiece.Empty);
-        }
 
-        if (move instanceof PromotionMove) {
+        } else if (move instanceof PromotionMove) {
             PromotionMove promotionMove = (PromotionMove) move;
             byte promotionType = promotionMove.promotionType;
             byte promotionPiece = ChessPiece.setType(piece, promotionType);
             setPiece(move.to1D, promotionPiece);
         }
+
+        castlingRights = updateCastlingRights(castlingRights, move);
     }
 
+    // starting positions for castling pieces
+    final static int WK_ROOK = 7;
+    final static int WQ_ROOK = 0;
+    final static int WK = 4;
+    final static int BK_ROOK = 63;
+    final static int BQ_ROOK = 56;
+    final static int BK = 60;
+
+    /*
+     * Update castling rights after a move.
+     */
+    private CastlingRights updateCastlingRights(CastlingRights rights, ChessMove move) {
+        return new CastlingRights(
+            rights.whiteKingSide()
+                && move.from1D != WK_ROOK && move.from1D != WK
+                && move.to1D != WK_ROOK && move.to1D != WK,
+            rights.whiteQueenSide()
+                && move.from1D != WQ_ROOK && move.from1D != WK
+                && move.to1D != WQ_ROOK && move.to1D != WK,
+            rights.blackKingSide()
+                && move.from1D != BK_ROOK && move.from1D != BK
+                && move.to1D != BK_ROOK && move.to1D != BK,
+            rights.blackQueenSide()
+                && move.from1D != BQ_ROOK && move.from1D != BK
+                && move.to1D != BQ_ROOK && move.to1D != BK
+        );
+    }
+    
     /**
      * Represents a 2D position on the board.
      */
@@ -183,6 +225,14 @@ public class ChessBoard {
          */
         public ChessPosition(String algPos) {
             this(8 - Character.getNumericValue(algPos.charAt(1)), algPos.charAt(0) - 'a');
+        }
+
+        /**
+         * Gets the 1D index of the position.
+         * @return
+         */
+        public int get1D() {
+            return row * 8 + col;
         }
     }
 
@@ -252,6 +302,24 @@ public class ChessBoard {
     }
 
     /*
+     * Represents a Pawn move two squares forward.
+     */
+    public class PawnDoubleMove extends ChessMove {
+        private final int enPassantTarget1D;
+
+        /**
+         * Creates a pawn double move.
+         * @param from1D the 1D index of the pawn
+         * @param to1D the 1D index of the pawn's destination
+         * @param enPassantTarget1D the 1D index of the en passant target
+         */
+        public PawnDoubleMove(int from1D, int to1D, int enPassantTarget1D) {
+            super(from1D, to1D);
+            this.enPassantTarget1D = enPassantTarget1D;
+        }
+    }
+
+    /*
      * Represents an en passant move.
      */
     public class EnPassantMove extends ChessMove {
@@ -284,6 +352,29 @@ public class ChessBoard {
         public PromotionMove(int from1D, int to1D, byte promotionType) {
             super(from1D, to1D);
             this.promotionType = promotionType;
+        }
+    }
+
+    /*
+     * Represents castling rights for both players.
+     */
+    public record CastlingRights(
+        boolean whiteKingSide,
+        boolean whiteQueenSide,
+        boolean blackKingSide,
+        boolean blackQueenSide
+    ) {
+        /**
+         * Creates castling rights from a FEN string.
+         * @param fen the FEN string castling rights component
+         */
+        public CastlingRights(String fen) {
+            this(
+                fen.contains("K"),
+                fen.contains("Q"),
+                fen.contains("k"),
+                fen.contains("q")
+            );
         }
     }
 }

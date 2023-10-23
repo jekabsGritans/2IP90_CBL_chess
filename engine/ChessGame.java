@@ -3,87 +3,97 @@ package engine;
 import java.util.List;
 import utils.FenParser;
 import engine.ChessBoard.ChessMove;
+import engine.ChessBoard.ChessPosition;
 
 /**
- * Represents a chess game. Controls the game flow.
+ * Represents a chess game.
  */
 public class ChessGame {
-    private Player whitePlayer;
-    private Player blackPlayer;
-    private GameResult gameResult;
-    private GameState gameState; // board is stored here
-    private RuleEngine ruleEngine;
-
-    /**
-     * Creates a chess game from a FEN string.
-     * @param whitePlayer the white player
-     * @param blackPlayer the black player
-     * @param fen FEN string representation of the game
-     */
-    public ChessGame(Player whitePlayer, Player blackPlayer, String fen) {
-        this.whitePlayer = whitePlayer;
-        this.blackPlayer = blackPlayer;
-        this.gameResult = GameResult.ACTIVE;
-        this.ruleEngine = new RuleEngine();
-
-        // load game state from FEN string
-        FenParser.FenResult result = FenParser.parseFen(fen);
-        ChessBoard board = new ChessBoard(result.piecePositions);
-        boolean isWhiteMove = result.activeColor.equals("w");
-        CastlingRights castlingRights = new CastlingRights(result.castlingAvailability);
-
-        ChessMove lastMove = result.enPassantTarget.equals("-")
-            ? null : ruleEngine.inferEnPassantMove(board, result.enPassantTarget, isWhiteMove);
-
-        gameState = new GameState(board, isWhiteMove, castlingRights, lastMove, null);
-    }
+    private GameState state;
+    private ChessBoard board;
+    private boolean isWhiteMove;
 
     /**
      * Creates a chess game.
      * Initializes the board to the starting position.
-     * @param whitePlayer the white player
-     * @param blackPlayer the black player
      */
-    public ChessGame(Player whitePlayer, Player blackPlayer) {
-        this(whitePlayer, blackPlayer, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    public ChessGame() {
+        this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
 
     /**
-     * Plays a turn of the game and changes the current player.
+     * Creates a chess game from a FEN string.
+     * @param fen FEN string representation of the game
      */
-    private void playTurn() {
-        List<ChessMove> legalMoves = ruleEngine.getLegalMoves(gameState);
+    public ChessGame(String fenStr) {
+        FenParser.FenResult fen = FenParser.parseFen(fenStr);
+        state = GameState.ACTIVE;
+        board = new ChessBoard(fen.piecePositions, fen.castlingAvailability, fen.enPassantTarget);
+        isWhiteMove = fen.activeColor.equals("w");
+    }
 
-        // no valid moves means checkmate or stalemate
-        if (legalMoves.size() == 0) {
+    /**
+     * Gets a list of legal moves for the current player.
+     * @param from the position of the piece to move
+     * @return list of legal moves
+     * @throws IllegalStateException if game is over
+     * @throws IllegalArgumentException if from does not contain a friendly piece
+     */
+    public List<ChessMove> getLegalMoves(ChessPosition from) {
+        if (state != GameState.ACTIVE) {
+            throw new IllegalStateException("Game is over");
+        }
 
-            // if king is in check, it is checkmate
-            if (ruleEngine.isKingInCheck(gameState)) {
-                gameResult = gameState.isWhiteMove() ? GameResult.BLACK_WINS : GameResult.WHITE_WINS;
+        int from1D = from.get1D();
+        byte piece = board.getPiece(from1D);
+        if (ChessPiece.isEmpty(piece) ||
+            ChessPiece.isWhite(piece) != isWhiteMove) {
+            throw new IllegalArgumentException("No friendly piece at position " + from);
+        }
+
+        return ChessRules.getLegalMoves(board, isWhiteMove, from1D);
+    }
+
+    /**
+     * Gets a list of legal moves for the current player starting from any position.
+     * @return list of legal moves
+     * @throws IllegalStateException if game is over
+     */
+    public List<ChessMove> getLegalMoves() {
+        if (state != GameState.ACTIVE) {
+            throw new IllegalStateException("Game is over");
+        }
+
+        return ChessRules.getLegalMoves(board, isWhiteMove);
+    }
+
+    /**
+     * Makes a move and returns the new game state.
+     * (Does not check if move is legal)
+     * @param move the move to make
+     * @return the new game state
+     * @throws IllegalStateException if game is over
+     */
+    public GameState makeMove(ChessMove move) {
+        if (state != GameState.ACTIVE) {
+            throw new IllegalStateException("Game is over");
+        }
+
+        board.makeMove(move);
+        isWhiteMove = !isWhiteMove;
+
+        // if enemy can't make a move, game is over
+        if (getLegalMoves().size() == 0) {
+
+            // if I can capture enemy king, I win
+            if (ChessRules.canCaptureKing(board, !isWhiteMove)) {
+                state = isWhiteMove ? GameState.WHITE_WINS : GameState.BLACK_WINS;
             } else {
-                gameResult = GameResult.STALEMATE;
+                state = GameState.STALEMATE;
             }
-            return;
         }
 
-        // trust that player chooses a valid move
-        // ensure this in player implementations
-        Player player = gameState.isWhiteMove() ? whitePlayer : blackPlayer;
-        ChessMove move = player.chooseMove(gameState, legalMoves);
-
-        gameState = ruleEngine.makeMove(gameState, move);
-    }
-
-    /**
-     * Plays the game until it is over.
-     * @return the result of the game
-     */
-    public GameResult play() {
-        while (gameResult == GameResult.ACTIVE) {
-            playTurn();
-        }
-
-        return gameResult;
+        return state;
     }
 
     /**
@@ -91,50 +101,24 @@ public class ChessGame {
      * @return the chess board
      */
     public ChessBoard getBoard() {
-        return gameState.board();
+        return board;
+    }
+
+    /**
+     * Gets the current game state.
+     * @return the current game state
+     */
+    public GameState getGameState() {
+        return state;
     }
     
     /**
-     * Different possible game results.
+     * Represents possible game states.
      */
-    public enum GameResult {
+    public enum GameState {
         ACTIVE, // game is still ongoing
         WHITE_WINS,
         BLACK_WINS,
         STALEMATE,
     }
-
-    /*
-     * Represents castling rights.
-     */
-    public record CastlingRights(
-        boolean whiteKingSide,
-        boolean whiteQueenSide,
-        boolean blackKingSide,
-        boolean blackQueenSide
-    ) {
-        /**
-         * Creates castling rights from a FEN string.
-         * @param fen the FEN string castling rights component
-         */
-        public CastlingRights(String fen) {
-            this(
-                fen.contains("K"),
-                fen.contains("Q"),
-                fen.contains("k"),
-                fen.contains("q")
-            );
-        }
-    }
-
-    /**
-     * Represents a snapshot of the game.
-     */
-    public record GameState(
-        ChessBoard board,
-        boolean isWhiteMove,
-        CastlingRights castlingRights,
-        ChessMove lastMove,
-        GameState previousState
-    ) {}
 }
