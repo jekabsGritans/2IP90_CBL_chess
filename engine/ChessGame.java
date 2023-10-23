@@ -50,11 +50,13 @@ public class ChessGame {
         // deep copy of board to not mess up old game state
         ChessBoard board = new ChessBoard(gameState.board());
 
-        List<Move> validMoves = ruleEngine.getValidMoves(gameState);
+        List<Move> legalMoves = ruleEngine.getLegalMoves(gameState);
 
         // no valid moves means checkmate or stalemate
-        if (validMoves.size() == 0) {
-            if (ruleEngine.isCheckmate(gameState)) {
+        if (legalMoves.size() == 0) {
+
+            // if king is in check, it is checkmate
+            if (ruleEngine.isKingInCheck(gameState)) {
                 gameResult = gameState.isWhiteMove() ? GameResult.BLACK_WINS : GameResult.WHITE_WINS;
             } else {
                 gameResult = GameResult.STALEMATE;
@@ -65,7 +67,7 @@ public class ChessGame {
         // trust that player chooses a valid move
         // ensure this in player implementations
         Player player = gameState.isWhiteMove() ? whitePlayer : blackPlayer;
-        Move move = player.chooseMove(gameState, validMoves);
+        Move move = player.chooseMove(gameState, legalMoves);
         board.makeMove(move);
 
         // update game state
