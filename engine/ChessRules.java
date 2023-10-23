@@ -3,6 +3,7 @@ package engine;
 import engine.ChessBoard.CastlingRights;
 import engine.ChessBoard.ChessMove;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -95,7 +96,7 @@ public class ChessRules {
                 case ChessPiece.King:
                     return getValidKingMoves(board, isWhiteMove, from);
                 default:
-                    return null;
+                    return Arrays.asList();
         }
     }
 

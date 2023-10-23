@@ -13,6 +13,22 @@ public class ChessGame {
     private ChessBoard board;
     private boolean isWhiteMove;
 
+    // for debug
+    public static void main(String[] args) {
+        ChessGame game = new ChessGame();
+        ChessBoard board = game.getBoard();
+
+        ChessPosition from = new ChessPosition("b2");
+
+        board.print();
+
+        List<ChessMove> moves = game.getLegalMoves(from);
+        System.out.println(moves.size() + " legal moves from " + from);
+
+        game.makeMove(moves.get(0));
+        board.print();
+    }
+
     /**
      * Creates a chess game.
      * Initializes the board to the starting position.
@@ -75,6 +91,8 @@ public class ChessGame {
      * @throws IllegalStateException if game is over
      */
     public GameState makeMove(ChessMove move) {
+        System.out.println(move);
+
         if (state != GameState.ACTIVE) {
             throw new IllegalStateException("Game is over");
         }

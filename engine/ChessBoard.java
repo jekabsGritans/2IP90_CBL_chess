@@ -16,6 +16,9 @@ public class ChessBoard {
     public static void main(String[] args) {
         ChessBoard board = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "kqKQ", "-");
         board.print();
+
+        byte piece = board.getPiece(0, 0);
+        System.out.println(ChessPiece.getFenCharacter(piece));
     }
 
     /**
@@ -81,7 +84,7 @@ public class ChessBoard {
      * @param piece the piece
      */
     public void setPiece(int row, int col, byte piece) {
-        board1D[63 - row * 8 - col] = piece;
+        board1D[row * 8 + col] = piece;
     }
 
     /**
@@ -91,7 +94,7 @@ public class ChessBoard {
      * @return the piece
      */
     public byte getPiece(int row, int col) {
-        return board1D[63 - row * 8 - col];
+        return board1D[row * 8 + col];
     }
 
     /**
@@ -233,6 +236,11 @@ public class ChessBoard {
          */
         public int get1D() {
             return row * 8 + col;
+        }
+
+        @Override
+        public String toString() {
+            return (char) (col + 'a') + "" + (8 - row);
         }
     }
 
