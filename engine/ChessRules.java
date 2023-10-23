@@ -106,8 +106,9 @@ public class ChessRules {
     private static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove) {
         List<ChessMove> moves = new ArrayList<ChessMove>(0);
 
-        for (int pos = 0; pos < 64; pos++) {
-            if (ChessPiece.isWhite(board.getPiece(pos)) == isWhiteMove) {
+        for (int pos = 0; pos < 144; pos++) {
+            byte piece = board.getPiece(pos);
+            if (piece != ChessPiece.Invalid && ChessPiece.isWhite(piece) == isWhiteMove) {
                 moves.addAll(getPseudoLegalMoves(board, isWhiteMove, pos));
             }
         }
@@ -117,13 +118,13 @@ public class ChessRules {
 
     // VALID 1D MOVE DIRECTIONS FOR EACH PIECE TYPE
 
-    private static final int[] WHITE_PAWN_DIRS = new int[] {-1, 1, 8}; 
-    private static final int[] BLACK_PAWN_DIRS = new int[] {-1, 1, -8};
-    private static final int[] KNIGHT_DIRS = new int[] {-17, -15, -10, -6, 6, 10, 15, 17};
-    private static final int[] BISHOP_DIRS = new int[] {-9, -7, 7, 9};
-    private static final int[] ROOK_DIRS = new int[] {-8, -1, 1, 8};
-    private static final int[] QUEEN_DIRS = new int[] {-9, -8, -7, -1, 1, 7, 8, 9};
-    private static final int[] KING_DIRS = new int[] {-9, -8, -7, -1, 1, 7, 8, 9};
+    private static final int[] WHITE_PAWN_DIRS = new int[] {12}; 
+    private static final int[] BLACK_PAWN_DIRS = new int[] {-12};
+    private static final int[] KNIGHT_DIRS = new int[] {-23, -25, -14, -10, 10, 14, 23, 25};
+    private static final int[] BISHOP_DIRS = new int[] {-13, -11, 11, 13};
+    private static final int[] ROOK_DIRS = new int[] {-12, -1, 1, 12};
+    private static final int[] QUEEN_DIRS = new int[] {-13, -12, -11, -1, 1, 11, 12, 13};
+    private static final int[] KING_DIRS = new int[] {-13, -12, -11, -1, 1, 11, 12, 13};
 
     // METHODS FOR EACH PIECE TYPE
 
@@ -135,7 +136,8 @@ public class ChessRules {
         // replace with promotion moves if at end
         List<ChessMove> newMoves = new ArrayList<ChessMove>(0);
         for (ChessMove move : moves) {
-            if (move.to1D / 8 == 0 || move.to1D / 8 == 7) {
+            // if at any end
+            if (move.to1D / 12 == 2 || move.to1D / 12 == 9) {
                 newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.Queen));
                 newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.Rook));
                 newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.Bishop));
@@ -147,10 +149,10 @@ public class ChessRules {
         moves = newMoves;
 
         // double move
-        int forward = isWhiteMove ? -8 : 8;
-        int startingRow = isWhiteMove ? 6 : 1;
+        int forward = isWhiteMove ? -12 : 12;
+        int startingRow = isWhiteMove ? 8 : 3;
 
-        boolean clearForDoubleMove = from / 8 == startingRow // in starting row
+        boolean clearForDoubleMove = from / 12 == startingRow // in starting row
             && ChessPiece.isEmpty(board.getPiece(from + forward)) // one space ahead is empty
             && ChessPiece.isEmpty(board.getPiece(from + 2 * forward)); // two spaces ahead is empty
 
@@ -164,8 +166,8 @@ public class ChessRules {
         if (board.enPassantTarget1D != -1) {
 
             // 2 options for forward diagonal difference
-            int diffA = isWhiteMove ? -9 : 9;
-            int diffB = isWhiteMove ? -7 : 7;
+            int diffA = isWhiteMove ? -13 : 13;
+            int diffB = isWhiteMove ? -11 : 11;
 
             if (from + diffA == board.enPassantTarget1D || from + diffB == board.enPassantTarget1D) {
                 int to = board.enPassantTarget1D;
@@ -196,38 +198,38 @@ public class ChessRules {
     private static List<ChessMove> getValidKingMoves(ChessBoard board, boolean isWhiteMove, int from) {
         List<ChessMove> moves =  getValidNonSlidingMoves(board, isWhiteMove, from, KING_DIRS);
 
-        // castling
+        // castling TODO check constants
         CastlingRights castlingRights = board.castlingRights;
         if (isWhiteMove) {
             boolean canKingside = castlingRights.whiteKingSide()
-                && ChessPiece.isEmpty(board.getPiece(61))
-                && ChessPiece.isEmpty(board.getPiece(62));
+                && ChessPiece.isEmpty(board.getPiece(87))
+                && ChessPiece.isEmpty(board.getPiece(88));
             if (canKingside) {  
-                moves.add(board.new CastlingMove(from, 62, 63, 61));
+                moves.add(board.new CastlingMove(from, 88, 89, 87));
             }
 
             boolean canQueenside = castlingRights.whiteQueenSide()
-                && ChessPiece.isEmpty(board.getPiece(59))
-                && ChessPiece.isEmpty(board.getPiece(58))
-                && ChessPiece.isEmpty(board.getPiece(57));
+                && ChessPiece.isEmpty(board.getPiece(85))
+                && ChessPiece.isEmpty(board.getPiece(84))
+                && ChessPiece.isEmpty(board.getPiece(83));
             if (canQueenside) {
-                moves.add(board.new CastlingMove(from, 58, 56, 59));
+                moves.add(board.new CastlingMove(from, 84, 82, 85));
             }
 
         } else {
             boolean canKingside = castlingRights.blackKingSide()
-                && ChessPiece.isEmpty(board.getPiece(5))
-                && ChessPiece.isEmpty(board.getPiece(6));
+                && ChessPiece.isEmpty(board.getPiece(31))
+                && ChessPiece.isEmpty(board.getPiece(32));
             if (canKingside) {
-                moves.add(board.new CastlingMove(from, 6, 7, 5));
+                moves.add(board.new CastlingMove(from, 31, 33, 32));
             }
 
             boolean canQueenside = castlingRights.blackQueenSide()
-                && ChessPiece.isEmpty(board.getPiece(3))
-                && ChessPiece.isEmpty(board.getPiece(2))
-                && ChessPiece.isEmpty(board.getPiece(1));
+                && ChessPiece.isEmpty(board.getPiece(29))
+                && ChessPiece.isEmpty(board.getPiece(28))
+                && ChessPiece.isEmpty(board.getPiece(27));
             if (canQueenside) {
-                moves.add(board.new CastlingMove(from, 2, 0, 3));
+                moves.add(board.new CastlingMove(from, 28, 26,29));
             }
         }
 
@@ -242,15 +244,15 @@ public class ChessRules {
         for (int dir : directions) {
             int to = from + dir;
 
-            while (to >= 0 && to < 64) {
+            while (to >= 0 && to < 144) {
                 byte piece = board.getPiece(to);
 
                 // allow move to empty
-                if (piece == ChessPiece.Empty) {
+                if (ChessPiece.isEmpty(piece)) {
                     moves.add(board.new ChessMove(from, to));
                 } else {
                     // allow capture enemy piece
-                    if (ChessPiece.isWhite(piece) != isWhiteMove) {
+                    if (!ChessPiece.isInvalid(piece) && ChessPiece.isWhite(piece) != isWhiteMove) {
                         moves.add(board.new ChessMove(from, to));
                     }
                     // continue until blocked by piece
@@ -269,11 +271,12 @@ public class ChessRules {
         for (int dir : directions) {
             int to = from + dir;
 
-            if (to >= 0 && to < 64) {
+            if (to >= 0 && to < 144) {
                 byte piece = board.getPiece(to);
                 
                 // allow move to empty or capture enemy piece
-                if (ChessPiece.isEmpty(piece) || ChessPiece.isWhite(piece) != isWhiteMove) {
+                if (!ChessPiece.isInvalid(piece)
+                    && (ChessPiece.isEmpty(piece) || ChessPiece.isWhite(piece) != isWhiteMove)) {
                     moves.add(board.new ChessMove(from, to));
                 }
             }

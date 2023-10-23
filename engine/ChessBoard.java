@@ -17,8 +17,8 @@ public class ChessBoard {
         ChessBoard board = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "kqKQ", "-");
         board.print();
 
-        byte piece = board.getPiece(0, 0);
-        System.out.println(ChessPiece.getFenCharacter(piece));
+        byte piece = board.board1D[0]; // should be invalid
+        System.out.println(piece);
     }
 
     /**
@@ -26,8 +26,16 @@ public class ChessBoard {
      * @param fenPieceChessPositions FEN string component representing the piece positions
      */
     public ChessBoard(String fenPiecePlacement, String fenCastlingRights, String fenEnPassantTarget) {
-        board1D = new byte[64];
+        board1D = new byte[144]; // (2 + 8 + 2)^2 (for -1 double padding on edges)
+
+        // initialize to Invalid
+        for (int i = 0; i < 144; i++) {
+            board1D[i] = ChessPiece.Invalid;;
+        }
+
+        // fill whole middle (even if empty)
         fillBoard(fenPiecePlacement);
+
         castlingRights = new CastlingRights(fenCastlingRights);
         whiteKingPos1D = findKing(true);
         blackKingPos1D = findKing(false);
@@ -40,11 +48,7 @@ public class ChessBoard {
      * @param other the board to copy
      */
     public ChessBoard(ChessBoard other) {
-        board1D = new byte[64];
-
-        for (int pos1D = 0; pos1D < 64; pos1D++) {
-            board1D[pos1D] = other.board1D[pos1D];
-        }
+        board1D = other.board1D.clone();
 
         // immutable
         castlingRights = other.castlingRights; 
@@ -67,6 +71,13 @@ public class ChessBoard {
                 if (Character.isDigit(fenChar)) {
                     // digit means N empty squares
                     int numEmptySquares = Character.getNumericValue(fenChar);
+                    
+                    // default is not empty, so must be set
+                    for (int i = 0; i < numEmptySquares; i++) {
+                        setPiece(rowIdx, colIdx, ChessPiece.Empty);
+                        colIdx++;
+                    }
+
                     colIdx += numEmptySquares;
                 } else {
                     byte piece = ChessPiece.getPieceFromFenCharacter(fenChar);
@@ -82,9 +93,15 @@ public class ChessBoard {
      * @param row the row index from top
      * @param col the column index from left
      * @param piece the piece
+     * @throws IllegalArgumentException if row or col is out of bounds
      */
     public void setPiece(int row, int col, byte piece) {
-        board1D[row * 8 + col] = piece;
+        if (row < 0 || row > 7 || col < 0 || col > 7) {
+            throw new IllegalArgumentException("Row or column out of bounds");
+        }
+
+        int idx = (row + 2) * 12 + col + 2;
+        board1D[idx] = piece;
     }
 
     /**
@@ -92,26 +109,28 @@ public class ChessBoard {
      * @param row the row index from top
      * @param col the column index from left
      * @return the piece
+     * @throws IllegalArgumentException if row or col is out of bounds
      */
     public byte getPiece(int row, int col) {
-        return board1D[row * 8 + col];
+        if (row < 0 || row > 7 || col < 0 || col > 7) {
+            throw new IllegalArgumentException("Row or column out of bounds");
+        }
+
+        int idx = (row + 2) * 12 + col + 2;
+        return board1D[idx];
     }
 
-    /**
+    /*
      * Sets the piece at the given 1D position.
-     * @param pos1D the 1D position (0-63)
-     * @param piece the piece
      */
-    public void setPiece(int pos1D, byte piece) {
+    void setPiece(int pos1D, byte piece) {
         board1D[pos1D] = piece;
     }
 
-    /**
+    /*
      * Gets the piece at the given 1D position.
-     * @param pos1D the 1D position (0-63)
-     * @return the piece
      */
-    public byte getPiece(int pos1D) {
+    byte getPiece(int pos1D) {
         return board1D[pos1D];
     }
 
@@ -119,7 +138,7 @@ public class ChessBoard {
      * Gets the 1D position of the king.
      */
     private int findKing(boolean isWhite) {
-        for (int pos1D = 0; pos1D < 64; pos1D++) {
+        for (int pos1D = 0; pos1D < 144; pos1D++) {
             byte piece = board1D[pos1D];
             if (ChessPiece.isType(piece, ChessPiece.King) && ChessPiece.isWhite(piece) == isWhite) {
                 return pos1D;
@@ -133,7 +152,7 @@ public class ChessBoard {
      * Prints the board to console.
      */
     public void print() {
-        String colLabels = "  a b d d e f g h  ";
+        String colLabels = "  a b c d e f g h  ";
 
         System.out.println(colLabels); // column labels
 
@@ -235,7 +254,7 @@ public class ChessBoard {
          * @return
          */
         public int get1D() {
-            return row * 8 + col;
+            return (row + 2) * 12 + (col + 2);
         }
 
         @Override
@@ -267,7 +286,7 @@ public class ChessBoard {
          * @return the position of the piece to move
          */
         public ChessPosition getFrom() {
-            return new ChessPosition(from1D / 8, from1D % 8);
+            return new ChessPosition(from1D / 12 - 2, from1D % 12 - 2);
         }
 
         /**
@@ -275,7 +294,7 @@ public class ChessBoard {
          * @return the destination of the move
          */
         public ChessPosition getTo() {
-            return new ChessPosition(to1D / 8, to1D % 8);
+            return new ChessPosition(to1D / 12 - 2, to1D % 12 - 2);
         }
 
         @Override

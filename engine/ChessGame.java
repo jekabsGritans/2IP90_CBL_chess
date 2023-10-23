@@ -18,14 +18,17 @@ public class ChessGame {
         ChessGame game = new ChessGame();
         ChessBoard board = game.getBoard();
 
-        ChessPosition from = new ChessPosition("b2");
+        ChessPosition from = new ChessPosition("g1");
 
         board.print();
 
         List<ChessMove> moves = game.getLegalMoves(from);
         System.out.println(moves.size() + " legal moves from " + from);
 
-        game.makeMove(moves.get(0));
+        ChessMove move = moves.get(1);
+        game.makeMove(move);
+        System.out.println(move.from1D - move.to1D);
+
         board.print();
     }
 

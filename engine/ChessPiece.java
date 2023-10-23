@@ -22,6 +22,9 @@ public class ChessPiece {
     public static final byte White = 8; // 01 000
     public static final byte Black = 16; // 10 000
 
+    // special value
+    public static final byte Invalid = -128; // 100 00 000 (no color/piece, but also not empty)
+
     /**
      * Gets the type of the piece.
      * @param piece the piece
@@ -82,8 +85,10 @@ public class ChessPiece {
                 return "Queen";
             case King:
                 return "King";
-            default:
+            case Empty:
                 return "Empty";
+            default:
+                return "Invalid";
         }
     }
 
@@ -106,6 +111,16 @@ public class ChessPiece {
     public static boolean isEmpty(byte piece) {
         // empty can't have a color
         return piece == Empty;
+    }
+
+    /**
+     * Checks if a piece is invalid.
+     * @param piece the piece to check
+     * @return true if the piece is invalid, false otherwise
+     */
+    public static boolean isInvalid(byte piece) {
+        // invalid can't have a color
+        return piece == Invalid;
     }
 
     /**
