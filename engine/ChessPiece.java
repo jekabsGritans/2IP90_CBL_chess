@@ -131,6 +131,15 @@ public class ChessPiece {
     public static boolean isWhite(byte piece) {
         return isColor(piece, White);
     }
+
+    /**
+     * Checks if a potential piece is actually a piece.a
+     * @param piece the piece to check
+     * @return true if the piece is a piece, false otherwise
+     */
+    public static boolean isPiece(byte piece) {
+        return !isEmpty(piece) && !isInvalid(piece);
+    }
      
     // for translating FEN characters to piece bytes and vice versa
     // Note: FEN_CHAR indices must match type values

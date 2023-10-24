@@ -118,8 +118,8 @@ public class ChessRules {
 
     // VALID 1D MOVE DIRECTIONS FOR EACH PIECE TYPE
 
-    private static final int[] WHITE_PAWN_DIRS = new int[] {12}; 
-    private static final int[] BLACK_PAWN_DIRS = new int[] {-12};
+    private static final int[] WHITE_PAWN_DIRS = new int[] {-12}; 
+    private static final int[] BLACK_PAWN_DIRS = new int[] {12};
     private static final int[] KNIGHT_DIRS = new int[] {-23, -25, -14, -10, 10, 14, 23, 25};
     private static final int[] BISHOP_DIRS = new int[] {-13, -11, 11, 13};
     private static final int[] ROOK_DIRS = new int[] {-12, -1, 1, 12};
@@ -139,7 +139,7 @@ public class ChessRules {
             int to = from + dir;
             if (to >= 0 && to < 144) {
                 byte piece = board.getPiece(to);
-                if (!ChessPiece.isInvalid(piece) && ChessPiece.isWhite(piece) != isWhiteMove) {
+                if (ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) != isWhiteMove) {
                     moves.add(board.new ChessMove(from, to));
                 }
             }
@@ -293,8 +293,7 @@ public class ChessRules {
                 byte piece = board.getPiece(to);
                 
                 // allow move to empty or capture enemy piece
-                if (!ChessPiece.isInvalid(piece)
-                    && (ChessPiece.isEmpty(piece) || ChessPiece.isWhite(piece) != isWhiteMove)) {
+                if (!ChessPiece.isInvalid(piece) && (ChessPiece.isEmpty(piece) || (allowCapture && ChessPiece.isWhite(piece) != isWhiteMove))) {
                     moves.add(board.new ChessMove(from, to));
                 }
             }
