@@ -214,18 +214,18 @@ public class ChessRules {
         CastlingRights castlingRights = board.castlingRights;
         if (isWhiteMove) {
             boolean canKingside = castlingRights.whiteKingSide()
-                && ChessPiece.isEmpty(board.getPiece(87))
-                && ChessPiece.isEmpty(board.getPiece(88));
+                && ChessPiece.isEmpty(board.getPiece(115))
+                && ChessPiece.isEmpty(board.getPiece(116));
             if (canKingside) {  
-                moves.add(board.new CastlingMove(from, 88, 89, 87));
+                moves.add(board.new CastlingMove(from, 116, 117, 115));
             }
 
             boolean canQueenside = castlingRights.whiteQueenSide()
-                && ChessPiece.isEmpty(board.getPiece(85))
-                && ChessPiece.isEmpty(board.getPiece(84))
-                && ChessPiece.isEmpty(board.getPiece(83));
+                && ChessPiece.isEmpty(board.getPiece(111))
+                && ChessPiece.isEmpty(board.getPiece(112))
+                && ChessPiece.isEmpty(board.getPiece(113));
             if (canQueenside) {
-                moves.add(board.new CastlingMove(from, 84, 82, 85));
+                moves.add(board.new CastlingMove(from, 112, 110, 113));
             }
 
         } else {
@@ -233,7 +233,7 @@ public class ChessRules {
                 && ChessPiece.isEmpty(board.getPiece(31))
                 && ChessPiece.isEmpty(board.getPiece(32));
             if (canKingside) {
-                moves.add(board.new CastlingMove(from, 31, 33, 32));
+                moves.add(board.new CastlingMove(from, 32, 33, 31));
             }
 
             boolean canQueenside = castlingRights.blackQueenSide()

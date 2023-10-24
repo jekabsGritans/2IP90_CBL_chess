@@ -19,17 +19,25 @@ public class ChessGame {
         ChessBoard board = game.getBoard();
         board.print();
 
-        ChessPosition from = new ChessPosition("g1");
+        // String[] poss = {"f8", "g8"};
+        String[] poss = {"b1", "c1", "d1"};
+        for (String pos : poss) {
+            ChessPosition cPos = new ChessPosition(pos);
+            System.out.println(pos + " " + cPos.get1D());
+            // System.out.println(pos + " " + ChessPiece.getFenCharacter(board.getPiece(cPos.get1D())));
+        }
+
+        // ChessPosition from = new ChessPosition("g1");
 
 
-        List<ChessMove> moves = game.getLegalMoves(from);
-        System.out.println(moves.size() + " legal moves from " + from);
+        // List<ChessMove> moves = game.getLegalMoves(from);
+        // System.out.println(moves.size() + " legal moves from " + from);
 
-        ChessMove move = moves.get(1);
-        game.makeMove(move);
-        System.out.println(move.from1D - move.to1D);
+        // ChessMove move = moves.get(1);
+        // game.makeMove(move);
+        // System.out.println(move.from1D - move.to1D);
 
-        board.print();
+        // board.print();
     }
 
     /**
