@@ -13,12 +13,12 @@ public class FloorTileEntity extends Entity {
         super();
         Image newImg = ChessPiece.isColor(floorColor, ChessPiece.Black) ? blackImg : whiteImg;
         if(ChessPiece.isColor(floorColor, ChessPiece.Black) && FloorTileEntity.blackImg == null) {
-            String imgPath = System.getProperty("user.dir") + "\\textures\\blackTile.png";
+            String imgPath = System.getProperty("user.dir") + "/textures/blackTile.png";
             File imgFile = new File(imgPath);
             blackImg = new ImageIcon(imgFile.getAbsolutePath()).getImage();
             newImg = blackImg;
         } else if(ChessPiece.isColor(floorColor, ChessPiece.White) && FloorTileEntity.whiteImg == null){
-            String imgPath = System.getProperty("user.dir") + "\\textures\\whiteTile.png";
+            String imgPath = System.getProperty("user.dir") + "/textures/whiteTile.png";
             File imgFile = new File(imgPath);
             whiteImg = new ImageIcon(imgFile.getAbsolutePath()).getImage();
             newImg = whiteImg;
