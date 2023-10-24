@@ -17,10 +17,10 @@ public class ChessGame {
     public static void main(String[] args) {
         ChessGame game = new ChessGame();
         ChessBoard board = game.getBoard();
+        board.print();
 
         ChessPosition from = new ChessPosition("g1");
 
-        board.print();
 
         List<ChessMove> moves = game.getLegalMoves(from);
         System.out.println(moves.size() + " legal moves from " + from);
