@@ -21,7 +21,7 @@ public class MenuScene extends Scene {
         Entity banner = new Entity();
         banner.setPos(new Point(280, 50));
         banner.setSize(new Point(300, 200));
-        String bannerPath = System.getProperty("user.dir") + "\\textures\\banner.png";
+        String bannerPath = System.getProperty("user.dir") + "/textures/banner.png";
         File bannerFile = new File(bannerPath);
         banner.loadTexture(bannerFile);
         addEntity(banner);
