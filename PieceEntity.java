@@ -92,7 +92,8 @@ class PieceEntity extends Entity implements MouseListener {
             File texFile = new File(texPath + '/' + pieceString);
             Image texImg = new ImageIcon(texFile.getAbsolutePath()).getImage();
             updateTextureImage(texImg);
-            textures.add(pieceType+pieceColor, texImg);
+            textures.set(pieceType+pieceColor, texImg);
+            System.out.println("wrote over: " + (pieceType+pieceColor));
         } else {
             updateTextureImage(textures.get(pieceType+pieceColor));
         }
