@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -7,6 +8,7 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.text.Position;
 
@@ -20,7 +22,9 @@ class PieceEntity extends Entity implements MouseListener {
     ChessPiece piece;
     ArrayList<Point> currentPossibleMoves = new ArrayList<Point>();
     Point origPos = getPos();
-    private byte pieceType;
+    byte pieceType;
+    public static ArrayList<Image> textures = new ArrayList<Image>(23);
+    
     
 
     public PieceEntity(byte pieceType, byte pieceColor) {
@@ -71,15 +75,28 @@ class PieceEntity extends Entity implements MouseListener {
     }
 
     public void initTexture() {
-        String pieceString = "textures/" + ChessPiece.typeToString(pieceType);
-        if(ChessPiece.isColor(pieceColor, ChessPiece.Black)) {
-            pieceString += "Black.png";
-        } else {
-            pieceString += "White.png";
+        if(textures.size() == 0) {
+            for(int i = 0; i < 23; i++) {
+                textures.add(null);
+            }
         }
-        String texPath = System.getProperty("user.dir");
-        File texFile = new File(texPath + '/' + pieceString);
-        loadTexture(texFile);
+
+        if(textures.get(pieceType+pieceColor) == null) {
+            String pieceString = "textures/" + ChessPiece.typeToString(pieceType);
+            if(ChessPiece.isColor(pieceColor, ChessPiece.Black)) {
+                pieceString += "Black.png";
+            } else {
+                pieceString += "White.png";
+            }
+            String texPath = System.getProperty("user.dir");
+            File texFile = new File(texPath + '/' + pieceString);
+            Image texImg = new ImageIcon(texFile.getAbsolutePath()).getImage();
+            updateTextureImage(texImg);
+            textures.add(pieceType+pieceColor, texImg);
+        } else {
+            updateTextureImage(textures.get(pieceType+pieceColor));
+        }
+
     }
 
     public void stopDrag() {

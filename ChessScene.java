@@ -120,17 +120,50 @@ public class ChessScene extends Scene {
         if(state != GameState.ACTIVE) {
             showWinBanner(state);
         }
-        updateBoardPieces(madeMove);
+        updateBoardPieces(chessGame.getBoard());
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
     }
 
-    public void updateBoardPieces(ChessMove move) {
-        Point landedPos = chessPosToPoint(move.getTo());
-        for(int i = 0; i < pieces.size(); i++) {
-            if(pieces.get(i).pieceColor != turnColor && pieces.get(i).getPos().x == landedPos.x && pieces.get(i).getPos().y == landedPos.y) {   
-                removeEntity(pieces.get(i));
+    public void updateBoardPieces(ChessBoard board) {
+        Point pieceSize = new Point((int)((boardSize.x/tileAmount)*pieceSizeModifier), (int)((boardSize.y/tileAmount)*pieceSizeModifier));
+        List<PieceEntity> currentPieces = pieces;
+        for(int row = 0; row < tileAmount; row++) {
+            for(int col = 0; col < tileAmount; col++) {
+                PieceEntity crntPiece;
+                Point realPos = chessPosToPoint(new ChessPosition(row, col));
+                crntPiece = getPieceFromPoint(realPos);
+                if(ChessPiece.isEmpty(board.getPiece(row, col))) {
+                    if(crntPiece != null) {
+                        removeEntity(crntPiece);
+                    }
+                    continue;
+                }
+                if(crntPiece == null) {
+                    PieceEntity newPiece = new PieceEntity(ChessPiece.getType(board.getPiece(row, col)), ChessPiece.getColor(board.getPiece(row, col)));
+                    newPiece.setSize(pieceSize);
+                    newPiece.setPos(realPos);
+                    addEntity(newPiece);
+                    continue;
+                }
+                if(ChessPiece.isColor(crntPiece.pieceColor, ChessPiece.White) != ChessPiece.isColor(board.getPiece(row, col), ChessPiece.White)) {
+                    crntPiece.pieceColor = ChessPiece.getColor(board.getPiece(row, col));
+                    crntPiece.initTexture();
+                }
+                if(ChessPiece.getType(board.getPiece(row, col)) != crntPiece.pieceType) {
+                    crntPiece.pieceType = ChessPiece.getType(board.getPiece(row, col));
+                    crntPiece.initTexture();
+                }
             }
         }
+    }
+
+    public PieceEntity getPieceFromPoint(Point point) {
+        for(int i = 0; i < pieces.size(); i++) {
+            if(pieces.get(i).getPos().x == point.x && pieces.get(i).getPos().y == point.y) {
+                return pieces.get(i);
+            }
+        }
+        return null;
     }
 
     public void showIndicators(List<Point> positions) {
@@ -221,7 +254,7 @@ public class ChessScene extends Scene {
         super.update();
         if(ended) {
             endTime += 0.01;
-            if(endTime < 100) {
+            if(endTime < 60) {
                 game.endChessGame();
             }
         }
