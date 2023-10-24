@@ -127,6 +127,7 @@ public class ChessScene extends Scene {
     public void updateBoardPieces(ChessBoard board) {
         Point pieceSize = new Point((int)((boardSize.x/tileAmount)*pieceSizeModifier), (int)((boardSize.y/tileAmount)*pieceSizeModifier));
         List<PieceEntity> currentPieces = pieces;
+        board.print();
         for(int row = 0; row < tileAmount; row++) {
             for(int col = 0; col < tileAmount; col++) {
                 PieceEntity crntPiece;
@@ -134,6 +135,7 @@ public class ChessScene extends Scene {
                 crntPiece = getPieceFromPoint(realPos);
                 if(ChessPiece.isEmpty(board.getPiece(row, col))) {
                     if(crntPiece != null) {
+                        crntPiece.graphic.setVisible(false);
                         removeEntity(crntPiece);
                     }
                     continue;
