@@ -100,6 +100,7 @@ class PieceEntity extends Entity implements MouseListener {
         } else {
             setPos(origPos);
         }
+        board.removeIndicators();
     }
 
     @Override

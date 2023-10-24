@@ -31,8 +31,8 @@ public class ChessScene extends Scene {
         frame.getContentPane().setBackground(Color.GRAY);
         initGame();
         initPieces();
+        initMoveIndicators();
         initBoard();
-        //initMoveIndicators();
     }
 
     public void initMoveIndicators() {
@@ -41,8 +41,9 @@ public class ChessScene extends Scene {
             indicator.setPos(new Point(0, 0));
             indicator.setSize(new Point((int)((boardSize.x/tileAmount)*pieceSizeModifier), (int)((boardSize.y/tileAmount)*pieceSizeModifier)));
             moveIndicators.add(indicator);
+            indicator.graphic.setVisible(false);
+            addEntity(indicator);
         }
-        frame.setVisible(true);
     }
 
 
@@ -55,7 +56,7 @@ public class ChessScene extends Scene {
             possiblePositions.add(chessPosToPoint(possibleMoves.get(i).getTo()));
             System.out.println(possibleMoves.get(i).getTo());
         }
-        //showIndicators(possiblePositions);
+        showIndicators(possiblePositions);
         currentPiecePossibleMoves = possibleMoves;
         return possiblePositions;
     }
@@ -64,7 +65,6 @@ public class ChessScene extends Scene {
         ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
         chessGame.makeMove(madeMove);
         updateBoardPieces(madeMove);
-        //removeIndicators();
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
     }
 
@@ -81,6 +81,7 @@ public class ChessScene extends Scene {
         for(int i = 0; i < positions.size(); i++) {
             moveIndicators.get(i).setPos(positions.get(i));
             moveIndicators.get(i).graphic.setVisible(true);
+            System.out.println("wop");
         }
     }
 
