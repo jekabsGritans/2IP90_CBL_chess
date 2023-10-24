@@ -72,7 +72,6 @@ public class Entity {
     }
 
     public void loadTexture(File texFile) {
-        System.out.println("loaded image: " + texFile.getAbsolutePath());
         updateTextureImage(new ImageIcon(texFile.getAbsolutePath()).getImage());
         updateTextureSize();
     }

@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -11,6 +12,8 @@ import engine.ChessGame;
 import engine.ChessPiece;
 import engine.ChessBoard.ChessMove;
 import engine.ChessBoard.ChessPosition;
+import engine.ChessGame.GameState;
+import java.util.concurrent.TimeUnit;
 
 import java.util.*;
 
@@ -25,15 +28,65 @@ public class ChessScene extends Scene {
     ArrayList<PieceEntity> pieces = new ArrayList<PieceEntity>();
     ArrayList<IndicatorEntity> moveIndicators = new ArrayList<IndicatorEntity>();
     Image indicatorImage;
+    Entity whiteBanner;
+    Entity blackBanner;
+    Entity stalemateBanner;
+    boolean ended = false;
+    float endTime = 0.0f;
 
     public ChessScene() {
         super();
         frame.getContentPane().setBackground(Color.GRAY);
         initGame();
+        initWinBanner();
         initPieces();
         initMoveIndicators();
         initBoard();
     }
+
+    public void initWinBanner() {
+        whiteBanner = new Entity();
+        whiteBanner.setPos(new Point(200, 200));
+        whiteBanner.setSize(new Point(600, 315));
+        String imgPath = System.getProperty("user.dir") + "/textures/whiteWins.png";
+        File imgFile = new File(imgPath);
+        whiteBanner.loadTexture(imgFile);
+        whiteBanner.graphic.setVisible(false);
+        addEntity(whiteBanner);
+
+        blackBanner = new Entity();
+        blackBanner.setPos(new Point(200, 200));
+        blackBanner.setSize(new Point(600, 315));
+        imgPath = System.getProperty("user.dir") + "/textures/blackWins.png";
+        imgFile = new File(imgPath);
+        blackBanner.loadTexture(imgFile);
+        blackBanner.graphic.setVisible(false);
+        addEntity(blackBanner);
+
+        stalemateBanner = new Entity();
+        stalemateBanner.setPos(new Point(200, 200));
+        stalemateBanner.setSize(new Point(600, 315));
+        imgPath = System.getProperty("user.dir") + "/textures/stalemate.png";
+        imgFile = new File(imgPath);
+        stalemateBanner.loadTexture(imgFile);
+        stalemateBanner.graphic.setVisible(false);
+        addEntity(stalemateBanner);
+    }
+
+    public void showWinBanner(GameState state) {
+        if(state == GameState.BLACK_WINS) {
+            blackBanner.graphic.setVisible(true);
+        }
+        else if(state == GameState.WHITE_WINS) {
+            whiteBanner.graphic.setVisible(true);
+        }
+        else if(state == GameState.STALEMATE) {
+            stalemateBanner.graphic.setVisible(true);
+        }
+        ended = true;
+    }
+
+
 
     public void initMoveIndicators() {
         for(int i = 0; i < 50; i++) {
@@ -63,7 +116,10 @@ public class ChessScene extends Scene {
     // moveIndex being the index of the move made, which should correspond to a move kept in the currentPiecePossibleMoves list
     public void nextTurn(int moveIndex) {
         ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
-        chessGame.makeMove(madeMove);
+        GameState state = chessGame.makeMove(madeMove);
+        if(state != GameState.ACTIVE) {
+            showWinBanner(state);
+        }
         updateBoardPieces(madeMove);
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
     }
@@ -157,6 +213,16 @@ public class ChessScene extends Scene {
                 FloorTileEntity tile = new FloorTileEntity(tileColor);
                 tile.setPos(new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y));
                 addEntity(tile);
+            }
+        }
+    }
+
+    public void update() {
+        super.update();
+        if(ended) {
+            endTime += 0.01;
+            if(endTime < 100) {
+                game.endChessGame();
             }
         }
     }

@@ -41,6 +41,10 @@ public class GameMain {
         bindScene(menuScene);
     }
 
+    public void endChessGame() {
+        initScenes();
+    }
+
     public void bindScene(Scene newScene) {
         if(currentScene != null) {
             currentScene.frame.setVisible(false);
