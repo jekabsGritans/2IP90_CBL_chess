@@ -12,8 +12,7 @@ public class MenuScene extends Scene {
 
     public void initButtons() {
         PlayerVSPlayerButton startButton = new PlayerVSPlayerButton();
-        startButton.setPos(new Point(280, 500));
-        startButton.setColor(Color.LIGHT_GRAY);
+        startButton.setPos(new Point(130, 500));
         addEntity(startButton);
     }
 
