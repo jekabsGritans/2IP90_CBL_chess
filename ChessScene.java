@@ -81,7 +81,6 @@ public class ChessScene extends Scene {
         for(int i = 0; i < positions.size(); i++) {
             moveIndicators.get(i).setPos(positions.get(i));
             moveIndicators.get(i).graphic.setVisible(true);
-            System.out.println("wop");
         }
     }
 
