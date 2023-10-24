@@ -93,6 +93,13 @@ public class ChessGame {
      * @return the new game state
      * @throws IllegalStateException if game is over
      */
+       /**
+     * Makes a move and returns the new game state.
+     * (Does not check if move is legal)
+     * @param move the move to make
+     * @return the new game state
+     * @throws IllegalStateException if game is over
+     */
     public GameState makeMove(ChessMove move) {
         System.out.println(move);
 
@@ -101,19 +108,23 @@ public class ChessGame {
         }
 
         board.makeMove(move);
+
+        // switch turns
         isWhiteMove = !isWhiteMove;
 
-        // if enemy can't make a move, game is over
+        // check if the enemy has no legal moves
+        // technically, it's now the enemy's turn
         if (getLegalMoves().size() == 0) {
-
-            // if I can capture enemy king, I win
+            // if the enemy king can be captured by my piece, they lose
             if (ChessRules.canCaptureKing(board, !isWhiteMove)) {
-                state = isWhiteMove ? GameState.WHITE_WINS : GameState.BLACK_WINS;
+                state = isWhiteMove ? GameState.BLACK_WINS : GameState.WHITE_WINS;
             } else {
+                // no legal moves and not in check, this is a stalemate
                 state = GameState.STALEMATE;
             }
         }
 
+        // return the current game state
         return state;
     }
 
