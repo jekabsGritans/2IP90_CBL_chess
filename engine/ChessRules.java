@@ -67,13 +67,16 @@ public class ChessRules {
 
         for (ChessMove move : moves) {
             ChessBoard newBoard = new ChessBoard(board);
+
+            // I make my move
             newBoard.makeMove(move);
             
-            // if enemy can capture my king
-            if (!canCaptureKing(board, !isWhiteMove)) {
+            // if enemy cannot capture my king now, move is legal
+            if (!canCaptureKing(newBoard, !isWhiteMove)) {
                 filteredMoves.add(move);
             }
         }
+
         return filteredMoves;
     }
 
@@ -82,21 +85,27 @@ public class ChessRules {
      */
     private static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove, int from) {
         byte piece = board.getPiece(from);
-            switch (ChessPiece.getType(piece)) {
-                case ChessPiece.Pawn:
-                    return getValidPawnMoves(board, isWhiteMove, from);
-                case ChessPiece.Knight:
-                    return getValidKnightMoves(board, isWhiteMove, from);
-                case ChessPiece.Bishop:
-                    return getValidBishopMoves(board, isWhiteMove, from);
-                case ChessPiece.Rook:
-                    return getValidRookMoves(board, isWhiteMove, from);
-                case ChessPiece.Queen:
-                    return getValidQueenMoves(board, isWhiteMove, from);
-                case ChessPiece.King:
-                    return getValidKingMoves(board, isWhiteMove, from);
-                default:
-                    return Arrays.asList();
+        
+        boolean isFriendlyPiece = ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) == isWhiteMove;
+        if (!isFriendlyPiece) {
+            return Arrays.asList();
+        }
+
+        switch (ChessPiece.getType(piece)) {
+            case ChessPiece.Pawn:
+                return getValidPawnMoves(board, isWhiteMove, from);
+            case ChessPiece.Knight:
+                return getValidKnightMoves(board, isWhiteMove, from);
+            case ChessPiece.Bishop:
+                return getValidBishopMoves(board, isWhiteMove, from);
+            case ChessPiece.Rook:
+                return getValidRookMoves(board, isWhiteMove, from);
+            case ChessPiece.Queen:
+                return getValidQueenMoves(board, isWhiteMove, from);
+            case ChessPiece.King:
+                return getValidKingMoves(board, isWhiteMove, from);
+            default:
+                return Arrays.asList();
         }
     }
 
@@ -108,7 +117,9 @@ public class ChessRules {
 
         for (int pos = 0; pos < 144; pos++) {
             byte piece = board.getPiece(pos);
-            if (piece != ChessPiece.Invalid && ChessPiece.isWhite(piece) == isWhiteMove) {
+            boolean isFriendlyPiece = ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) == isWhiteMove;
+
+            if (isFriendlyPiece) {
                 moves.addAll(getPseudoLegalMoves(board, isWhiteMove, pos));
             }
         }
@@ -118,34 +129,50 @@ public class ChessRules {
 
     // VALID 1D MOVE DIRECTIONS FOR EACH PIECE TYPE
 
-    private static final int[] WHITE_PAWN_DIRS = new int[] {-12}; 
-    private static final int[] BLACK_PAWN_DIRS = new int[] {12};
+    private static final int[] WHITE_PAWN_FORWARD_DIRS = new int[] {-12}; 
+    private static final int[] BLACK_PAWN_FORWARD_DIRS = new int[] {12};
+    private static final int[] WHITE_PAWN_DIAGONAL_DIRS = new int[] {-11, -13};
+    private static final int[] BLACK_PAWN_DIAGONAL_DIRS = new int[] {11, 13}; 
     private static final int[] KNIGHT_DIRS = new int[] {-23, -25, -14, -10, 10, 14, 23, 25};
     private static final int[] BISHOP_DIRS = new int[] {-13, -11, 11, 13};
     private static final int[] ROOK_DIRS = new int[] {-12, -1, 1, 12};
     private static final int[] QUEEN_DIRS = new int[] {-13, -12, -11, -1, 1, 11, 12, 13};
     private static final int[] KING_DIRS = new int[] {-13, -12, -11, -1, 1, 11, 12, 13};
 
-    // METHODS FOR EACH PIECE TYPE
+    // POSITIONS FOR CASTLING
+
+    private static final int CASTLING_WHITE_KING_TO = 116;
+    private static final int CASTLING_WHITE_KING_ROOK_FROM = 115;
+    private static final int CASTLING_WHITE_KING_ROOK_TO = 117;
+
+    private static final int CASTLING_BLACK_KING_TO = 32;
+    private static final int CASTLING_BLACK_KING_ROOK_FROM = 31;
+    private static final int CASTLING_BLACK_KING_ROOK_TO = 33;
+
+    private static final int CASTLING_WHITE_QUEEN_TO = 112;
+    private static final int CASTLING_WHITE_QUEEN_ROOK_FROM = 113;
+    private static final int CASTLING_WHITE_QUEEN_ROOK_TO = 110;
+    private static final int CASTLING_WHITE_QUEEN_BLOCKING = 111;
+
+    private static final int CASTLING_BLACK_QUEEN_TO = 28;
+    private static final int CASTLING_BLACK_QUEEN_ROOK_FROM = 27;
+    private static final int CASTLING_BLACK_QUEEN_ROOK_TO = 26;
+    private static final int CASTLING_BLACK_QUEEN_BLOCKING = 29;
+
+
+   // METHODS FOR EACH PIECE TYPE
 
     private static List<ChessMove> getValidPawnMoves(ChessBoard board, boolean isWhiteMove, int from) {
-        int[] dirs = isWhiteMove ? WHITE_PAWN_DIRS : BLACK_PAWN_DIRS;
+        int[] forwardDirs = isWhiteMove ? WHITE_PAWN_FORWARD_DIRS : BLACK_PAWN_FORWARD_DIRS;
+        int[] diagDirs = isWhiteMove ? WHITE_PAWN_DIAGONAL_DIRS : BLACK_PAWN_DIAGONAL_DIRS;
 
-        List<ChessMove> moves = getValidNonSlidingMoves(board, isWhiteMove, from, dirs, false);
+        // forward non-capture
+        List<ChessMove> moves = getValidNonSlidingMoves(board, isWhiteMove, from, forwardDirs, true, false);
 
-        // diagonal capture TODO make neater
-        int[] diagDirs = isWhiteMove ? new int[] {-11, -13} : new int[] {11, 13};
-        for (int dir : diagDirs) {
-            int to = from + dir;
-            if (to >= 0 && to < 144) {
-                byte piece = board.getPiece(to);
-                if (ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) != isWhiteMove) {
-                    moves.add(board.new ChessMove(from, to));
-                }
-            }
-        }
+        // diagonal capture only
+        moves.addAll(getValidNonSlidingMoves(board, isWhiteMove, from, diagDirs, false, true));
 
-        // replace with promotion moves if at end
+        // replace with promotion moves if at end row
         List<ChessMove> newMoves = new ArrayList<ChessMove>(0);
         for (ChessMove move : moves) {
             // if at any end
@@ -210,39 +237,37 @@ public class ChessRules {
     private static List<ChessMove> getValidKingMoves(ChessBoard board, boolean isWhiteMove, int from) {
         List<ChessMove> moves =  getValidNonSlidingMoves(board, isWhiteMove, from, KING_DIRS);
 
-        // castling TODO check constants
+        // castling
         CastlingRights castlingRights = board.castlingRights;
-        if (isWhiteMove) {
-            boolean canKingside = castlingRights.whiteKingSide()
-                && ChessPiece.isEmpty(board.getPiece(115))
-                && ChessPiece.isEmpty(board.getPiece(116));
-            if (canKingside) {  
-                moves.add(board.new CastlingMove(from, 116, 117, 115));
-            }
 
-            boolean canQueenside = castlingRights.whiteQueenSide()
-                && ChessPiece.isEmpty(board.getPiece(111))
-                && ChessPiece.isEmpty(board.getPiece(112))
-                && ChessPiece.isEmpty(board.getPiece(113));
-            if (canQueenside) {
-                moves.add(board.new CastlingMove(from, 112, 110, 113));
-            }
+        // king being in starting position is embedded in castling rights
+        boolean canKingside = isWhiteMove ? castlingRights.whiteKingSide() : castlingRights.blackKingSide();
+        boolean canQueenside = isWhiteMove ? castlingRights.whiteQueenSide() : castlingRights.blackQueenSide();
 
-        } else {
-            boolean canKingside = castlingRights.blackKingSide()
-                && ChessPiece.isEmpty(board.getPiece(31))
-                && ChessPiece.isEmpty(board.getPiece(32));
-            if (canKingside) {
-                moves.add(board.new CastlingMove(from, 32, 33, 31));
-            }
+        int kingTo = isWhiteMove ? CASTLING_WHITE_KING_TO: CASTLING_BLACK_KING_TO;
+        int kingRookFrom = isWhiteMove ? CASTLING_WHITE_KING_ROOK_FROM : CASTLING_BLACK_KING_ROOK_FROM;
+        int kingRookTo = isWhiteMove ? CASTLING_WHITE_KING_ROOK_TO : CASTLING_BLACK_KING_ROOK_TO;
 
-            boolean canQueenside = castlingRights.blackQueenSide()
-                && ChessPiece.isEmpty(board.getPiece(29))
-                && ChessPiece.isEmpty(board.getPiece(28))
-                && ChessPiece.isEmpty(board.getPiece(27));
-            if (canQueenside) {
-                moves.add(board.new CastlingMove(from, 28, 26,29));
-            }
+        int queenTo = isWhiteMove ? CASTLING_WHITE_QUEEN_TO: CASTLING_BLACK_QUEEN_TO;
+        int queenRookFrom = isWhiteMove ? CASTLING_WHITE_QUEEN_ROOK_FROM : CASTLING_BLACK_QUEEN_ROOK_FROM;
+        int queenRookTo = isWhiteMove ? CASTLING_WHITE_QUEEN_ROOK_TO : CASTLING_BLACK_QUEEN_ROOK_TO;
+        int queenBlocking = isWhiteMove ? CASTLING_WHITE_QUEEN_BLOCKING : CASTLING_BLACK_QUEEN_BLOCKING;
+
+        canKingside = canKingside
+            && ChessPiece.isEmpty(board.getPiece(kingTo))
+            && ChessPiece.isEmpty(board.getPiece(kingRookTo));
+
+        canQueenside = canQueenside
+            && ChessPiece.isEmpty(board.getPiece(queenTo))
+            && ChessPiece.isEmpty(board.getPiece(queenRookTo))
+            && ChessPiece.isEmpty(board.getPiece(queenBlocking));
+
+        if (canKingside) {
+            moves.add(board.new CastlingMove(from, kingRookFrom, kingTo, kingRookTo));
+        }
+
+        if (canQueenside) {
+            moves.add(board.new CastlingMove(from, queenRookFrom, queenTo, queenRookTo));
         }
 
         return moves;
@@ -264,10 +289,10 @@ public class ChessRules {
                     moves.add(board.new ChessMove(from, to));
                 } else {
                     // allow capture enemy piece
-                    if (!ChessPiece.isInvalid(piece) && ChessPiece.isWhite(piece) != isWhiteMove) {
+                    if (ChessPiece.isPiece(piece) && (ChessPiece.isWhite(piece) != isWhiteMove)) {
                         moves.add(board.new ChessMove(from, to));
                     }
-                    // continue until blocked by piece
+                    // continue until blocked by piece or edge of board
                     break;
                 }
                 to += dir;
@@ -277,13 +302,11 @@ public class ChessRules {
         return moves;
     }
 
-
-    // allowCapture is true by default, only false for pawn forward moves
     private static List<ChessMove> getValidNonSlidingMoves(ChessBoard board, boolean isWhiteMove, int from, int[] directions) {
-        return getValidNonSlidingMoves(board, isWhiteMove, from, directions, true);
+        return getValidNonSlidingMoves(board, isWhiteMove, from, directions, true, true);
     }
 
-    private static List<ChessMove> getValidNonSlidingMoves(ChessBoard board, boolean isWhiteMove, int from, int[] directions, boolean allowCapture) {
+    private static List<ChessMove> getValidNonSlidingMoves(ChessBoard board, boolean isWhiteMove, int from, int[] directions, boolean allowEmpty, boolean allowCapture) {
         List<ChessMove> moves = new ArrayList<ChessMove>(0);
 
         for (int dir : directions) {
@@ -291,9 +314,12 @@ public class ChessRules {
 
             if (to >= 0 && to < 144) {
                 byte piece = board.getPiece(to);
-                
-                // allow move to empty or capture enemy piece
-                if (!ChessPiece.isInvalid(piece) && (ChessPiece.isEmpty(piece) || (allowCapture && ChessPiece.isWhite(piece) != isWhiteMove))) {
+
+                // move to empty or capture
+                if (
+                    (allowEmpty && ChessPiece.isEmpty(piece)) || 
+                    (allowCapture && ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) != isWhiteMove)
+                    ) {
                     moves.add(board.new ChessMove(from, to));
                 }
             }
@@ -301,4 +327,5 @@ public class ChessRules {
 
         return moves;
     }
+
 }
