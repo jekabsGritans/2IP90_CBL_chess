@@ -21,18 +21,15 @@ public class ChessScene extends Scene {
     Point boardPos = new Point(50, 50);
     Point boardSize = new Point(800, 800);
     int tileAmount = 8;
-    double pieceSizeModifier = 0.8;
     ChessGame chessGame;
     byte turnColor = ChessPiece.White;
     ArrayList<ChessMove> currentPiecePossibleMoves = new ArrayList<ChessMove>();
     ArrayList<PieceEntity> pieces = new ArrayList<PieceEntity>();
     ArrayList<IndicatorEntity> moveIndicators = new ArrayList<IndicatorEntity>();
     Image indicatorImage;
-    Entity whiteBanner;
-    Entity blackBanner;
-    Entity stalemateBanner;
-    boolean ended = false;
-    float endTime = 0.0f;
+    EndingEntity whiteBanner;
+    EndingEntity blackBanner;
+    EndingEntity stalemateBanner;
     boolean withBot = false;
 
     public ChessScene(boolean withBot) {
@@ -47,31 +44,34 @@ public class ChessScene extends Scene {
     }
 
     public void initWinBanner() {
-        whiteBanner = new Entity();
+        whiteBanner = new EndingEntity();
         whiteBanner.setPos(new Point(200, 200));
         whiteBanner.setSize(new Point(600, 315));
         String imgPath = System.getProperty("user.dir") + "/textures/whiteWins.png";
         File imgFile = new File(imgPath);
         whiteBanner.loadTexture(imgFile);
         whiteBanner.graphic.setVisible(false);
+        whiteBanner.scene = this;
         addEntity(whiteBanner);
 
-        blackBanner = new Entity();
+        blackBanner = new EndingEntity();
         blackBanner.setPos(new Point(200, 200));
         blackBanner.setSize(new Point(600, 315));
         imgPath = System.getProperty("user.dir") + "/textures/blackWins.png";
         imgFile = new File(imgPath);
         blackBanner.loadTexture(imgFile);
         blackBanner.graphic.setVisible(false);
+        blackBanner.scene = this;
         addEntity(blackBanner);
 
-        stalemateBanner = new Entity();
+        stalemateBanner = new EndingEntity();
         stalemateBanner.setPos(new Point(200, 200));
         stalemateBanner.setSize(new Point(600, 315));
         imgPath = System.getProperty("user.dir") + "/textures/stalemate.png";
         imgFile = new File(imgPath);
         stalemateBanner.loadTexture(imgFile);
         stalemateBanner.graphic.setVisible(false);
+        stalemateBanner.scene = this;
         addEntity(stalemateBanner);
     }
 
@@ -85,14 +85,13 @@ public class ChessScene extends Scene {
         else if(state == GameState.STALEMATE) {
             stalemateBanner.graphic.setVisible(true);
         }
-        ended = true;
     }
 
     public void initMoveIndicators() {
         for(int i = 0; i < 50; i++) {
             IndicatorEntity indicator = new IndicatorEntity();
             indicator.setPos(new Point(0, 0));
-            indicator.setSize(new Point((int)((boardSize.x/tileAmount)*pieceSizeModifier), (int)((boardSize.y/tileAmount)*pieceSizeModifier)));
+            indicator.setSize(new Point((int)(boardSize.x/tileAmount), (int)((boardSize.y/tileAmount))));
             moveIndicators.add(indicator);
             indicator.graphic.setVisible(false);
             addEntity(indicator, 5);
@@ -101,6 +100,8 @@ public class ChessScene extends Scene {
 
 
     public ArrayList<Point> getPossibleMovePositions(PieceEntity piece) {
+        System.out.println("pos: " + piece.getPos());
+        System.out.println("chesspos: " + pointToChessPos(piece.getPos()).col() + ", " + pointToChessPos(piece.getPos()).row());
         ChessPosition piecepos = pointToChessPos(piece.getPos());
         ArrayList<ChessMove> possibleMoves = new ArrayList<ChessMove>(chessGame.getLegalMoves(piecepos));
         ArrayList<Point> possiblePositions = new ArrayList<Point>();
@@ -120,27 +121,53 @@ public class ChessScene extends Scene {
         if(state != GameState.ACTIVE) {
             showWinBanner(state);
         }
-        updateBoardPieces(chessGame.getBoard());
+        chessGame.getBoard().print();
+        updateBoard();
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
             chessGame.makeMove(ChessBot.generateMove(chessGame.getBoard()));
-            updateBoardPieces(chessGame.getBoard());
+            updateBoard();
             turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         }
     }
 
+    public void updateBoard() {
+        // Current algorithm uses 2 passes
+        for(int i = 0; i < 3; i++) {
+            updateBoardPieces(chessGame.getBoard());
+        }
+    }
     public void updateBoardPieces(ChessBoard board) {
-        Point pieceSize = new Point((int)((boardSize.x/tileAmount)*pieceSizeModifier), (int)((boardSize.y/tileAmount)*pieceSizeModifier));
-        List<PieceEntity> currentPieces = pieces;
-        board.print();
+        Point pieceSize = new Point((int)((boardSize.x/tileAmount)), (int)((boardSize.y/tileAmount)));
         for(int row = 0; row < tileAmount; row++) {
             for(int col = 0; col < tileAmount; col++) {
-                PieceEntity crntPiece;
+                PieceEntity crntPiece = null;
                 Point realPos = chessPosToPoint(new ChessPosition(row, col));
-                crntPiece = getPieceFromPoint(realPos);
+
+
+                ArrayList<PieceEntity> posPieces = getPieceFromPoint(realPos);
+                if(posPieces.size() > 1) {
+                    for(int i = 0; i < posPieces.size(); i++) {
+                        removeEntity(posPieces.get(i));
+                        posPieces.get(i).graphic.setVisible(false);
+                        posPieces.get(i).active = false;
+                        pieces.remove(posPieces.get(i));
+                    }
+                    if(!ChessPiece.isEmpty(board.getPiece(row, col))) {
+                        col--;
+                    }
+                    continue;
+                }
+                if(posPieces.size() == 1) {
+                    crntPiece = posPieces.get(0);
+                }
+
+
                 if(ChessPiece.isEmpty(board.getPiece(row, col))) {
                     if(crntPiece != null) {
                         crntPiece.graphic.setVisible(false);
+                        crntPiece.active = false;
+                        pieces.remove(crntPiece);
                         removeEntity(crntPiece);
                     }
                     continue;
@@ -162,15 +189,17 @@ public class ChessScene extends Scene {
                 }
             }
         }
+        frame.setVisible(true);
     }
 
-    public PieceEntity getPieceFromPoint(Point point) {
+    public ArrayList<PieceEntity> getPieceFromPoint(Point point) {
+        ArrayList<PieceEntity> returnPieces = new ArrayList<PieceEntity>();
         for(int i = 0; i < pieces.size(); i++) {
-            if(pieces.get(i).getPos().x == point.x && pieces.get(i).getPos().y == point.y) {
-                return pieces.get(i);
+            if(pieces.get(i).getPos().x >= point.x-40 &&  pieces.get(i).getPos().x <= point.x+40 && pieces.get(i).getPos().y >= point.y-40 && pieces.get(i).getPos().y <= point.y + 40) {
+                returnPieces.add(pieces.get(i));
             }
         }
-        return null;
+        return returnPieces;
     }
 
     public void showIndicators(List<Point> positions) {
@@ -187,15 +216,13 @@ public class ChessScene extends Scene {
     }
 
     public ChessPosition pointToChessPos(Point point) {
-        int posMod = (int)(((boardSize.x/tileAmount) - ((boardSize.x/tileAmount)*pieceSizeModifier))/2);
-        int row = (point.y-posMod-boardPos.y)/(boardSize.y/tileAmount);
-        int col = (point.x-posMod-boardPos.x)/(boardSize.x/tileAmount);
+        int row = (int)Math.rint(((double)(point.y-boardPos.y))/((double)(boardSize.y/tileAmount)));
+        int col = (int)Math.rint(((double)(point.x-boardPos.x))/((double)(boardSize.x/tileAmount)));
         return new ChessPosition(row, col);
     }
 
     public Point chessPosToPoint(ChessPosition pos) {
-        int posMod = (int)(((boardSize.x/tileAmount) - ((boardSize.x/tileAmount)*pieceSizeModifier))/2);
-        return new Point(pos.col()*(boardSize.x/tileAmount)+boardPos.x + posMod, pos.row()*(boardSize.y/tileAmount)+boardPos.y + posMod);
+        return new Point(pos.col()*(boardSize.x/tileAmount)+boardPos.x, pos.row()*(boardSize.y/tileAmount)+boardPos.y);
     }
 
     public void initGame() {
@@ -204,15 +231,13 @@ public class ChessScene extends Scene {
  
     public void initPieces() {
         double tileSize = boardSize.x / tileAmount;
-        Point pieceSize = new Point((int)(tileSize*pieceSizeModifier), (int)(tileSize*pieceSizeModifier));
+        Point pieceSize = new Point((int)tileSize, (int)tileSize);
         ArrayList<Point> startPositions = new ArrayList<Point>();
         byte[] startTypes = new byte[] {ChessPiece.Rook, ChessPiece.Knight, ChessPiece.Bishop, ChessPiece.Queen, ChessPiece.King, ChessPiece.Bishop, ChessPiece.Knight, ChessPiece.Rook};
         // Initialize white positions
         for(int y = tileAmount-1; y >= tileAmount-2; y--) {
             for(int x = 0 ; x < tileAmount; x++) {
                 Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
-                piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
-                piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;
                 startPositions.add(piecePos);
             }
         }
@@ -230,8 +255,6 @@ public class ChessScene extends Scene {
         for(int y = 0; y < 2; y++) {
             for(int x = 0; x < tileAmount; x++) {
                 Point piecePos = new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y);
-                piecePos.x += (tileSize-tileSize*pieceSizeModifier)*0.5;
-                piecePos.y += (tileSize-tileSize*pieceSizeModifier)*0.5;
                 startPositions.add(piecePos);
             }
         }
@@ -259,12 +282,6 @@ public class ChessScene extends Scene {
 
     public void update() {
         super.update();
-        if(ended) {
-            endTime += 0.01;
-            if(endTime < 60) {
-                game.endChessGame();
-            }
-        }
     }
 
     public void addEntity(PieceEntity entity) {

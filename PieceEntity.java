@@ -23,6 +23,7 @@ class PieceEntity extends Entity implements MouseListener {
     ArrayList<Point> currentPossibleMoves = new ArrayList<Point>();
     Point origPos = getPos();
     byte pieceType;
+    boolean active = true;
     public static ArrayList<Image> textures = new ArrayList<Image>(23);
     
     
@@ -37,7 +38,7 @@ class PieceEntity extends Entity implements MouseListener {
     }
 
     public void mousePressed(MouseEvent e) {
-        if(!ChessPiece.isColor(pieceColor, board.turnColor)) {
+        if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active) {
             return;
         }
         currentPossibleMoves = board.getPossibleMovePositions(this);
@@ -46,7 +47,7 @@ class PieceEntity extends Entity implements MouseListener {
      }
  
     public void mouseReleased(MouseEvent e) {
-        if(!dragging) {
+        if(!dragging || !active) {
             return;
         }
         stopDrag();
@@ -93,7 +94,6 @@ class PieceEntity extends Entity implements MouseListener {
             Image texImg = new ImageIcon(texFile.getAbsolutePath()).getImage();
             updateTextureImage(texImg);
             textures.set(pieceType+pieceColor, texImg);
-            System.out.println("wrote over: " + (pieceType+pieceColor));
         } else {
             updateTextureImage(textures.get(pieceType+pieceColor));
         }

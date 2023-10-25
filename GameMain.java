@@ -19,7 +19,6 @@ public class GameMain {
         initScenes();
         InputManager.init(currentScene.frame);
         while(true) {
-            renderLoop();
             updateLoop();
             InputManager.update();
         }
@@ -27,10 +26,6 @@ public class GameMain {
 
     public void updateLoop() {
         currentScene.update();
-    }
-
-    public void renderLoop() {
-        currentScene.render();
     }
 
     public void initScenes() {
