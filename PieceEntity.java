@@ -83,10 +83,10 @@ class PieceEntity extends Entity implements MouseListener {
 
         if(textures.get(pieceType+pieceColor) == null) {
             String pieceString = "textures/" + ChessPiece.typeToString(pieceType);
-            if(ChessPiece.isColor(pieceColor, ChessPiece.Black)) {
-                pieceString += "Black.png";
-            } else {
+            if(ChessPiece.isColor(pieceColor, ChessPiece.White)) {
                 pieceString += "White.png";
+            } else {
+                pieceString += "Black.png";
             }
             String texPath = System.getProperty("user.dir");
             File texFile = new File(texPath + '/' + pieceString);
