@@ -40,7 +40,7 @@ public class ChessScene extends Scene {
         initWinBanner();
         initPieces();
         initMoveIndicators();
-        initBoard();
+        //initBoard();
     }
 
     public void initWinBanner() {
