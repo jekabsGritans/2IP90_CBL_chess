@@ -16,7 +16,7 @@ public class GameMain {
 
     public void startGame() {
         initScenes();
-        InputManager.init();
+        InputManager.init(currentScene.frame);
         while(true) {
             renderLoop();
             updateLoop();
@@ -52,5 +52,6 @@ public class GameMain {
 
         newScene.frame.setVisible(true);
         currentScene = newScene;
+        InputManager.init(currentScene.frame);
     }
 }
