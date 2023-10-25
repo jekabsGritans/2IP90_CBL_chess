@@ -184,6 +184,18 @@ public class ChessBoard {
         setPiece(move.to1D, piece);
         setPiece(move.from1D, ChessPiece.Empty);
 
+        // update king positions
+        if (ChessPiece.isType(piece, ChessPiece.King)) {
+            if (ChessPiece.isWhite(piece)) {
+                whiteKingPos1D = move.to1D;
+            } else {
+                blackKingPos1D = move.to1D;
+            }
+        }
+
+        // reset en passant target
+        enPassantTarget1D = -1;
+
         // special moves
         if (move instanceof PawnDoubleMove) {
             PawnDoubleMove pawnDoubleMove = (PawnDoubleMove) move;

@@ -169,7 +169,7 @@ public class ChessRules {
         // forward non-capture
         List<ChessMove> moves = getValidNonSlidingMoves(board, isWhiteMove, from, forwardDirs, true, false);
 
-        // diagonal capture only
+        // diagonal capture
         moves.addAll(getValidNonSlidingMoves(board, isWhiteMove, from, diagDirs, false, true));
 
         // replace with promotion moves if at end row
@@ -302,6 +302,7 @@ public class ChessRules {
         return moves;
     }
 
+    // by default allow both moves to empty and capture since the only exception is pawn
     private static List<ChessMove> getValidNonSlidingMoves(ChessBoard board, boolean isWhiteMove, int from, int[] directions) {
         return getValidNonSlidingMoves(board, isWhiteMove, from, directions, true, true);
     }
@@ -315,10 +316,10 @@ public class ChessRules {
             if (to >= 0 && to < 144) {
                 byte piece = board.getPiece(to);
 
-                // move to empty or capture
+                // allow empty or capture
                 if (
                     (allowEmpty && ChessPiece.isEmpty(piece)) || 
-                    (allowCapture && ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) != isWhiteMove)
+                    (allowCapture && ChessPiece.isPiece(piece) && (ChessPiece.isWhite(piece) != isWhiteMove))
                     ) {
                     moves.add(board.new ChessMove(from, to));
                 }
