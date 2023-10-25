@@ -5,12 +5,14 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 class Scene {
   ArrayList<Entity> entities  = new ArrayList<Entity>();
   String name;
   JFrame frame;
+  JLayeredPane pane;
   GameMain game;
   public static int maxEntities = 1000;
 
@@ -20,6 +22,10 @@ class Scene {
     frame.setLayout(null);
     frame.setTitle("Chess Game");
     frame.setLocationRelativeTo(null);
+    pane = new JLayeredPane();
+    pane.setSize(900, 900);
+    pane.setLayout(null);
+    frame.add(pane);
   }
 
   public Scene(ArrayList<Entity> entities) {
@@ -40,25 +46,16 @@ class Scene {
   }
 
   public void addEntity(Entity entity) {
-    boolean added = false;
-    // Puts new entity into array based on zLayer
-    for(int i = 0; i < entities.size(); i++) {
-      // Also checks for current i for when i is 0
-      // And makes sure it doesn't check for index out of range
-      if(entities.get(i).zLayer > entity.zLayer || (i < entities.size()-1 && entities.get(i+1).zLayer > entity.zLayer)) {
-        entities.add(i, entity);
-        added = true;
-        break;
-      }
-    }
-    if(!added) {
-      entities.add(entity);
-    }
-    frame.add(entity.graphic);
+    entities.add(entity);
+    pane.add(entity.graphic);
+  }
+  public void addEntity(Entity entity, int layer) {
+    entities.add(entity);
+    pane.add(entity.graphic, layer);
   }
 
   public void removeEntity(Entity entity) {
     entities.remove(entity);
-    frame.remove(entity.graphic);
+    pane.remove(entity.graphic);
   }
 }

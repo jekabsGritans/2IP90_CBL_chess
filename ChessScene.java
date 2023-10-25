@@ -95,7 +95,7 @@ public class ChessScene extends Scene {
             indicator.setSize(new Point((int)((boardSize.x/tileAmount)*pieceSizeModifier), (int)((boardSize.y/tileAmount)*pieceSizeModifier)));
             moveIndicators.add(indicator);
             indicator.graphic.setVisible(false);
-            addEntity(indicator);
+            addEntity(indicator, 5);
         }
     }
 
@@ -263,7 +263,7 @@ public class ChessScene extends Scene {
     }
 
     public void addEntity(PieceEntity entity) {
-        super.addEntity(entity);
+        super.addEntity(entity, 2);
         entity.board = this;
         pieces.add(entity);
     }
