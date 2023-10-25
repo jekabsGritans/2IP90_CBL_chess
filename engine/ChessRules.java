@@ -2,6 +2,8 @@ package engine;
 
 import engine.ChessBoard.CastlingRights;
 import engine.ChessBoard.ChessMove;
+import engine.ChessBoard.ChessPosition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,21 +19,22 @@ public class ChessRules {
      * @return true if enemy king can be captured
      */
     public static boolean canCaptureKing(ChessBoard board, boolean isWhiteMove) {
-
-        // pseudo-legal is fine as it does not matter
-        // if I expose my king if I can first capture the enemy king
-        List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
-
-        int enemyKingPos = isWhiteMove ? board.blackKingPos1D : board.whiteKingPos1D;
-
-        // check if any move is to the enemy king's position
-        for (ChessMove move : moves) {
-            if (move.to1D == enemyKingPos) {
-                return true;
-            }
-        }
-
         return false;
+
+        // // pseudo-legal is fine as it does not matter
+        // // if I expose my king if I can first capture the enemy king
+        // List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
+
+        // int enemyKingPos = isWhiteMove ? board.blackKingPos1D : board.whiteKingPos1D;
+
+        // // check if any move is to the enemy king's position
+        // for (ChessMove move : moves) {
+        //     if (move.to1D == enemyKingPos) {
+        //         return true;
+        //     }
+        // }
+
+        // return false;
     }
 
     /**
@@ -141,23 +144,23 @@ public class ChessRules {
 
     // POSITIONS FOR CASTLING
 
-    private static final int CASTLING_WHITE_KING_TO = 116;
-    private static final int CASTLING_WHITE_KING_ROOK_FROM = 115;
-    private static final int CASTLING_WHITE_KING_ROOK_TO = 117;
+    private static final int CASTLING_WHITE_KING_TO = new ChessPosition("g1").get1D();
+    private static final int CASTLING_WHITE_KING_ROOK_FROM = new ChessPosition("h1").get1D();
+    private static final int CASTLING_WHITE_KING_ROOK_TO = new ChessPosition("f1").get1D();
 
-    private static final int CASTLING_BLACK_KING_TO = 32;
-    private static final int CASTLING_BLACK_KING_ROOK_FROM = 31;
-    private static final int CASTLING_BLACK_KING_ROOK_TO = 33;
+    private static final int CASTLING_BLACK_KING_TO = new ChessPosition("g8").get1D();
+    private static final int CASTLING_BLACK_KING_ROOK_FROM = new ChessPosition("h8").get1D();
+    private static final int CASTLING_BLACK_KING_ROOK_TO = new ChessPosition("f8").get1D();
 
-    private static final int CASTLING_WHITE_QUEEN_TO = 112;
-    private static final int CASTLING_WHITE_QUEEN_ROOK_FROM = 113;
-    private static final int CASTLING_WHITE_QUEEN_ROOK_TO = 110;
-    private static final int CASTLING_WHITE_QUEEN_BLOCKING = 111;
+    private static final int CASTLING_WHITE_QUEEN_TO = new ChessPosition("c1").get1D();
+    private static final int CASTLING_WHITE_QUEEN_ROOK_FROM = new ChessPosition("a1").get1D();
+    private static final int CASTLING_WHITE_QUEEN_ROOK_TO = new ChessPosition("d1").get1D();
+    private static final int CASTLING_WHITE_QUEEN_BLOCKING = new ChessPosition("b1").get1D();
 
-    private static final int CASTLING_BLACK_QUEEN_TO = 28;
-    private static final int CASTLING_BLACK_QUEEN_ROOK_FROM = 27;
-    private static final int CASTLING_BLACK_QUEEN_ROOK_TO = 26;
-    private static final int CASTLING_BLACK_QUEEN_BLOCKING = 29;
+    private static final int CASTLING_BLACK_QUEEN_TO = new ChessPosition("c8").get1D();
+    private static final int CASTLING_BLACK_QUEEN_ROOK_FROM = new ChessPosition("a8").get1D();
+    private static final int CASTLING_BLACK_QUEEN_ROOK_TO = new ChessPosition("d8").get1D();
+    private static final int CASTLING_BLACK_QUEEN_BLOCKING =  new ChessPosition("b8").get1D();
 
 
    // METHODS FOR EACH PIECE TYPE
@@ -263,11 +266,11 @@ public class ChessRules {
             && ChessPiece.isEmpty(board.getPiece(queenBlocking));
 
         if (canKingside) {
-            moves.add(board.new CastlingMove(from, kingRookFrom, kingTo, kingRookTo));
+            moves.add(board.new CastlingMove(from, kingTo, kingRookFrom, kingRookTo));
         }
 
         if (canQueenside) {
-            moves.add(board.new CastlingMove(from, queenRookFrom, queenTo, queenRookTo));
+            moves.add(board.new CastlingMove(from, queenTo, queenRookFrom, queenRookTo));
         }
 
         return moves;

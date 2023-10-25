@@ -222,12 +222,12 @@ public class ChessBoard {
     }
 
     // starting positions for castling pieces
-    final static int WK_ROOK = 7;
-    final static int WQ_ROOK = 0;
-    final static int WK = 4;
-    final static int BK_ROOK = 63;
-    final static int BQ_ROOK = 56;
-    final static int BK = 60;
+    final static int WK_ROOK = new ChessPosition("h1").get1D();
+    final static int WQ_ROOK = new ChessPosition("a1").get1D();
+    final static int WK = new ChessPosition("e1").get1D();
+    final static int BK_ROOK = new ChessPosition("h8").get1D();
+    final static int BQ_ROOK = new ChessPosition("a8").get1D();
+    final static int BK = new ChessPosition("e8").get1D();
 
     /*
      * Update castling rights after a move.
