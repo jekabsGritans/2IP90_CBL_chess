@@ -20,6 +20,9 @@ public final class InputManager {
         }
         Point mousePos = currentFrame.getMousePosition();
         if(mousePos != null) {
+            if(lastMousePos == null) {
+                lastMousePos = currentFrame.getMousePosition();
+            }
             deltaMousePos = new Point(mousePos.x-lastMousePos.x, mousePos.y-lastMousePos.y);
             lastMousePos = mousePos;
         }
