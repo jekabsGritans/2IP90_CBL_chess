@@ -19,22 +19,20 @@ public class ChessRules {
      * @return true if enemy king can be captured
      */
     public static boolean canCaptureKing(ChessBoard board, boolean isWhiteMove) {
+        // pseudo-legal is fine as it does not matter
+        // if I expose my king if I can first capture the enemy king
+        List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
+
+        int enemyKingPos = isWhiteMove ? board.blackKingPos1D : board.whiteKingPos1D;
+
+        // check if any move is to the enemy king's position
+        for (ChessMove move : moves) {
+            if (move.to1D == enemyKingPos) {
+                return true;
+            }
+        }
+
         return false;
-
-        // // pseudo-legal is fine as it does not matter
-        // // if I expose my king if I can first capture the enemy king
-        // List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
-
-        // int enemyKingPos = isWhiteMove ? board.blackKingPos1D : board.whiteKingPos1D;
-
-        // // check if any move is to the enemy king's position
-        // for (ChessMove move : moves) {
-        //     if (move.to1D == enemyKingPos) {
-        //         return true;
-        //     }
-        // }
-
-        // return false;
     }
 
     /**
