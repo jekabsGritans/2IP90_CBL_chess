@@ -8,6 +8,7 @@ public class GameMain {
     ArrayList<Scene> scenes = new ArrayList<Scene>();
     Scene menuScene;
     Scene playerVSPlayerScene;
+    Scene playerVSBotScene;
     Scene currentScene;
 
     public static void main(String[] args) {
@@ -34,9 +35,11 @@ public class GameMain {
 
     public void initScenes() {
         menuScene = new MenuScene();
-        playerVSPlayerScene = new ChessScene();
+        playerVSPlayerScene = new ChessScene(false);
+        playerVSBotScene = new ChessScene(true);
         menuScene.game = this;
         playerVSPlayerScene.game = this;
+        playerVSBotScene.game = this;
 
         bindScene(menuScene);
     }

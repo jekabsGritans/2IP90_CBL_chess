@@ -33,9 +33,11 @@ public class ChessScene extends Scene {
     Entity stalemateBanner;
     boolean ended = false;
     float endTime = 0.0f;
+    boolean withBot = false;
 
-    public ChessScene() {
+    public ChessScene(boolean withBot) {
         super();
+        this.withBot = withBot;
         frame.getContentPane().setBackground(Color.GRAY);
         initGame();
         initWinBanner();
@@ -86,8 +88,6 @@ public class ChessScene extends Scene {
         ended = true;
     }
 
-
-
     public void initMoveIndicators() {
         for(int i = 0; i < 50; i++) {
             IndicatorEntity indicator = new IndicatorEntity();
@@ -122,6 +122,11 @@ public class ChessScene extends Scene {
         }
         updateBoardPieces(chessGame.getBoard());
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
+        if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
+            chessGame.makeMove(ChessBot.generateMove(chessGame.getBoard()));
+            updateBoardPieces(chessGame.getBoard());
+            turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
+        }
     }
 
     public void updateBoardPieces(ChessBoard board) {
