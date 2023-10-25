@@ -169,7 +169,7 @@ public class ChessPiece {
         byte piece = (byte) fenChars.indexOf(lowerFenChar);
         boolean isWhite = Character.isUpperCase(fenChar);
 
-        return isWhite ? (byte) (piece | White) : piece; // black by default
+        return isWhite ? (byte) (piece | White) : (byte) (piece | Black); // black by default
     }
 
 }
