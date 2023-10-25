@@ -1,14 +1,27 @@
 import java.awt.MouseInfo;
 import java.awt.Point;
 
+import javax.swing.JFrame;
+
 public final class InputManager {
     public static Point lastMousePos;
     public static Point deltaMousePos;
-    public static void init() {
-        lastMousePos = MouseInfo.getPointerInfo().getLocation();
+    public static JFrame currentFrame;
+
+    public static void init(JFrame newFrame) {
+        currentFrame = newFrame;
+        if(currentFrame != null) {
+            lastMousePos = currentFrame.getMousePosition();
+        }
     }
     public static void update() {
-        deltaMousePos = new Point(MouseInfo.getPointerInfo().getLocation().x-lastMousePos.x, MouseInfo.getPointerInfo().getLocation().y-lastMousePos.y);
-        lastMousePos = MouseInfo.getPointerInfo().getLocation();
+        if(currentFrame == null) {
+            return;
+        }
+        Point mousePos = currentFrame.getMousePosition();
+        if(mousePos != null) {
+            deltaMousePos = new Point(mousePos.x-lastMousePos.x, mousePos.y-lastMousePos.y);
+            lastMousePos = mousePos;
+        }
     }
 }
