@@ -1,16 +1,21 @@
 package engine;
 
+import java.util.HashMap;
+
 /**
  * Represents the board of a chess game.
  * Handles position indexing, printing, initialization from a FEN string.
  */
 public class ChessBoard {
     // pieces stored as bytes (see ChessPiece.java)
-    private final byte[] board1D; // 1D array for easier offsets.
-    CastlingRights castlingRights;
-    int whiteKingPos1D;
-    int blackKingPos1D;
-    int enPassantTarget1D; // -1 if no en passant target
+    // 1D array for easier offsets. 1D coordinates are never exposed outside of engine
+    private final byte[] board1D; 
+    private CastlingAvailability CastlingAvailability;
+    private int whiteKingPos1D;
+    private int blackKingPos1D;
+    private int enPassantTarget1D; // -1 if no en passant target
+    private HashMap <Byte, Integer> whiteMaterial;
+    private HashMap <Byte, Integer> blackMaterial;
 
     // for testing
     public static void main(String[] args) {
@@ -25,7 +30,7 @@ public class ChessBoard {
      * Creates a chess board.
      * @param fenPieceChessPositions FEN string component representing the piece positions
      */
-    public ChessBoard(String fenPiecePlacement, String fenCastlingRights, String fenEnPassantTarget) {
+    public ChessBoard(String fenPiecePlacement, String fenCastlingAvailability, String fenEnPassantTarget) {
         board1D = new byte[144]; // (2 + 8 + 2)^2 (for -1 double padding on edges)
 
         // initialize to Invalid
@@ -33,10 +38,13 @@ public class ChessBoard {
             board1D[i] = ChessPiece.Invalid;;
         }
 
+        whiteMaterial = new HashMap<Byte, Integer>();
+        blackMaterial = new HashMap<Byte, Integer>();
+
         // fill whole middle (even if empty)
         fillBoard(fenPiecePlacement);
 
-        castlingRights = new CastlingRights(fenCastlingRights);
+        CastlingAvailability = new CastlingAvailability(fenCastlingAvailability);
         whiteKingPos1D = findKing(true);
         blackKingPos1D = findKing(false);
         enPassantTarget1D = fenEnPassantTarget.equals("-") ?
@@ -51,7 +59,7 @@ public class ChessBoard {
         board1D = other.board1D.clone();
 
         // immutable
-        castlingRights = other.castlingRights; 
+        CastlingAvailability = other.CastlingAvailability; 
         whiteKingPos1D = other.whiteKingPos1D;
         blackKingPos1D = other.blackKingPos1D;
     }
@@ -82,11 +90,69 @@ public class ChessBoard {
                 } else {
                     byte piece = ChessPiece.getPieceFromFenCharacter(fenChar);
                     setPiece(rowIdx, colIdx, piece);
+
+                    HashMap<Byte, Integer> material = ChessPiece.isWhite(piece) ? whiteMaterial : blackMaterial;
+                    material.put(piece, material.getOrDefault(piece, 0) + 1);
+
                     colIdx++;
                 }
             }
         }
     }
+
+    /**
+     * Gets the fen piece placement component of the board.
+     * @return the fen piece placement component of the board
+     */
+    public String getFenPiecePlacement() {
+        StringBuilder fen = new StringBuilder();
+        int emptyCounter = 0;
+
+        for (int rowIdx = 0; rowIdx < 8; rowIdx++) {
+            for (int colIdx = 0; colIdx < 8; colIdx++) {
+                byte piece = getPiece(rowIdx, colIdx);
+                char fenChar = ChessPiece.getFenCharacter(piece);
+
+                if (fenChar == '1') {
+                    emptyCounter++;
+                } else {
+                    if (emptyCounter != 0) {
+                        fen.append(emptyCounter);
+                        emptyCounter = 0;
+                    }
+                    fen.append(fenChar);
+                }
+            }
+
+            if (emptyCounter != 0) {
+                fen.append(emptyCounter);
+                emptyCounter = 0;
+            }
+
+            if (rowIdx != 7) {
+                fen.append('/');
+            }
+        }
+
+        return fen.toString();
+    }
+
+    /**
+     * Gets the fen castling availability component of the board.
+     * @return the fen castling availability component of the board
+     */
+    public String getFenCastlingAvailability() {
+        return CastlingAvailability.toString();
+    }
+
+    /**
+     * Gets the fen en passant target component of the board.
+     * @return the fen en passant target component of the board
+     */
+    public String getFenEnPassantTarget() {
+        return enPassantTarget1D == -1 ? "-" : new ChessPosition(enPassantTarget1D).toString();
+    }
+
 
     /**
      * Sets the piece at the given 2D position.
@@ -101,7 +167,12 @@ public class ChessBoard {
         }
 
         int idx = (row + 2) * 12 + col + 2;
+        byte oldPiece = board1D[idx];
         board1D[idx] = piece;
+
+        HashMap<Byte, Integer> material = ChessPiece.isWhite(piece) ? whiteMaterial : blackMaterial;
+        material.put(piece, material.getOrDefault(piece, 0) + 1);
+        material.put(oldPiece, material.getOrDefault(oldPiece, 0) - 1);
     }
 
     /**
@@ -118,34 +189,6 @@ public class ChessBoard {
 
         int idx = (row + 2) * 12 + col + 2;
         return board1D[idx];
-    }
-
-    /*
-     * Sets the piece at the given 1D position.
-     */
-    void setPiece(int pos1D, byte piece) {
-        board1D[pos1D] = piece;
-    }
-
-    /*
-     * Gets the piece at the given 1D position.
-     */
-    byte getPiece(int pos1D) {
-        return board1D[pos1D];
-    }
-
-    /**
-     * Gets the 1D position of the king.
-     */
-    private int findKing(boolean isWhite) {
-        for (int pos1D = 0; pos1D < 144; pos1D++) {
-            byte piece = board1D[pos1D];
-            if (ChessPiece.isType(piece, ChessPiece.King) && ChessPiece.isWhite(piece) == isWhite) {
-                return pos1D;
-            }
-        }
-
-        throw new IllegalStateException("No king found");
     }
 
     /**
@@ -218,7 +261,74 @@ public class ChessBoard {
             setPiece(move.to1D, promotionPiece);
         }
 
-        castlingRights = updateCastlingRights(castlingRights, move);
+        CastlingAvailability = updateCastlingAvailability(CastlingAvailability, move);
+    }
+
+    /**
+     * Gets the material count for the given piece type.
+     * @param pieceType the piece type
+     * @return the material count for the given piece type
+     */
+    public int getMaterialCount(byte pieceType) {
+        return whiteMaterial.getOrDefault(pieceType, 0) + blackMaterial.getOrDefault(pieceType, 0);
+    }
+
+    // package private for ChessRules, shouldn't be exposed to client
+
+    /*
+     * Sets the piece at the given 1D position.
+     */
+    void setPiece(int pos1D, byte piece) {
+        board1D[pos1D] = piece;
+    }
+
+    /*
+     * Gets the piece at the given 1D position.
+     */
+    byte getPiece(int pos1D) {
+        return board1D[pos1D];
+    }
+
+    /**
+     * Gets the castling availability.
+     */
+    CastlingAvailability getCastlingAvailability() {
+        return CastlingAvailability;
+    }
+
+    /**
+     * Gets the 1D index of the white king.
+     */
+    int getWhiteKingPos1D() {
+        return whiteKingPos1D;
+    }
+
+    /**
+     * Gets the 1D index of the black king.
+     */
+    int getBlackKingPos1D() {
+        return blackKingPos1D;
+    }
+
+    /**
+     * Gets the 1D index of the en passant target.
+     */
+    int getEnPassantTarget1D() {
+        return enPassantTarget1D;
+    }
+
+    /**
+     * Gets the 1D position of the king.
+     */
+    private int findKing(boolean isWhite) {
+        for (int pos1D = 0; pos1D < 144; pos1D++) {
+            byte piece = board1D[pos1D];
+            if (ChessPiece.isType(piece, ChessPiece.King) && ChessPiece.isWhite(piece) == isWhite) {
+                return pos1D;
+            }
+        }
+
+        throw new IllegalStateException("No king found");
     }
 
     // starting positions for castling pieces
@@ -230,24 +340,25 @@ public class ChessBoard {
     final static int BK = new ChessPosition("e8").get1D();
 
     /*
-     * Update castling rights after a move.
+     * Update castling availability after a move.
      */
-    private CastlingRights updateCastlingRights(CastlingRights rights, ChessMove move) {
-        return new CastlingRights(
-            rights.whiteKingSide()
+    private CastlingAvailability updateCastlingAvailability(CastlingAvailability availability, ChessMove move) {
+        return new CastlingAvailability(
+            availability.whiteKingSide()
                 && move.from1D != WK_ROOK && move.from1D != WK
                 && move.to1D != WK_ROOK && move.to1D != WK,
-            rights.whiteQueenSide()
+            availability.whiteQueenSide()
                 && move.from1D != WQ_ROOK && move.from1D != WK
                 && move.to1D != WQ_ROOK && move.to1D != WK,
-            rights.blackKingSide()
+            availability.blackKingSide()
                 && move.from1D != BK_ROOK && move.from1D != BK
                 && move.to1D != BK_ROOK && move.to1D != BK,
-            rights.blackQueenSide()
+            availability.blackQueenSide()
                 && move.from1D != BQ_ROOK && move.from1D != BK
                 && move.to1D != BQ_ROOK && move.to1D != BK
         );
     }
+
     
     /**
      * Represents a 2D position on the board.
@@ -262,10 +373,18 @@ public class ChessBoard {
         }
 
         /**
+         * Creates a position from 1D coordinates.
+         */
+        ChessPosition(int pos1D) {
+            // package private constructor, don't expose 1d to client
+            this(pos1D / 12 - 2, pos1D % 12 - 2);
+        }
+
+        /**
          * Gets the 1D index of the position.
          * @return
          */
-        public int get1D() {
+        int get1D() {
             return (row + 2) * 12 + (col + 2);
         }
 
@@ -395,25 +514,45 @@ public class ChessBoard {
     }
 
     /*
-     * Represents castling rights for both players.
+     * Represents castling availability for both players.
      */
-    public record CastlingRights(
+    public record CastlingAvailability(
         boolean whiteKingSide,
         boolean whiteQueenSide,
         boolean blackKingSide,
         boolean blackQueenSide
     ) {
         /**
-         * Creates castling rights from a FEN string.
-         * @param fen the FEN string castling rights component
+         * Creates castling availability from a FEN string.
+         * @param fen the FEN string castling availability component
          */
-        public CastlingRights(String fen) {
+        public CastlingAvailability(String fen) {
             this(
                 fen.contains("K"),
                 fen.contains("Q"),
                 fen.contains("k"),
                 fen.contains("q")
             );
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder fen = new StringBuilder();
+
+            if (whiteKingSide) {
+                fen.append('K');
+            }
+            if (whiteQueenSide) {
+                fen.append('Q');
+            }
+            if (blackKingSide) {
+                fen.append('k');
+            }
+            if (blackQueenSide) {
+                fen.append('q');
+            }
+
+            return fen.length() == 0 ? "-" : fen.toString();
         }
     }
 }

@@ -12,32 +12,15 @@ public class ChessGame {
     private GameState state;
     private ChessBoard board;
     private boolean isWhiteMove;
+    private int halfMoveClock;
+    private int fullMoveNumber;
 
     // for debug
     public static void main(String[] args) {
         ChessGame game = new ChessGame();
         ChessBoard board = game.getBoard();
         board.print();
-
-        // String[] poss = {"f8", "g8"};
-        String[] poss = {"b1", "c1", "d1"};
-        for (String pos : poss) {
-            ChessPosition cPos = new ChessPosition(pos);
-            System.out.println(pos + " " + cPos.get1D());
-            // System.out.println(pos + " " + ChessPiece.getFenCharacter(board.getPiece(cPos.get1D())));
-        }
-
-        // ChessPosition from = new ChessPosition("g1");
-
-
-        // List<ChessMove> moves = game.getLegalMoves(from);
-        // System.out.println(moves.size() + " legal moves from " + from);
-
-        // ChessMove move = moves.get(1);
-        // game.makeMove(move);
-        // System.out.println(move.from1D - move.to1D);
-
-        // board.print();
+        System.out.println(game.getFenString());
     }
 
     /**
@@ -57,6 +40,23 @@ public class ChessGame {
         state = GameState.ACTIVE;
         board = new ChessBoard(fen.piecePositions, fen.castlingAvailability, fen.enPassantTarget);
         isWhiteMove = fen.activeColor.equals("w");
+        halfMoveClock = fen.halfMoveClock;
+        fullMoveNumber = fen.fullMoveNumber;
+    }
+
+    /**
+     * Gets the FEN string representation of the game.
+     * @return the FEN string representation of the game
+     */
+    public String getFenString() {
+        String piecePositions = board.getFenPiecePlacement();
+        String activeColor = isWhiteMove ? "w" : "b";
+        String castlingAvailability = board.getFenCastlingAvailability();
+        String enPassantTarget = board.getFenEnPassantTarget();
+        String halfMoveClock = String.valueOf(this.halfMoveClock);
+        String fullMoveNumber = String.valueOf(this.fullMoveNumber);
+
+        return String.join(" ", piecePositions, activeColor, castlingAvailability, enPassantTarget, halfMoveClock, fullMoveNumber);
     }
 
     /**
@@ -115,7 +115,30 @@ public class ChessGame {
             throw new IllegalStateException("Game is over");
         }
 
+        byte movedPiece = board.getPiece(move.from1D);
+        byte capturedPiece = board.getPiece(move.to1D);
         board.makeMove(move);
+
+        // increment clocks, check for draw
+        if (ChessPiece.isPiece(capturedPiece) || ChessPiece.isType(movedPiece, ChessPiece.Pawn)) {
+            halfMoveClock = 0;
+        } else {
+            halfMoveClock++;
+            if (halfMoveClock >= 100) {
+                state = GameState.DRAW;
+                return state;
+            }
+        }
+
+        // check for draw by insufficient material
+        if (ChessRules.isInsufficientMaterial(board)) {
+            state = GameState.DRAW;
+            return state;
+        }
+
+        if (!isWhiteMove) {
+            fullMoveNumber++;
+        }
 
         // switch turns
         isWhiteMove = !isWhiteMove;
@@ -151,6 +174,14 @@ public class ChessGame {
     public GameState getGameState() {
         return state;
     }
+
+    /**
+     * Gets the full move number.
+     * @return the full move number
+     */
+    public int getFullMoveNumber() {
+        return fullMoveNumber;
+    }
     
     /**
      * Represents possible game states.
@@ -160,5 +191,6 @@ public class ChessGame {
         WHITE_WINS,
         BLACK_WINS,
         STALEMATE,
+        DRAW, // draw by insufficient material, 50 move rule, or threefold repetition
     }
 }

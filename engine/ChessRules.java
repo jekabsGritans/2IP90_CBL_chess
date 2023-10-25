@@ -1,6 +1,6 @@
 package engine;
 
-import engine.ChessBoard.CastlingRights;
+import engine.ChessBoard.CastlingAvailability;
 import engine.ChessBoard.ChessMove;
 import engine.ChessBoard.ChessPosition;
 
@@ -23,7 +23,7 @@ public class ChessRules {
         // if I expose my king if I can first capture the enemy king
         List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
 
-        int enemyKingPos = isWhiteMove ? board.blackKingPos1D : board.whiteKingPos1D;
+        int enemyKingPos = isWhiteMove ? board.getBlackKingPos1D() : board.getWhiteKingPos1D();
 
         // check if any move is to the enemy king's position
         for (ChessMove move : moves) {
@@ -58,6 +58,54 @@ public class ChessRules {
         List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
         moves = filterExposedKing(moves, board, isWhiteMove);
         return moves;
+    }
+
+    /**
+     * Checks if a board has insufficient material for checkmate.
+     * @param board
+     */
+    public static boolean isInsufficientMaterial(ChessBoard board) {
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Pawn)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Pawn)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Queen)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Queen)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Rook)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Rook)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Bishop)) > 1) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Bishop)) > 1) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Knight)) > 1) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Knight)) > 1) {
+            return false;
+        }
+
+        return true;
     }
     
     /*
@@ -202,15 +250,16 @@ public class ChessRules {
             moves.add(board.new PawnDoubleMove(from, to, enPassantTarget));
         }
 
+        int enPassantTarget1D = board.getEnPassantTarget1D();
         // en passant
-        if (board.enPassantTarget1D != -1) {
+        if (enPassantTarget1D != -1) {
 
             // 2 options for forward diagonal difference
             int diffA = isWhiteMove ? -13 : 13;
             int diffB = isWhiteMove ? -11 : 11;
 
-            if (from + diffA == board.enPassantTarget1D || from + diffB == board.enPassantTarget1D) {
-                int to = board.enPassantTarget1D;
+            if (from + diffA == enPassantTarget1D || from + diffB == enPassantTarget1D) {
+                int to = enPassantTarget1D;
                 int captuedPawn = to - forward; // 1 behind en passant target
                 moves.add(board.new EnPassantMove(from, to, captuedPawn));
             }
@@ -239,11 +288,11 @@ public class ChessRules {
         List<ChessMove> moves =  getValidNonSlidingMoves(board, isWhiteMove, from, KING_DIRS);
 
         // castling
-        CastlingRights castlingRights = board.castlingRights;
+        CastlingAvailability castlingAvailability = board.getCastlingAvailability();
 
-        // king being in starting position is embedded in castling rights
-        boolean canKingside = isWhiteMove ? castlingRights.whiteKingSide() : castlingRights.blackKingSide();
-        boolean canQueenside = isWhiteMove ? castlingRights.whiteQueenSide() : castlingRights.blackQueenSide();
+        // king being in starting position is embedded in castling availability
+        boolean canKingside = isWhiteMove ? castlingAvailability.whiteKingSide() : castlingAvailability.blackKingSide();
+        boolean canQueenside = isWhiteMove ? castlingAvailability.whiteQueenSide() : castlingAvailability.blackQueenSide();
 
         int kingTo = isWhiteMove ? CASTLING_WHITE_KING_TO: CASTLING_BLACK_KING_TO;
         int kingRookFrom = isWhiteMove ? CASTLING_WHITE_KING_ROOK_FROM : CASTLING_BLACK_KING_ROOK_FROM;
@@ -329,5 +378,6 @@ public class ChessRules {
 
         return moves;
     }
+
 
 }
