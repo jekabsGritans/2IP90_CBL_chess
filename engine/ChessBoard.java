@@ -14,8 +14,8 @@ public class ChessBoard {
     private int whiteKingPos1D;
     private int blackKingPos1D;
     private int enPassantTarget1D; // -1 if no en passant target
-    private HashMap <Byte, Integer> whiteMaterial;
-    private HashMap <Byte, Integer> blackMaterial;
+    private HashMap <Byte, Integer> whiteMaterial = new HashMap<Byte, Integer>();
+    private HashMap <Byte, Integer> blackMaterial = new HashMap<Byte, Integer>();
 
     // for testing
     public static void main(String[] args) {
@@ -38,9 +38,6 @@ public class ChessBoard {
             board1D[i] = ChessPiece.Invalid;;
         }
 
-        whiteMaterial = new HashMap<Byte, Integer>();
-        blackMaterial = new HashMap<Byte, Integer>();
-
         // fill whole middle (even if empty)
         fillBoard(fenPiecePlacement);
 
@@ -62,6 +59,9 @@ public class ChessBoard {
         CastlingAvailability = other.CastlingAvailability; 
         whiteKingPos1D = other.whiteKingPos1D;
         blackKingPos1D = other.blackKingPos1D;
+        enPassantTarget1D = other.enPassantTarget1D;
+        whiteMaterial = new HashMap<Byte, Integer>(other.whiteMaterial);
+        blackMaterial = new HashMap<Byte, Integer>(other.blackMaterial);
     }
 
     /**
@@ -329,6 +329,14 @@ public class ChessBoard {
         }
 
         throw new IllegalStateException("No king found");
+    }
+
+    /**
+     * Gets a unique hash for the board.
+     * (transposition table key is not unique)
+     */
+    String getUniqueHash() {
+        return getFenPiecePlacement() + " " + getFenCastlingAvailability() + " " + getFenEnPassantTarget();
     }
 
     // starting positions for castling pieces

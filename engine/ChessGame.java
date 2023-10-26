@@ -1,5 +1,6 @@
 package engine;
 
+import java.util.HashMap;
 import java.util.List;
 import utils.FenParser;
 import engine.ChessBoard.ChessMove;
@@ -14,6 +15,9 @@ public class ChessGame {
     private boolean isWhiteMove;
     private int halfMoveClock;
     private int fullMoveNumber;
+
+    // for threefold repetition draw
+    private HashMap<String, Integer> positionCount = new HashMap<String, Integer>();
 
     // for debug
     public static void main(String[] args) {
@@ -32,6 +36,18 @@ public class ChessGame {
     }
 
     /**
+     * Constructor for cloning.
+     * @param game the game to clone
+     */
+    public ChessGame(ChessGame game) {
+        this.state = game.state;
+        this.board = new ChessBoard(game.board);
+        this.isWhiteMove = game.isWhiteMove;
+        this.halfMoveClock = game.halfMoveClock;
+        this.fullMoveNumber = game.fullMoveNumber;
+    }
+
+    /**
      * Creates a chess game from a FEN string.
      * @param fen FEN string representation of the game
      */
@@ -42,6 +58,7 @@ public class ChessGame {
         isWhiteMove = fen.activeColor.equals("w");
         halfMoveClock = fen.halfMoveClock;
         fullMoveNumber = fen.fullMoveNumber;
+        updatePositionCount();
     }
 
     /**
@@ -136,6 +153,13 @@ public class ChessGame {
             return state;
         }
 
+        // check for draw by threefold repetition
+        updatePositionCount();
+        if (isThreefoldRepetition()) {
+            state = GameState.DRAW;
+            return state;
+        }
+
         if (!isWhiteMove) {
             fullMoveNumber++;
         }
@@ -182,6 +206,23 @@ public class ChessGame {
     public int getFullMoveNumber() {
         return fullMoveNumber;
     }
+
+    /*
+     * Updates the position count for threefold repetition draw.
+     */
+    private void updatePositionCount() {
+        String boardStateHash = board.getUniqueHash();
+        positionCount.put(boardStateHash, positionCount.getOrDefault(boardStateHash, 0) + 1);
+    }
+
+    /*
+     * Checks if the current position has been repeated three times.
+     */
+    private boolean isThreefoldRepetition() {
+        String boardStateHash = board.getUniqueHash();
+        return positionCount.getOrDefault(boardStateHash, 0) >= 3;
+    }
+
     
     /**
      * Represents possible game states.
