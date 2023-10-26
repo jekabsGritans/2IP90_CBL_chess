@@ -18,7 +18,7 @@ class Scene {
 
   public Scene() {
     frame = new JFrame();
-    frame.setSize(900, 900);
+    frame.setSize(900, 950);
     frame.setLayout(null);
     frame.setTitle("Chess Game");
     frame.setLocationRelativeTo(null);

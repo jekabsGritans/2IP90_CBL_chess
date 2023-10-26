@@ -43,7 +43,7 @@ public class ChessScene extends Scene {
     public ChessScene(boolean withBot) {
         super();
         this.withBot = withBot;
-        frame.getContentPane().setBackground(Color.GRAY);
+        frame.getContentPane().setBackground(Color.gray);
         initGame();
         initWinBanner();
         initPieces();
@@ -315,6 +315,7 @@ public class ChessScene extends Scene {
                 byte tileColor = (y+(x+1*tileAmount)) % 2 == 0 ? ChessPiece.Black : ChessPiece.White;
                 FloorTileEntity tile = new FloorTileEntity(tileColor);
                 tile.setPos(new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y));
+                tile.setSize(new Point(boardSize.x/tileAmount, boardSize.y/tileAmount+5));
                 addEntity(tile);
             }
         }
