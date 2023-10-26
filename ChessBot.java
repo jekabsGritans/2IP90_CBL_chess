@@ -96,17 +96,17 @@ public class ChessBot {
             int score = minimax(newGame, depth - 1, alpha, beta, !isBlackMove);
 
             if (isBlackMove) {
-                alpha = Math.max(alpha, score);
-                if (score > bestScore) {
+                if (score >= bestScore) {
                     bestScore = score;
                     bestMove = move;
                 }
+                alpha = Math.max(alpha, bestScore);
             } else {
-                beta = Math.min(beta, score);
-                if (score < bestScore) { // best from opponent's perspective not bot's
+                if (score <= bestScore) { // best from opponent's perspective not bot's
                     bestScore = score;
                     bestMove = move;
                 }
+                beta = Math.min(beta, bestScore);
             }
             if (beta <= alpha) {
                 break; // alpha-beta pruning
