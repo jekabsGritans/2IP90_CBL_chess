@@ -80,6 +80,7 @@ public class ChessScene extends Scene {
             e.printStackTrace();
             return;
         }
+        moveClip.start();
     }
 
     public void initWinBanner() {
@@ -155,6 +156,7 @@ public class ChessScene extends Scene {
     }
     // moveIndex being the index of the move made, which should correspond to a move kept in the currentPiecePossibleMoves list
     public void nextTurn(int moveIndex) {
+        moveClip.stop();
         ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
         GameState state = chessGame.makeMove(madeMove);
         if(state != GameState.ACTIVE) {
