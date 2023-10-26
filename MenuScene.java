@@ -14,6 +14,9 @@ public class MenuScene extends Scene {
         PlayerVSPlayerButton startButton = new PlayerVSPlayerButton();
         startButton.setPos(new Point(130, 500));
         addEntity(startButton);
+        PlayerVSComputerButton startCompButton = new PlayerVSComputerButton();
+        startCompButton.setPos(new Point(130, 200));
+        addEntity(startCompButton);       
     }
 
     public void initBanner() {
@@ -27,6 +30,10 @@ public class MenuScene extends Scene {
     }
 
     public void addEntity(PlayerVSPlayerButton entity) {
+        super.addEntity(entity);
+        entity.menu = this;
+    }
+    public void addEntity(PlayerVSComputerButton entity) {
         super.addEntity(entity);
         entity.menu = this;
     }
