@@ -1,7 +1,9 @@
 package engine;
 
-import engine.ChessBoard.CastlingRights;
+import engine.ChessBoard.CastlingAvailability;
 import engine.ChessBoard.ChessMove;
+import engine.ChessBoard.ChessPosition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,12 +19,11 @@ public class ChessRules {
      * @return true if enemy king can be captured
      */
     public static boolean canCaptureKing(ChessBoard board, boolean isWhiteMove) {
-
         // pseudo-legal is fine as it does not matter
         // if I expose my king if I can first capture the enemy king
         List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
 
-        int enemyKingPos = isWhiteMove ? board.blackKingPos1D : board.whiteKingPos1D;
+        int enemyKingPos = isWhiteMove ? board.getBlackKingPos1D() : board.getWhiteKingPos1D();
 
         // check if any move is to the enemy king's position
         for (ChessMove move : moves) {
@@ -57,6 +58,54 @@ public class ChessRules {
         List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
         moves = filterExposedKing(moves, board, isWhiteMove);
         return moves;
+    }
+
+    /**
+     * Checks if a board has insufficient material for checkmate.
+     * @param board
+     */
+    public static boolean isInsufficientMaterial(ChessBoard board) {
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Pawn)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Pawn)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Queen)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Queen)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Rook)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Rook)) > 0) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Bishop)) > 1) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Bishop)) > 1) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Knight)) > 1) {
+            return false;
+        }
+
+        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Knight)) > 1) {
+            return false;
+        }
+
+        return true;
     }
     
     /*
@@ -141,23 +190,23 @@ public class ChessRules {
 
     // POSITIONS FOR CASTLING
 
-    private static final int CASTLING_WHITE_KING_TO = 116;
-    private static final int CASTLING_WHITE_KING_ROOK_FROM = 115;
-    private static final int CASTLING_WHITE_KING_ROOK_TO = 117;
+    private static final int CASTLING_WHITE_KING_TO = new ChessPosition("g1").get1D();
+    private static final int CASTLING_WHITE_KING_ROOK_FROM = new ChessPosition("h1").get1D();
+    private static final int CASTLING_WHITE_KING_ROOK_TO = new ChessPosition("f1").get1D();
 
-    private static final int CASTLING_BLACK_KING_TO = 32;
-    private static final int CASTLING_BLACK_KING_ROOK_FROM = 31;
-    private static final int CASTLING_BLACK_KING_ROOK_TO = 33;
+    private static final int CASTLING_BLACK_KING_TO = new ChessPosition("g8").get1D();
+    private static final int CASTLING_BLACK_KING_ROOK_FROM = new ChessPosition("h8").get1D();
+    private static final int CASTLING_BLACK_KING_ROOK_TO = new ChessPosition("f8").get1D();
 
-    private static final int CASTLING_WHITE_QUEEN_TO = 112;
-    private static final int CASTLING_WHITE_QUEEN_ROOK_FROM = 113;
-    private static final int CASTLING_WHITE_QUEEN_ROOK_TO = 110;
-    private static final int CASTLING_WHITE_QUEEN_BLOCKING = 111;
+    private static final int CASTLING_WHITE_QUEEN_TO = new ChessPosition("c1").get1D();
+    private static final int CASTLING_WHITE_QUEEN_ROOK_FROM = new ChessPosition("a1").get1D();
+    private static final int CASTLING_WHITE_QUEEN_ROOK_TO = new ChessPosition("d1").get1D();
+    private static final int CASTLING_WHITE_QUEEN_BLOCKING = new ChessPosition("b1").get1D();
 
-    private static final int CASTLING_BLACK_QUEEN_TO = 28;
-    private static final int CASTLING_BLACK_QUEEN_ROOK_FROM = 27;
-    private static final int CASTLING_BLACK_QUEEN_ROOK_TO = 26;
-    private static final int CASTLING_BLACK_QUEEN_BLOCKING = 29;
+    private static final int CASTLING_BLACK_QUEEN_TO = new ChessPosition("c8").get1D();
+    private static final int CASTLING_BLACK_QUEEN_ROOK_FROM = new ChessPosition("a8").get1D();
+    private static final int CASTLING_BLACK_QUEEN_ROOK_TO = new ChessPosition("d8").get1D();
+    private static final int CASTLING_BLACK_QUEEN_BLOCKING =  new ChessPosition("b8").get1D();
 
 
    // METHODS FOR EACH PIECE TYPE
@@ -201,15 +250,16 @@ public class ChessRules {
             moves.add(board.new PawnDoubleMove(from, to, enPassantTarget));
         }
 
+        int enPassantTarget1D = board.getEnPassantTarget1D();
         // en passant
-        if (board.enPassantTarget1D != -1) {
+        if (enPassantTarget1D != -1) {
 
             // 2 options for forward diagonal difference
             int diffA = isWhiteMove ? -13 : 13;
             int diffB = isWhiteMove ? -11 : 11;
 
-            if (from + diffA == board.enPassantTarget1D || from + diffB == board.enPassantTarget1D) {
-                int to = board.enPassantTarget1D;
+            if (from + diffA == enPassantTarget1D || from + diffB == enPassantTarget1D) {
+                int to = enPassantTarget1D;
                 int captuedPawn = to - forward; // 1 behind en passant target
                 moves.add(board.new EnPassantMove(from, to, captuedPawn));
             }
@@ -238,11 +288,11 @@ public class ChessRules {
         List<ChessMove> moves =  getValidNonSlidingMoves(board, isWhiteMove, from, KING_DIRS);
 
         // castling
-        CastlingRights castlingRights = board.castlingRights;
+        CastlingAvailability castlingAvailability = board.getCastlingAvailability();
 
-        // king being in starting position is embedded in castling rights
-        boolean canKingside = isWhiteMove ? castlingRights.whiteKingSide() : castlingRights.blackKingSide();
-        boolean canQueenside = isWhiteMove ? castlingRights.whiteQueenSide() : castlingRights.blackQueenSide();
+        // king being in starting position is embedded in castling availability
+        boolean canKingside = isWhiteMove ? castlingAvailability.whiteKingSide() : castlingAvailability.blackKingSide();
+        boolean canQueenside = isWhiteMove ? castlingAvailability.whiteQueenSide() : castlingAvailability.blackQueenSide();
 
         int kingTo = isWhiteMove ? CASTLING_WHITE_KING_TO: CASTLING_BLACK_KING_TO;
         int kingRookFrom = isWhiteMove ? CASTLING_WHITE_KING_ROOK_FROM : CASTLING_BLACK_KING_ROOK_FROM;
@@ -263,11 +313,11 @@ public class ChessRules {
             && ChessPiece.isEmpty(board.getPiece(queenBlocking));
 
         if (canKingside) {
-            moves.add(board.new CastlingMove(from, kingRookFrom, kingTo, kingRookTo));
+            moves.add(board.new CastlingMove(from, kingTo, kingRookFrom, kingRookTo));
         }
 
         if (canQueenside) {
-            moves.add(board.new CastlingMove(from, queenRookFrom, queenTo, queenRookTo));
+            moves.add(board.new CastlingMove(from, queenTo, queenRookFrom, queenRookTo));
         }
 
         return moves;
@@ -328,5 +378,6 @@ public class ChessRules {
 
         return moves;
     }
+
 
 }
