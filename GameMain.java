@@ -40,7 +40,11 @@ public class GameMain {
     }
 
     public void endChessGame() {
-        initScenes();
+        playerVSPlayerScene = new ChessScene(false);
+        playerVSBotScene = new ChessScene(true);
+        playerVSPlayerScene.game = this;
+        playerVSBotScene.game = this;
+        bindScene(menuScene);
     }
 
     public void bindScene(Scene newScene) {

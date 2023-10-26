@@ -13,6 +13,7 @@ public class EndingEntity extends Entity implements MouseListener {
     }
 
     public void mouseReleased(MouseEvent e) {
+        System.out.println("clicked end game");
         scene.game.endChessGame();
     }
 
