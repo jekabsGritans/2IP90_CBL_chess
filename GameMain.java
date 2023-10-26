@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import engine.ChessPiece;
+
 public class GameMain {
     enum SCENES {
         MENU,
@@ -7,8 +9,8 @@ public class GameMain {
     }
     ArrayList<Scene> scenes = new ArrayList<Scene>();
     Scene menuScene;
-    Scene playerVSPlayerScene;
-    Scene playerVSBotScene;
+    ChessScene playerVSPlayerScene;
+    ChessScene playerVSBotScene;
     Scene currentScene;
 
     public static void main(String[] args) {
@@ -39,11 +41,17 @@ public class GameMain {
         bindScene(menuScene);
     }
 
-    public void endChessGame() {
-        playerVSPlayerScene = new ChessScene(false);
-        playerVSBotScene = new ChessScene(true);
-        playerVSPlayerScene.game = this;
-        playerVSBotScene.game = this;
+    public void endPlayerChessGame() {
+        playerVSPlayerScene.blackBanner.graphic.setVisible(false);
+        playerVSPlayerScene.stalemateBanner.graphic.setVisible(false);
+        playerVSPlayerScene.whiteBanner.graphic.setVisible(false);
+
+        playerVSPlayerScene.initGame();
+        playerVSPlayerScene.updateBoard();
+        playerVSPlayerScene.turnColor = ChessPiece.White;
+        for(int i = 0; i < playerVSPlayerScene.moveIndicators.size(); i++) {
+            playerVSPlayerScene.moveIndicators.get(i).graphic.setVisible(false);
+        }
         bindScene(menuScene);
     }
 

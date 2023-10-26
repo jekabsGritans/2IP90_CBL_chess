@@ -175,10 +175,7 @@ public class ChessScene extends Scene {
     }
 
     public void updateBoard() {
-        // Current algorithm uses 2 passes
-        for(int i = 0; i < 3; i++) {
-            updateBoardPieces(chessGame.getBoard());
-        }
+        updateBoardPieces(chessGame.getBoard());
     }
     public void updateBoardPieces(ChessBoard board) {
         Point pieceSize = new Point((int)((boardSize.x/tileAmount)), (int)((boardSize.y/tileAmount)));
