@@ -22,7 +22,7 @@ public class ChessBot {
     private static long MAX_SEARCH_TIME = 1000; // ms
     private static long startTime;
     private static HashMap<ChessGame, Entry> transpoTable = new HashMap<ChessGame, Entry>();
-    private static int searchDepth = 1;
+    private static int searchDepth;
 
     // debug - bot controls both sides, so should almost always win
     public static void main(String[] args) {
@@ -83,10 +83,7 @@ public class ChessBot {
         Collections.shuffle(moves);
 
         // first search the best move from the transposition table
-        if (tableEntry != null && moves.contains(tableEntry.bestMove)) {
-            if (!moves.contains(tableEntry.bestMove)) {
-                throw new RuntimeException("Transposition table entry is invalid");
-            }
+        if (tableEntry != null) {
             moves.remove(tableEntry.bestMove);
             moves.add(0, tableEntry.bestMove);
         }
@@ -99,15 +96,15 @@ public class ChessBot {
             int score = minimax(newGame, depth - 1, alpha, beta, !isBlackMove);
 
             if (isBlackMove) {
-                bestScore = Math.max(bestScore, score); // bot optimizes its score
                 alpha = Math.max(alpha, score);
                 if (score > bestScore) {
+                    bestScore = score;
                     bestMove = move;
                 }
             } else {
-                bestScore = Math.min(bestScore, score); // opponent minimizes bot's score
                 beta = Math.min(beta, score);
                 if (score < bestScore) { // best from opponent's perspective not bot's
+                    bestScore = score;
                     bestMove = move;
                 }
             }
