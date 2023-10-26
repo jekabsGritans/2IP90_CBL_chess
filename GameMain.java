@@ -55,6 +55,20 @@ public class GameMain {
         bindScene(menuScene);
     }
 
+    public void endBotChessGame() {
+        playerVSBotScene.blackBanner.graphic.setVisible(false);
+        playerVSBotScene.stalemateBanner.graphic.setVisible(false);
+        playerVSBotScene.whiteBanner.graphic.setVisible(false);
+
+        playerVSBotScene.initGame();
+        playerVSBotScene.updateBoard();
+        playerVSBotScene.turnColor = ChessPiece.White;
+        for(int i = 0; i < playerVSBotScene.moveIndicators.size(); i++) {
+            playerVSBotScene.moveIndicators.get(i).graphic.setVisible(false);
+        }
+        bindScene(menuScene);
+    }
+
     public void bindScene(Scene newScene) {
         if(currentScene != null) {
             currentScene.frame.setVisible(false);

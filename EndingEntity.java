@@ -16,7 +16,9 @@ public class EndingEntity extends Entity implements MouseListener {
         System.out.println("clicked end game");
         if(!scene.withBot) {
             scene.game.endPlayerChessGame();
+            return;
         }
+        scene.game.endBotChessGame();
     }
 
     public void mouseEntered(MouseEvent e) {
