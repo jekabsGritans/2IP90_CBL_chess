@@ -14,7 +14,8 @@ public class ChessBoard {
     private int whiteKingPos1D;
     private int blackKingPos1D;
     private int enPassantTarget1D; // -1 if no en passant target
-    private HashMap <Byte, Integer> material = new HashMap<Byte, Integer>();
+    private HashMap <Byte, Integer> whiteMaterial = new HashMap<Byte, Integer>();
+    private HashMap <Byte, Integer> blackMaterial = new HashMap<Byte, Integer>();
 
     // for testing
     public static void main(String[] args) {
@@ -40,6 +41,10 @@ public class ChessBoard {
         // fill whole middle (even if empty)
         fillBoard(fenPiecePlacement);
 
+        // empty isn't material
+        whiteMaterial.remove(ChessPiece.Empty);
+        blackMaterial.remove(ChessPiece.Empty);
+
         CastlingAvailability = new CastlingAvailability(fenCastlingAvailability);
         whiteKingPos1D = findKing(true);
         blackKingPos1D = findKing(false);
@@ -59,7 +64,8 @@ public class ChessBoard {
         whiteKingPos1D = other.whiteKingPos1D;
         blackKingPos1D = other.blackKingPos1D;
         enPassantTarget1D = other.enPassantTarget1D;
-        material = new HashMap<Byte, Integer>(other.material);
+        whiteMaterial = new HashMap<Byte, Integer>(other.whiteMaterial);
+        blackMaterial = new HashMap<Byte, Integer>(other.blackMaterial);
     }
 
     /**
@@ -161,12 +167,29 @@ public class ChessBoard {
         }
 
         int idx = (row + 2) * 12 + col + 2;
-        byte oldPiece = board1D[idx];
+        byte capturedPiece = board1D[idx];
         board1D[idx] = piece;
 
         // update material
-        material.put(piece, material.getOrDefault(piece, 0) + 1);
-        material.put(oldPiece, material.getOrDefault(oldPiece, 0) - 1);
+        boolean isWhiteMove = ChessPiece.isWhite(piece);
+        HashMap<Byte, Integer> material = isWhiteMove ? whiteMaterial : blackMaterial;
+        byte type = ChessPiece.getType(piece);
+        int num = material.getOrDefault(type, 0) + 1;
+        material.put(type, num);
+
+        if (ChessPiece.isPiece(capturedPiece)) {
+            material = isWhiteMove ? blackMaterial : whiteMaterial;
+            type = ChessPiece.getType(capturedPiece);
+
+            // if isn't empty, must be in map
+            num = material.get(type) - 1;
+
+            if (num == 0) {
+                material.remove(type);
+            } else {
+                material.put(type, num);
+            }
+        }
     }
 
     /**
@@ -259,11 +282,12 @@ public class ChessBoard {
     }
 
     /**
-     * Gets the board material.
+     * Gets the material for a player.
+     * @param isWhite true if white material, false if black material
      * @return map of pieces to number of such pieces on the board
      */
-    public HashMap<Byte, Integer> getMaterial() {
-        return material;
+    public HashMap<Byte, Integer> getMaterial(boolean isWhite) {
+        return isWhite ? whiteMaterial : blackMaterial;
     }
  
 

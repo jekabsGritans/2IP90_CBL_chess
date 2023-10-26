@@ -7,6 +7,7 @@ import engine.ChessBoard.ChessPosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Static methods for legal moves and checking if king is in check.
@@ -65,8 +66,40 @@ public class ChessRules {
      * @param board
      */
     public static boolean isInsufficientMaterial(ChessBoard board) {
-        //TODO
-        return true;
+        Map<Byte, Integer> whiteMaterial = board.getMaterial(true);
+        Map<Byte, Integer> blackMaterial = board.getMaterial(false);
+
+        return isInsufficientMaterial(whiteMaterial, blackMaterial) && isInsufficientMaterial(blackMaterial, whiteMaterial);
+    }
+
+    /*
+     * Unidirectional check for insufficient material.
+     */
+    private static boolean isInsufficientMaterial(Map<Byte, Integer> materialA, Map<Byte, Integer> materialB) {
+        if (materialA.get(ChessPiece.Pawn) > 0) {
+            return false;
+        }
+
+        // lone king
+        if (materialA.size() == 1) {
+            return true;
+        }
+
+        // king and bishop
+        if (materialA.size() == 2) {
+            if (materialA.get(ChessPiece.Bishop) == 1) {
+                return true;
+            }
+        }
+
+        // king and knight
+        if (materialA.size() == 2) {
+            if (materialA.get(ChessPiece.Knight) == 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
     
     /*

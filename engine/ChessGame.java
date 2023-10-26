@@ -146,11 +146,11 @@ public class ChessGame {
             }
         }
 
-        // // check for draw by insufficient material
-        // if (ChessRules.isInsufficientMaterial(board)) {
-        //     state = GameState.DRAW;
-        //     return state;
-        // }
+        // check for draw by insufficient material
+        if (ChessRules.isInsufficientMaterial(board)) {
+            state = GameState.DRAW;
+            return state;
+        }
 
         // check for draw by threefold repetition
         updatePositionCount();
