@@ -46,6 +46,7 @@ public class ChessGame {
         this.isWhiteMove = game.isWhiteMove;
         this.halfMoveClock = game.halfMoveClock;
         this.fullMoveNumber = game.fullMoveNumber;
+        this.zobristHash = game.zobristHash;
     }
 
     /**
@@ -59,8 +60,8 @@ public class ChessGame {
         isWhiteMove = fen.activeColor.equals("w");
         halfMoveClock = fen.halfMoveClock;
         fullMoveNumber = fen.fullMoveNumber;
-        updatePositionCount();
         zobristHash = new ZobristHash();
+        updatePositionCount();
     }
 
     /**
@@ -179,17 +180,9 @@ public class ChessGame {
 
     @Override
     public int hashCode() {
-        // collisions unlikely for a single game branch
-        // so compression to 32 bits is fine outside of transposition table
-        return Long.hashCode(getZobristHash()); 
-    }
-
-    /**
-     * Gets the 64-bit Zobrist hash of the game.
-     * @return the Zobrist hash of the game
-     */
-    public long getZobristHash() {
-        return zobristHash.getHash(this);
+        // room for improvement, 64 bits would reduce collisions for transposition table
+        // but then we'd need a custom hash map implementation...
+        return Long.hashCode(zobristHash.getHash(this)); 
     }
 
     /**

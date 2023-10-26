@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+// TODO fix pawn moves (horizontal capture)
+// TODO fix checkmate detection, ran into a situation where it was not detected
+
 /**
  * Static methods for legal moves and checking if king is in check.
  */
@@ -66,10 +69,10 @@ public class ChessRules {
      * @param board
      */
     public static boolean isInsufficientMaterial(ChessBoard board) {
-        Map<Byte, Integer> whiteMaterial = board.getMaterial(true);
-        Map<Byte, Integer> blackMaterial = board.getMaterial(false);
+        Map<Byte, ArrayList<Integer>> whiteMaterial = board.getMaterial(true);
+        Map<Byte, ArrayList<Integer>> blackMaterial = board.getMaterial(false);
 
-        return isInsufficientMaterial(whiteMaterial, blackMaterial) && isInsufficientMaterial(blackMaterial, whiteMaterial);
+        return isInsufficientMaterial(whiteMaterial) && isInsufficientMaterial(blackMaterial);
     }
 
     /*
@@ -78,33 +81,22 @@ public class ChessRules {
      * (e.g. bishops on same color are not detected)
      * But other cases are caught by the 50 move rule, so infinite loops are not possible.
      */
-    private static boolean isInsufficientMaterial(Map<Byte, Integer> materialA, Map<Byte, Integer> materialB) {
-        if (materialA.get(ChessPiece.Pawn) > 0) {
-            return false;
-        }
+    private static boolean isInsufficientMaterial(Map<Byte, ArrayList<Integer>> material) {
 
-        // lone king
-        if (materialA.size() == 1) {
-            return true;
-        }
-
-        // king and bishop
-        if (materialA.size() == 2) {
-            if (materialA.get(ChessPiece.Bishop) == 1) {
-                return true;
+        // if any pawn, queen, or rook, not insufficient material
+        byte[] types = new byte[] {ChessPiece.Pawn, ChessPiece.Queen, ChessPiece.Rook};
+        for (byte type : types) {
+            if (material.get(type).size() > 0) {
+                return false;
             }
         }
 
-        // king and knight
-        if (materialA.size() == 2) {
-            if (materialA.get(ChessPiece.Knight) == 1) {
-                return true;
-            }
-        }
+        int numBishops = material.get(ChessPiece.Bishop).size();
+        int numKnights = material.get(ChessPiece.Knight).size();
 
-        return false;
+        return numBishops + numKnights <= 1;
     }
-    
+
     /*
      * Removes moves that expose the friendly king.
      */
@@ -375,6 +367,4 @@ public class ChessRules {
 
         return moves;
     }
-
-
 }

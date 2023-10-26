@@ -27,7 +27,9 @@ public class ZobristHash {
         for (int i = 0; i < 144; i++) {
             byte piece = board.getPiece(i);
             if (ChessPiece.isPiece(piece)) {
-                hash ^= table[ChessPiece.getColor(piece)][ChessPiece.getType(piece)][i];
+                int colorIndex = ChessPiece.isWhite(piece) ? 0 : 1;
+                int typeIndex = ChessPiece.getType(piece) - 1; // depends on byte values
+                hash ^= table[colorIndex][typeIndex][i]; 
             }
         }
 

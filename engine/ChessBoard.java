@@ -1,6 +1,7 @@
 package engine;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Represents the board of a chess game.
@@ -11,19 +12,19 @@ public class ChessBoard {
     // 1D array for easier offsets. 1D coordinates are never exposed outside of engine
     private final byte[] board1D; 
     private CastlingAvailability CastlingAvailability;
-    private int whiteKingPos1D;
-    private int blackKingPos1D;
     private int enPassantTarget1D; // -1 if no en passant target
-    private HashMap <Byte, Integer> whiteMaterial = new HashMap<Byte, Integer>();
-    private HashMap <Byte, Integer> blackMaterial = new HashMap<Byte, Integer>();
+    private Map <Byte, ArrayList<Integer>> whiteMaterial;
+    private Map <Byte, ArrayList<Integer>> blackMaterial;
 
     // for testing
     public static void main(String[] args) {
         ChessBoard board = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "kqKQ", "-");
         board.print();
 
-        byte piece = board.board1D[0]; // should be invalid
-        System.out.println(piece);
+        int pos1d = board.getWhiteKingPos1D();
+        ChessPosition whiteKingPos = new ChessPosition(pos1d);
+
+        System.out.println("White king position: " + whiteKingPos);
     }
 
     /**
@@ -39,15 +40,11 @@ public class ChessBoard {
         }
 
         // fill whole middle (even if empty)
+        whiteMaterial = initMaterialMap();
+        blackMaterial = initMaterialMap();
         fillBoard(fenPiecePlacement);
 
-        // empty isn't material
-        whiteMaterial.remove(ChessPiece.Empty);
-        blackMaterial.remove(ChessPiece.Empty);
-
         CastlingAvailability = new CastlingAvailability(fenCastlingAvailability);
-        whiteKingPos1D = findKing(true);
-        blackKingPos1D = findKing(false);
         enPassantTarget1D = fenEnPassantTarget.equals("-") ?
             -1 : new ChessPosition(fenEnPassantTarget).get1D();
     }
@@ -61,11 +58,9 @@ public class ChessBoard {
 
         // immutable
         CastlingAvailability = other.CastlingAvailability; 
-        whiteKingPos1D = other.whiteKingPos1D;
-        blackKingPos1D = other.blackKingPos1D;
         enPassantTarget1D = other.enPassantTarget1D;
-        whiteMaterial = new HashMap<Byte, Integer>(other.whiteMaterial);
-        blackMaterial = new HashMap<Byte, Integer>(other.blackMaterial);
+        whiteMaterial = copyMaterialMap(other.whiteMaterial);
+        blackMaterial = copyMaterialMap(other.blackMaterial);
     }
 
     /**
@@ -86,7 +81,9 @@ public class ChessBoard {
                     
                     // default is not empty, so must be set
                     for (int i = 0; i < numEmptySquares; i++) {
-                        setPiece(rowIdx, colIdx, ChessPiece.Empty);
+                        int pos1D = (rowIdx + 2) * 12 + colIdx + 2;
+                        board1D[pos1D] = ChessPiece.Empty;
+                        // setPiece(rowIdx, colIdx, ChessPiece.Empty);
                         colIdx++;
                     }
 
@@ -172,23 +169,15 @@ public class ChessBoard {
 
         // update material
         boolean isWhiteMove = ChessPiece.isWhite(piece);
-        HashMap<Byte, Integer> material = isWhiteMove ? whiteMaterial : blackMaterial;
+        Map<Byte, ArrayList<Integer>> material = isWhiteMove ? whiteMaterial : blackMaterial;
         byte type = ChessPiece.getType(piece);
-        int num = material.getOrDefault(type, 0) + 1;
-        material.put(type, num);
+
+        material.get(type).add(idx);
 
         if (ChessPiece.isPiece(capturedPiece)) {
             material = isWhiteMove ? blackMaterial : whiteMaterial;
             type = ChessPiece.getType(capturedPiece);
-
-            // if isn't empty, must be in map
-            num = material.get(type) - 1;
-
-            if (num == 0) {
-                material.remove(type);
-            } else {
-                material.put(type, num);
-            }
+            material.get(type).remove(idx);
         }
     }
 
@@ -244,15 +233,6 @@ public class ChessBoard {
         setPiece(move.to1D, piece);
         setPiece(move.from1D, ChessPiece.Empty);
 
-        // update king positions
-        if (ChessPiece.isType(piece, ChessPiece.King)) {
-            if (ChessPiece.isWhite(piece)) {
-                whiteKingPos1D = move.to1D;
-            } else {
-                blackKingPos1D = move.to1D;
-            }
-        }
-
         // reset en passant target
         enPassantTarget1D = -1;
 
@@ -286,7 +266,7 @@ public class ChessBoard {
      * @param isWhite true if white material, false if black material
      * @return map of pieces to number of such pieces on the board
      */
-    public HashMap<Byte, Integer> getMaterial(boolean isWhite) {
+    public Map<Byte, ArrayList<Integer>> getMaterial(boolean isWhite) {
         return isWhite ? whiteMaterial : blackMaterial;
     }
  
@@ -318,14 +298,14 @@ public class ChessBoard {
      * Gets the 1D index of the white king.
      */
     int getWhiteKingPos1D() {
-        return whiteKingPos1D;
+        return whiteMaterial.get(ChessPiece.King).get(0);
     }
 
     /**
      * Gets the 1D index of the black king.
      */
     int getBlackKingPos1D() {
-        return blackKingPos1D;
+        return blackMaterial.get(ChessPiece.King).get(0);
     }
 
     /**
@@ -335,26 +315,34 @@ public class ChessBoard {
         return enPassantTarget1D;
     }
 
-    /**
-     * Gets the 1D position of the king.
+    /*
+     * Initializes the material maps.
      */
-    private int findKing(boolean isWhite) {
-        for (int pos1D = 0; pos1D < 144; pos1D++) {
-            byte piece = board1D[pos1D];
-            if (ChessPiece.isType(piece, ChessPiece.King) && ChessPiece.isWhite(piece) == isWhite) {
-                return pos1D;
-            }
-        }
-
-        throw new IllegalStateException("No king found");
+    private Map<Byte, ArrayList<Integer>> initMaterialMap() {
+        return Map.of(
+            ChessPiece.Pawn, new ArrayList<Integer>(),
+            ChessPiece.Knight, new ArrayList<Integer>(),
+            ChessPiece.Bishop, new ArrayList<Integer>(),
+            ChessPiece.Rook, new ArrayList<Integer>(),
+            ChessPiece.Queen, new ArrayList<Integer>(),
+            ChessPiece.King, new ArrayList<Integer>()
+        );
     }
 
-    /**
-     * Gets a unique hash for the board.
-     * (transposition table key is not unique)
+    /*
+     * Creates a deep copy of a material map.
      */
-    String getUniqueHash() {
-        return getFenPiecePlacement() + " " + getFenCastlingAvailability() + " " + getFenEnPassantTarget();
+    private Map<Byte, ArrayList<Integer>> copyMaterialMap(Map<Byte, ArrayList<Integer>> material) {
+        Map<Byte, ArrayList<Integer>> copy = Map.of(
+            ChessPiece.Pawn, new ArrayList<Integer>(material.get(ChessPiece.Pawn)),
+            ChessPiece.Knight, new ArrayList<Integer>(material.get(ChessPiece.Knight)),
+            ChessPiece.Bishop, new ArrayList<Integer>(material.get(ChessPiece.Bishop)),
+            ChessPiece.Rook, new ArrayList<Integer>(material.get(ChessPiece.Rook)),
+            ChessPiece.Queen, new ArrayList<Integer>(material.get(ChessPiece.Queen)),
+            ChessPiece.King, new ArrayList<Integer>(material.get(ChessPiece.King))
+        );
+        
+        return copy;
     }
 
     // starting positions for castling pieces
@@ -385,7 +373,6 @@ public class ChessBoard {
         );
     }
 
-    
     /**
      * Represents a 2D position on the board.
      */
@@ -402,7 +389,6 @@ public class ChessBoard {
          * Creates a position from 1D coordinates.
          */
         ChessPosition(int pos1D) {
-            // package private constructor, don't expose 1d to client
             this(pos1D / 12 - 2, pos1D % 12 - 2);
         }
 
@@ -410,7 +396,7 @@ public class ChessBoard {
          * Gets the 1D index of the position.
          * @return
          */
-        int get1D() {
+        public int get1D() {
             return (row + 2) * 12 + (col + 2);
         }
 
