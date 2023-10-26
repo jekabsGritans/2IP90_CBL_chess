@@ -3,7 +3,13 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.io.IOException;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
@@ -30,7 +36,9 @@ public class ChessScene extends Scene {
     EndingEntity whiteBanner;
     EndingEntity blackBanner;
     EndingEntity stalemateBanner;
+    Clip moveClip;
     boolean withBot = false;
+
 
     public ChessScene(boolean withBot) {
         super();
@@ -41,6 +49,37 @@ public class ChessScene extends Scene {
         initPieces();
         initMoveIndicators();
         initBoard();
+        initSounds();
+    }
+
+    public void initSounds() {
+        String pathString = System.getProperty("user.dir") + "/sounds/move.wav";
+        File moveFile = new File(pathString);
+        AudioInputStream moveSound;
+        try {
+            moveSound = AudioSystem.getAudioInputStream(moveFile);
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+            return;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        try {
+            moveClip = AudioSystem.getClip();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            return;
+        }
+        try {
+            moveClip.open(moveSound);
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            return;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
     }
 
     public void initWinBanner() {
@@ -125,10 +164,12 @@ public class ChessScene extends Scene {
         updateBoard();
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
-            chessGame.makeMove(ChessBot.generateMove(chessGame.getBoard()));
+            chessGame.makeMove(ChessBot.generateMove(chessGame));
             updateBoard();
             turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         }
+        moveClip.setFramePosition(0);
+        moveClip.start();
     }
 
     public void updateBoard() {
