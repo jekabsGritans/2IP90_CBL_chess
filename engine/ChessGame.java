@@ -126,7 +126,6 @@ public class ChessGame {
      * @throws IllegalStateException if game is over
      */
     public GameState makeMove(ChessMove move) {
-        System.out.println(move);
 
         if (state != GameState.ACTIVE) {
             throw new IllegalStateException("Game is over");
@@ -147,11 +146,11 @@ public class ChessGame {
             }
         }
 
-        // check for draw by insufficient material
-        if (ChessRules.isInsufficientMaterial(board)) {
-            state = GameState.DRAW;
-            return state;
-        }
+        // // check for draw by insufficient material
+        // if (ChessRules.isInsufficientMaterial(board)) {
+        //     state = GameState.DRAW;
+        //     return state;
+        // }
 
         // check for draw by threefold repetition
         updatePositionCount();

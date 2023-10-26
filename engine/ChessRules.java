@@ -65,46 +65,7 @@ public class ChessRules {
      * @param board
      */
     public static boolean isInsufficientMaterial(ChessBoard board) {
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Pawn)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Pawn)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Queen)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Queen)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Rook)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Rook)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Bishop)) > 1) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Bishop)) > 1) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Knight)) > 1) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Knight)) > 1) {
-            return false;
-        }
-
+        //TODO
         return true;
     }
     

@@ -14,8 +14,7 @@ public class ChessBoard {
     private int whiteKingPos1D;
     private int blackKingPos1D;
     private int enPassantTarget1D; // -1 if no en passant target
-    private HashMap <Byte, Integer> whiteMaterial = new HashMap<Byte, Integer>();
-    private HashMap <Byte, Integer> blackMaterial = new HashMap<Byte, Integer>();
+    private HashMap <Byte, Integer> material = new HashMap<Byte, Integer>();
 
     // for testing
     public static void main(String[] args) {
@@ -60,8 +59,7 @@ public class ChessBoard {
         whiteKingPos1D = other.whiteKingPos1D;
         blackKingPos1D = other.blackKingPos1D;
         enPassantTarget1D = other.enPassantTarget1D;
-        whiteMaterial = new HashMap<Byte, Integer>(other.whiteMaterial);
-        blackMaterial = new HashMap<Byte, Integer>(other.blackMaterial);
+        material = new HashMap<Byte, Integer>(other.material);
     }
 
     /**
@@ -90,10 +88,6 @@ public class ChessBoard {
                 } else {
                     byte piece = ChessPiece.getPieceFromFenCharacter(fenChar);
                     setPiece(rowIdx, colIdx, piece);
-
-                    HashMap<Byte, Integer> material = ChessPiece.isWhite(piece) ? whiteMaterial : blackMaterial;
-                    material.put(piece, material.getOrDefault(piece, 0) + 1);
-
                     colIdx++;
                 }
             }
@@ -170,7 +164,7 @@ public class ChessBoard {
         byte oldPiece = board1D[idx];
         board1D[idx] = piece;
 
-        HashMap<Byte, Integer> material = ChessPiece.isWhite(piece) ? whiteMaterial : blackMaterial;
+        // update material
         material.put(piece, material.getOrDefault(piece, 0) + 1);
         material.put(oldPiece, material.getOrDefault(oldPiece, 0) - 1);
     }
@@ -265,13 +259,13 @@ public class ChessBoard {
     }
 
     /**
-     * Gets the material count for the given piece type.
-     * @param pieceType the piece type
-     * @return the material count for the given piece type
+     * Gets the board material.
+     * @return map of pieces to number of such pieces on the board
      */
-    public int getMaterialCount(byte pieceType) {
-        return whiteMaterial.getOrDefault(pieceType, 0) + blackMaterial.getOrDefault(pieceType, 0);
+    public HashMap<Byte, Integer> getMaterial() {
+        return material;
     }
+ 
 
     // package private for ChessRules, shouldn't be exposed to client
 
