@@ -6,7 +6,6 @@ import engine.ChessGame.GameState;
 
 import java.util.Collections;
 import java.util.Map;
-import static java.util.Map.entry;
 import java.util.List;
 
 public class ChessBot {
@@ -16,7 +15,7 @@ public class ChessBot {
     // debug - bot controls both sides, so should almost always win
     public static void main(String[] args) {
         ChessGame game = new ChessGame("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
-
+  
         while (game.getGameState() == GameState.ACTIVE) {
             ChessMove move = generateMove(game);
             game.makeMove(move);
@@ -96,20 +95,21 @@ public class ChessBot {
             return gameStateValues.get(state);
         }
 
-        // heuristic value of material
+        // heuristic value of material from black's perspective
         ChessBoard board = game.getBoard();
-        Map<Byte, Integer> material = board.getMaterial();
+        Map<Byte, Integer> whiteMaterial = board.getMaterial(true);
+        Map<Byte, Integer> blackMaterial = board.getMaterial(false);
 
-        return scoreMaterial(material);
+        return scoreMaterial(blackMaterial) - scoreMaterial(whiteMaterial); 
     }
 
     /*
-     * Gets the total value of the pieces on the board.
+     * Gets the total value of one side's material.
      */
     private static int scoreMaterial(Map<Byte, Integer> material) {
         int score = 0;
         for (Map.Entry<Byte, Integer> entry : material.entrySet()) {
-            score += pieceValues.getOrDefault(entry.getKey(), 0) * entry.getValue();
+            score += pieceTypeValues.getOrDefault(entry.getKey(), 0) * entry.getValue();
         }
         return score;
     }
@@ -124,21 +124,14 @@ public class ChessBot {
     }
 
     // FIXED HEURISTIC VALUES
-    // black is positive, white is negative
 
-    private static Map<Byte, Integer> pieceValues = Map.ofEntries(
-        entry(ChessPiece.getPieceFromFenCharacter('p'), 100),
-        entry(ChessPiece.getPieceFromFenCharacter('n'), 320),
-        entry(ChessPiece.getPieceFromFenCharacter('b'), 330),
-        entry(ChessPiece.getPieceFromFenCharacter('r'), 500),
-        entry(ChessPiece.getPieceFromFenCharacter('q'), 900),
-        entry(ChessPiece.getPieceFromFenCharacter('k'), 20000),
-        entry(ChessPiece.getPieceFromFenCharacter('P'), -100),
-        entry(ChessPiece.getPieceFromFenCharacter('N'), -320),
-        entry(ChessPiece.getPieceFromFenCharacter('B'), -330),
-        entry(ChessPiece.getPieceFromFenCharacter('R'), -500),
-        entry(ChessPiece.getPieceFromFenCharacter('Q'), -900),
-        entry(ChessPiece.getPieceFromFenCharacter('K'), -20000)
+    private static Map<Byte, Integer> pieceTypeValues = Map.of(
+        ChessPiece.Pawn , 100,
+        ChessPiece.Knight , 320,
+        ChessPiece.Bishop , 330,
+        ChessPiece.Rook , 500,
+        ChessPiece.Queen , 900,
+        ChessPiece.King , 9000
     );
 
     private static Map<GameState, Integer> gameStateValues = Map.of(
