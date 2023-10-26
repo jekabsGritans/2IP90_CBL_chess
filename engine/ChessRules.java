@@ -74,6 +74,9 @@ public class ChessRules {
 
     /*
      * Unidirectional check for insufficient material.
+     * Catches most but not all cases according to tournament rules
+     * (e.g. bishops on same color are not detected)
+     * But other cases are caught by the 50 move rule, so infinite loops are not possible.
      */
     private static boolean isInsufficientMaterial(Map<Byte, Integer> materialA, Map<Byte, Integer> materialB) {
         if (materialA.get(ChessPiece.Pawn) > 0) {

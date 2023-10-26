@@ -15,9 +15,10 @@ public class ChessGame {
     private boolean isWhiteMove;
     private int halfMoveClock;
     private int fullMoveNumber;
+    private ZobristHash zobristHash;
 
     // for threefold repetition draw
-    private HashMap<String, Integer> positionCount = new HashMap<String, Integer>();
+    private HashMap<ChessGame, Integer> positionCount = new HashMap<ChessGame, Integer>();
 
     // for debug
     public static void main(String[] args) {
@@ -59,6 +60,7 @@ public class ChessGame {
         halfMoveClock = fen.halfMoveClock;
         fullMoveNumber = fen.fullMoveNumber;
         updatePositionCount();
+        zobristHash = new ZobristHash();
     }
 
     /**
@@ -112,13 +114,6 @@ public class ChessGame {
     }
 
     /**
-     * Makes a move and returns the new game state.
-     * (Does not check if move is legal)
-     * @param move the move to make
-     * @return the new game state
-     * @throws IllegalStateException if game is over
-     */
-       /**
      * Makes a move and returns the new game state.
      * (Does not check if move is legal)
      * @param move the move to make
@@ -182,6 +177,21 @@ public class ChessGame {
         return state;
     }
 
+    @Override
+    public int hashCode() {
+        // collisions unlikely for a single game branch
+        // so compression to 32 bits is fine outside of transposition table
+        return Long.hashCode(getZobristHash()); 
+    }
+
+    /**
+     * Gets the 64-bit Zobrist hash of the game.
+     * @return the Zobrist hash of the game
+     */
+    public long getZobristHash() {
+        return zobristHash.getHash(this);
+    }
+
     /**
      * Gets the chess board.
      * @return the chess board
@@ -206,23 +216,28 @@ public class ChessGame {
         return fullMoveNumber;
     }
 
+    /**
+     * Gets whether it is white's turn.
+     * @return true if it is white's turn, false if black's turn
+     */
+    public boolean isWhiteMove() {
+        return isWhiteMove;
+    }
+
     /*
      * Updates the position count for threefold repetition draw.
      */
     private void updatePositionCount() {
-        String boardStateHash = board.getUniqueHash();
-        positionCount.put(boardStateHash, positionCount.getOrDefault(boardStateHash, 0) + 1);
+        positionCount.put(this, positionCount.getOrDefault(this, 0) + 1);
     }
 
     /*
      * Checks if the current position has been repeated three times.
      */
     private boolean isThreefoldRepetition() {
-        String boardStateHash = board.getUniqueHash();
-        return positionCount.getOrDefault(boardStateHash, 0) >= 3;
+        return positionCount.getOrDefault(board, 0) >= 3;
     }
 
-    
     /**
      * Represents possible game states.
      */
