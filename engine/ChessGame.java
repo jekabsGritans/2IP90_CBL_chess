@@ -185,6 +185,15 @@ public class ChessGame {
         return Long.hashCode(zobristHash.getHash(this)); 
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof ChessGame)) return false;
+        ChessGame game = (ChessGame) obj;
+        // imperfect, but better than 32-bit hash and fast
+        return zobristHash.getHash(this) == zobristHash.getHash(game); 
+    }
+
     /**
      * Gets the chess board.
      * @return the chess board
