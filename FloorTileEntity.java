@@ -7,22 +7,12 @@ import javax.swing.ImageIcon;
 import engine.ChessPiece;
 
 public class FloorTileEntity extends Entity {
-    public static Image blackImg;
-    public static Image whiteImg;
+    public static Color blackTile = Color.decode("#596A37");
+    public static Color whiteTile = Color.decode("#FFFFE3");
+
     public FloorTileEntity(byte floorColor) {
         super();
-        Image newImg = ChessPiece.isColor(floorColor, ChessPiece.Black) ? blackImg : whiteImg;
-        if(ChessPiece.isColor(floorColor, ChessPiece.Black) && FloorTileEntity.blackImg == null) {
-            String imgPath = System.getProperty("user.dir") + "/textures/blackTile.png";
-            File imgFile = new File(imgPath);
-            blackImg = new ImageIcon(imgFile.getAbsolutePath()).getImage();
-            newImg = blackImg;
-        } else if(ChessPiece.isColor(floorColor, ChessPiece.White) && FloorTileEntity.whiteImg == null){
-            String imgPath = System.getProperty("user.dir") + "/textures/whiteTile.png";
-            File imgFile = new File(imgPath);
-            whiteImg = new ImageIcon(imgFile.getAbsolutePath()).getImage();
-            newImg = whiteImg;
-        }
-        updateTextureImage(newImg);
+        graphic.setOpaque(true);
+        setColor(ChessPiece.isColor(floorColor, ChessPiece.White) ? whiteTile : blackTile);
     }
 }
