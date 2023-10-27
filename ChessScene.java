@@ -166,7 +166,10 @@ public class ChessScene extends Scene {
         updateBoard();
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
-            chessGame.makeMove(ChessBot.generateMove(chessGame));
+            GameState botState = chessGame.makeMove(ChessBot.generateMove(chessGame));
+            if(botState != GameState.ACTIVE) {
+                showWinBanner(state);
+            }
             updateBoard();
             turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         }
