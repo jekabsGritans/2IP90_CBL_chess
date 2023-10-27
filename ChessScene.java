@@ -169,6 +169,7 @@ public class ChessScene extends Scene {
         }
         moveClip.setFramePosition(0);
         moveClip.start();
+        frame.repaint(0, 0, 900, 900);
     }
 
     public void updateBoard() {
@@ -180,7 +181,6 @@ public class ChessScene extends Scene {
             for(int col = 0; col < tileAmount; col++) {
                 PieceEntity crntPiece = null;
                 Point realPos = chessPosToPoint(new ChessPosition(row, col));
-
 
                 ArrayList<PieceEntity> posPieces = getPieceFromPoint(realPos);
                 if(posPieces.size() > 1) {

@@ -33,7 +33,7 @@ class PieceEntity extends Entity implements MouseListener {
         super();
         this.pieceType = pieceType;
         this.pieceColor = pieceColor;
-        setSize(new Point(80, 80));
+        setSize(new Point(100, 100));
         initTexture();
         initMouseEvents();
     }
@@ -47,6 +47,9 @@ class PieceEntity extends Entity implements MouseListener {
         }
         currentPossibleMoves = board.getPossibleMovePositions(this);
         origPos = getPos();
+        int xOffset = getPos().x-InputManager.lastMousePos.x+55;
+        int yOffset = getPos().y-InputManager.lastMousePos.y+90;
+        setPos(new Point(getPos().x - xOffset, getPos().y - yOffset));
         dragging = true;
      }
  
@@ -59,18 +62,11 @@ class PieceEntity extends Entity implements MouseListener {
     }
 
     public void mouseEntered(MouseEvent e) {
-        if(dragging) {
-            if(!dragging || !active) {
-                return;
-            }
-            stopDrag();
-            dragging = false;
-        }
         mouseIn = true;
     }
 
     public void mouseExited(MouseEvent e) {
-        mouseIn = false;
+
     }   
  
     public void mouseClicked(MouseEvent e) {
@@ -125,10 +121,8 @@ class PieceEntity extends Entity implements MouseListener {
         //If in the same tile as the possible move, move to the possible move, otherwise go back to original position
         if(distance < board.boardSize.x/board.tileAmount && distance != 0 && moveIndex != -1) {
             board.nextTurn(moveIndex);
-            System.out.println("Moved to new pos:" + closestPos);
             setPos(closestPos);    
         } else {
-            System.out.println("Moved to orig pos:" + origPos);
             setPos(origPos);
         }
         board.removeIndicators();
