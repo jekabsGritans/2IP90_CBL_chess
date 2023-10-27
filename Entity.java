@@ -63,6 +63,7 @@ public class Entity {
         if(color != Color.PINK) {
             graphic.setBackground(color);
         }
+        graphic.repaint(pos.x, pos.y, size.x, size.y);
     }
 
     public void updateTextureSize() {

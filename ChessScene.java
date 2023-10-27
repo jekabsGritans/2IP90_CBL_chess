@@ -140,8 +140,6 @@ public class ChessScene extends Scene {
 
 
     public ArrayList<Point> getPossibleMovePositions(PieceEntity piece) {
-        System.out.println("pos: " + piece.getPos());
-        System.out.println("chesspos: " + pointToChessPos(piece.getPos()).col() + ", " + pointToChessPos(piece.getPos()).row());
         ChessPosition piecepos = pointToChessPos(piece.getPos());
         ArrayList<ChessMove> possibleMoves = new ArrayList<ChessMove>(chessGame.getLegalMoves(piecepos));
         ArrayList<Point> possiblePositions = new ArrayList<Point>();
@@ -162,7 +160,6 @@ public class ChessScene extends Scene {
         if(state != GameState.ACTIVE) {
             showWinBanner(state);
         }
-        chessGame.getBoard().print();
         updateBoard();
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {

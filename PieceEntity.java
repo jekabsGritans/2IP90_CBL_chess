@@ -24,6 +24,7 @@ class PieceEntity extends Entity implements MouseListener {
     Point origPos = getPos();
     byte pieceType;
     boolean active = true;
+    boolean mouseIn = false;
     public static ArrayList<Image> textures = new ArrayList<Image>(23);
     
     
@@ -58,12 +59,19 @@ class PieceEntity extends Entity implements MouseListener {
     }
 
     public void mouseEntered(MouseEvent e) {
-
+        if(dragging) {
+            if(!dragging || !active) {
+                return;
+            }
+            stopDrag();
+            dragging = false;
+        }
+        mouseIn = true;
     }
 
     public void mouseExited(MouseEvent e) {
-
-    }
+        mouseIn = false;
+    }   
  
     public void mouseClicked(MouseEvent e) {
 
@@ -117,8 +125,10 @@ class PieceEntity extends Entity implements MouseListener {
         //If in the same tile as the possible move, move to the possible move, otherwise go back to original position
         if(distance < board.boardSize.x/board.tileAmount && distance != 0 && moveIndex != -1) {
             board.nextTurn(moveIndex);
+            System.out.println("Moved to new pos:" + closestPos);
             setPos(closestPos);    
         } else {
+            System.out.println("Moved to orig pos:" + origPos);
             setPos(origPos);
         }
         board.removeIndicators();

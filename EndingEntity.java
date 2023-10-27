@@ -26,7 +26,7 @@ public class EndingEntity extends Entity implements MouseListener {
     }
 
     public void mouseExited(MouseEvent e) {
-
+        
     }
  
     public void mouseClicked(MouseEvent e) {
