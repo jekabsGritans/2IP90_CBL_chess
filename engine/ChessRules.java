@@ -7,6 +7,10 @@ import engine.ChessBoard.ChessPosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+// TODO fix pawn moves (horizontal capture)
+// TODO fix checkmate detection, ran into a situation where it was not detected
 
 /**
  * Static methods for legal moves and checking if king is in check.
@@ -65,49 +69,34 @@ public class ChessRules {
      * @param board
      */
     public static boolean isInsufficientMaterial(ChessBoard board) {
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Pawn)) > 0) {
-            return false;
-        }
+        Map<Byte, ArrayList<Integer>> whiteMaterial = board.getMaterial(true);
+        Map<Byte, ArrayList<Integer>> blackMaterial = board.getMaterial(false);
 
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Pawn)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Queen)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Queen)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Rook)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Rook)) > 0) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Bishop)) > 1) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Bishop)) > 1) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.White | ChessPiece.Knight)) > 1) {
-            return false;
-        }
-
-        if (board.getMaterialCount((byte) (ChessPiece.Black | ChessPiece.Knight)) > 1) {
-            return false;
-        }
-
-        return true;
+        return isInsufficientMaterial(whiteMaterial) && isInsufficientMaterial(blackMaterial);
     }
-    
+
+    /*
+     * Unidirectional check for insufficient material.
+     * Catches most but not all cases according to tournament rules
+     * (e.g. bishops on same color are not detected)
+     * But other cases are caught by the 50 move rule, so infinite loops are not possible.
+     */
+    private static boolean isInsufficientMaterial(Map<Byte, ArrayList<Integer>> material) {
+
+        // if any pawn, queen, or rook, not insufficient material
+        byte[] types = new byte[] {ChessPiece.Pawn, ChessPiece.Queen, ChessPiece.Rook};
+        for (byte type : types) {
+            if (material.get(type).size() > 0) {
+                return false;
+            }
+        }
+
+        int numBishops = material.get(ChessPiece.Bishop).size();
+        int numKnights = material.get(ChessPiece.Knight).size();
+
+        return numBishops + numKnights <= 1;
+    }
+
     /*
      * Removes moves that expose the friendly king.
      */
@@ -378,6 +367,4 @@ public class ChessRules {
 
         return moves;
     }
-
-
 }

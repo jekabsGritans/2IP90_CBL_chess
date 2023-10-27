@@ -1,5 +1,6 @@
 package engine;
 
+import java.util.HashMap;
 import java.util.List;
 import utils.FenParser;
 import engine.ChessBoard.ChessMove;
@@ -14,6 +15,10 @@ public class ChessGame {
     private boolean isWhiteMove;
     private int halfMoveClock;
     private int fullMoveNumber;
+    private ZobristHash zobristHash;
+
+    // for threefold repetition draw
+    private HashMap<ChessGame, Integer> positionCount = new HashMap<ChessGame, Integer>();
 
     // for debug
     public static void main(String[] args) {
@@ -32,6 +37,19 @@ public class ChessGame {
     }
 
     /**
+     * Constructor for cloning.
+     * @param game the game to clone
+     */
+    public ChessGame(ChessGame game) {
+        this.state = game.state;
+        this.board = new ChessBoard(game.board);
+        this.isWhiteMove = game.isWhiteMove;
+        this.halfMoveClock = game.halfMoveClock;
+        this.fullMoveNumber = game.fullMoveNumber;
+        this.zobristHash = game.zobristHash;
+    }
+
+    /**
      * Creates a chess game from a FEN string.
      * @param fen FEN string representation of the game
      */
@@ -42,6 +60,8 @@ public class ChessGame {
         isWhiteMove = fen.activeColor.equals("w");
         halfMoveClock = fen.halfMoveClock;
         fullMoveNumber = fen.fullMoveNumber;
+        zobristHash = new ZobristHash();
+        updatePositionCount();
     }
 
     /**
@@ -101,15 +121,7 @@ public class ChessGame {
      * @return the new game state
      * @throws IllegalStateException if game is over
      */
-       /**
-     * Makes a move and returns the new game state.
-     * (Does not check if move is legal)
-     * @param move the move to make
-     * @return the new game state
-     * @throws IllegalStateException if game is over
-     */
     public GameState makeMove(ChessMove move) {
-        System.out.println(move);
 
         if (state != GameState.ACTIVE) {
             throw new IllegalStateException("Game is over");
@@ -132,6 +144,13 @@ public class ChessGame {
 
         // check for draw by insufficient material
         if (ChessRules.isInsufficientMaterial(board)) {
+            state = GameState.DRAW;
+            return state;
+        }
+
+        // check for draw by threefold repetition
+        updatePositionCount();
+        if (isThreefoldRepetition()) {
             state = GameState.DRAW;
             return state;
         }
@@ -159,6 +178,22 @@ public class ChessGame {
         return state;
     }
 
+    @Override
+    public int hashCode() {
+        // room for improvement, 64 bits would reduce collisions for transposition table
+        // but then we'd need a custom hash map implementation...
+        return Long.hashCode(zobristHash.getHash(this)); 
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof ChessGame)) return false;
+        ChessGame game = (ChessGame) obj;
+        // imperfect, but better than 32-bit hash and fast
+        return zobristHash.getHash(this) == zobristHash.getHash(game); 
+    }
+
     /**
      * Gets the chess board.
      * @return the chess board
@@ -182,7 +217,29 @@ public class ChessGame {
     public int getFullMoveNumber() {
         return fullMoveNumber;
     }
-    
+
+    /**
+     * Gets whether it is white's turn.
+     * @return true if it is white's turn, false if black's turn
+     */
+    public boolean isWhiteMove() {
+        return isWhiteMove;
+    }
+
+    /*
+     * Updates the position count for threefold repetition draw.
+     */
+    private void updatePositionCount() {
+        positionCount.put(this, positionCount.getOrDefault(this, 0) + 1);
+    }
+
+    /*
+     * Checks if the current position has been repeated three times.
+     */
+    private boolean isThreefoldRepetition() {
+        return positionCount.getOrDefault(board, 0) >= 3;
+    }
+
     /**
      * Represents possible game states.
      */
