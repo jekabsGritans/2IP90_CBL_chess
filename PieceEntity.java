@@ -41,6 +41,9 @@ class PieceEntity extends Entity implements MouseListener {
         if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active) {
             return;
         }
+        if(ChessPiece.isColor(pieceColor, ChessPiece.Black) && board.withBot) {
+            return;
+        }
         currentPossibleMoves = board.getPossibleMovePositions(this);
         origPos = getPos();
         dragging = true;
