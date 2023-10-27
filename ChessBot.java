@@ -18,11 +18,17 @@ import java.util.HashMap;
  * - transposition table
  * - iterative deepening (allows to adhere to a time limit)
  */
-public class ChessBot {
+public class ChessBot extends Thread {
     private static long MAX_SEARCH_TIME = 1000; // ms
     private static long startTime;
     private static HashMap<ChessGame, Entry> transpoTable = new HashMap<ChessGame, Entry>();
     private static int searchDepth;
+    public static ChessMove currentMove = null;
+    public static ChessGame currentGame = null;
+
+    public void run() {
+        currentMove = generateMove(currentGame);
+    }
 
     // debug - bot controls both sides, so should almost always win
     public static void main(String[] args) {

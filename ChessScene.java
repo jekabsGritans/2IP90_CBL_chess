@@ -166,12 +166,9 @@ public class ChessScene extends Scene {
         updateBoard();
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
         if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
-            GameState botState = chessGame.makeMove(ChessBot.generateMove(chessGame));
-            if(botState != GameState.ACTIVE) {
-                showWinBanner(state);
-            }
-            updateBoard();
-            turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
+            ChessBot bot = new ChessBot();
+            ChessBot.currentGame = chessGame;
+            bot.start();
         }
         moveClip.setFramePosition(0);
         moveClip.start();
@@ -326,6 +323,20 @@ public class ChessScene extends Scene {
 
     public void update() {
         super.update();
+        if(withBot && ChessPiece.isColor(turnColor, ChessPiece.Black)) {
+            if(ChessBot.currentMove == null) {
+                return;
+            }
+            GameState botState = chessGame.makeMove(ChessBot.currentMove);
+            ChessBot.currentMove = null;
+            updateBoard();
+            turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
+            if(botState != GameState.ACTIVE) {
+                showWinBanner(botState);
+            }
+            moveClip.setFramePosition(0);
+            moveClip.start();
+        }
     }
 
     public void addEntity(PieceEntity entity) {
