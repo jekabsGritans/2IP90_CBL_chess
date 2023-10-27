@@ -6,8 +6,8 @@ import engine.ChessBoard.ChessPosition;
 import engine.ChessGame.GameState;
 
 import java.util.Collections;
-import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.List;
 import java.util.HashMap;
 
@@ -143,8 +143,8 @@ public class ChessBot extends Thread {
 
         // heuristic value of material from black's perspective
         ChessBoard board = game.getBoard();
-        Map<Byte, ArrayList<Integer>> whiteMaterial = board.getMaterial(true);
-        Map<Byte, ArrayList<Integer>> blackMaterial = board.getMaterial(false);
+        Map<Byte, Set<Integer>> whiteMaterial = board.getMaterial(true);
+        Map<Byte, Set<Integer>> blackMaterial = board.getMaterial(false);
 
         return scoreMaterial(blackMaterial, true) - scoreMaterial(whiteMaterial, false); 
     }
@@ -152,9 +152,9 @@ public class ChessBot extends Thread {
     /*
      * Gets the total value of one side's material.
      */
-    private static int scoreMaterial(Map<Byte, ArrayList<Integer>> material, boolean isBlack) {
+    private static int scoreMaterial(Map<Byte, Set<Integer>> material, boolean isBlack) {
         int score = 0;
-        for (Map.Entry<Byte, ArrayList<Integer>> entry : material.entrySet()) {
+        for (Map.Entry<Byte, Set<Integer>> entry : material.entrySet()) {
             byte type = entry.getKey();
 
             for (int pos : entry.getValue()) {

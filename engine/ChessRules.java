@@ -7,10 +7,8 @@ import engine.ChessBoard.ChessPosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
-
-// TODO fix pawn moves (horizontal capture)
-// TODO fix checkmate detection, ran into a situation where it was not detected
 
 /**
  * Static methods for legal moves and checking if king is in check.
@@ -27,7 +25,7 @@ public class ChessRules {
         // if I expose my king if I can first capture the enemy king
         List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
 
-        int enemyKingPos = isWhiteMove ? board.getBlackKingPos1D() : board.getWhiteKingPos1D();
+        int enemyKingPos = board.getKingPos1D(!isWhiteMove);
 
         // check if any move is to the enemy king's position
         for (ChessMove move : moves) {
@@ -69,8 +67,8 @@ public class ChessRules {
      * @param board
      */
     public static boolean isInsufficientMaterial(ChessBoard board) {
-        Map<Byte, ArrayList<Integer>> whiteMaterial = board.getMaterial(true);
-        Map<Byte, ArrayList<Integer>> blackMaterial = board.getMaterial(false);
+        Map<Byte, Set<Integer>> whiteMaterial = board.getMaterial(true);
+        Map<Byte, Set<Integer>> blackMaterial = board.getMaterial(false);
 
         return isInsufficientMaterial(whiteMaterial) && isInsufficientMaterial(blackMaterial);
     }
@@ -81,7 +79,7 @@ public class ChessRules {
      * (e.g. bishops on same color are not detected)
      * But other cases are caught by the 50 move rule, so infinite loops are not possible.
      */
-    private static boolean isInsufficientMaterial(Map<Byte, ArrayList<Integer>> material) {
+    private static boolean isInsufficientMaterial(Map<Byte, Set<Integer>> material) {
 
         // if any pawn, queen, or rook, not insufficient material
         byte[] types = new byte[] {ChessPiece.Pawn, ChessPiece.Queen, ChessPiece.Rook};

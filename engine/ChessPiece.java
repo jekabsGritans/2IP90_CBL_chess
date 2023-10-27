@@ -155,6 +155,7 @@ public class ChessPiece {
         byte colorLessPiece = (byte) (piece & 7);
         char fenChar = FEN_CHARS[colorLessPiece];
 
+        // colorless pieces (types) are printed as black (lowercase)
         return isColor(piece, White) ? Character.toUpperCase(fenChar) : fenChar;
     }
 
