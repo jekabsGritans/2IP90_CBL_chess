@@ -60,9 +60,6 @@ class PieceEntity extends Entity implements MouseListener {
         dragging = true;
      }
  
-    /**
-     * Overwritten mouseListener function, snaps the piece to either its original position, or one of its possible positions
-     */
     public void mouseReleased(MouseEvent e) {
         if(!dragging || !active) {
             return;
@@ -76,7 +73,7 @@ class PieceEntity extends Entity implements MouseListener {
     }
 
     public void mouseExited(MouseEvent e) {
-
+        mouseIn = false;
     }   
  
     public void mouseClicked(MouseEvent e) {
@@ -142,12 +139,12 @@ class PieceEntity extends Entity implements MouseListener {
         //If in the same tile as the possible move, move to the possible move, otherwise go back to original position
         if(distance < board.boardSize.x/board.tileAmount && distance != 0 && moveIndex != -1) {
             setPos(closestPos);    
-            System.out.println("released to: " + closestPos);
             board.nextTurn(moveIndex);
         } else {
             setPos(origPos);
         }
         board.removeIndicators();
+        board.mouseReleased = false;
     }
     /**
      * Overwrites entity update function, handles updating the position when the piece is being dragged
@@ -155,6 +152,12 @@ class PieceEntity extends Entity implements MouseListener {
     @Override
     public void update() {
         if(dragging) {
+            if(!active || board.mouseReleased) {
+                System.out.println("stop");
+                dragging = false;
+                stopDrag();
+                return;
+            }
             setPos(new Point(getPos().x+InputManager.deltaMousePos.x, getPos().y+InputManager.deltaMousePos.y));
         }
     }

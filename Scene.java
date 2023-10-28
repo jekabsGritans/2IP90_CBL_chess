@@ -2,18 +2,22 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
-class Scene {
+class Scene implements MouseListener {
   ArrayList<Entity> entities  = new ArrayList<Entity>();
   String name;
   JFrame frame;
   JLayeredPane pane;
   GameMain game;
+  boolean mouseDown = false;
+  boolean mouseReleased = false;
   public static int maxEntities = 1000;
 
   /**
@@ -29,6 +33,7 @@ class Scene {
     pane.setSize(900, 900);
     pane.setLayout(null);
     frame.add(pane);
+    frame.addMouseListener(this);
   }
   /**
    * Initializes the scene, and adds the specified entities
@@ -74,5 +79,35 @@ class Scene {
   public void removeEntity(Entity entity) {
     entities.remove(entity);
     pane.remove(entity.graphic);
+  }
+  @Override
+  public void mouseClicked(MouseEvent e) {
+
+  }
+
+  /**
+   * Sets the MouseDown bool true, cant be done in input manager as the listener needs to be attached to the scene
+   */
+  @Override
+  public void mousePressed(MouseEvent e) {
+    System.out.println("down");
+    mouseDown = true;
+  }
+  /**
+   * Sets the MouseDown bool false, cant be done in input manager as the listener needs to be attached to the scene
+   */
+  @Override
+  public void mouseReleased(MouseEvent e) {
+    System.out.println("up");
+    mouseDown = false;
+    mouseReleased = true;
+  }
+  @Override
+  public void mouseEntered(MouseEvent e) {
+    // TODO Auto-generated method stub
+  }
+  @Override
+  public void mouseExited(MouseEvent e) {
+    // TODO Auto-generated method stub
   }
 }
