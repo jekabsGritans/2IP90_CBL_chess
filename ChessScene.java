@@ -259,6 +259,18 @@ public class ChessScene extends Scene {
      * @param board this is the board structure which the gui changes itself to
      */
     public void updateBoardPieces(ChessBoard board) {
+        // Ensure all pieces are snapped to grid
+        for(int i = 0; i < pieces.size(); i++) {
+            if((pieces.get(i).getPos().x-boardPos.x)%100 == 0 && (pieces.get(i).getPos().x-boardPos.x)%100 == 0) {
+                continue;
+            }
+            Point snappedPos = new Point();
+            snappedPos.x = (int)(Math.rint(((double)(pieces.get(i).getPos().x-boardPos.x))/100)*100)+boardPos.x;
+            snappedPos.y = (int)(Math.rint(((double)(pieces.get(i).getPos().y-boardPos.y))/100)*100)+boardPos.y;
+            pieces.get(i).setPos(snappedPos);
+        }
+
+
         Point pieceSize = new Point((int)((boardSize.x/tileAmount)), (int)((boardSize.y/tileAmount)));
         for(int row = 0; row < tileAmount; row++) {
             for(int col = 0; col < tileAmount; col++) {
