@@ -67,8 +67,8 @@ class PieceEntity extends Entity implements MouseListener {
         if(!dragging || !active) {
             return;
         }
-        stopDrag();
         dragging = false;
+        stopDrag();
     }
 
     public void mouseEntered(MouseEvent e) {
