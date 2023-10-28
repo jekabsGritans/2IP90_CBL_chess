@@ -142,6 +142,7 @@ class PieceEntity extends Entity implements MouseListener {
         //If in the same tile as the possible move, move to the possible move, otherwise go back to original position
         if(distance < board.boardSize.x/board.tileAmount && distance != 0 && moveIndex != -1) {
             setPos(closestPos);    
+            System.out.println("released to: " + closestPos);
             board.nextTurn(moveIndex);
         } else {
             setPos(origPos);

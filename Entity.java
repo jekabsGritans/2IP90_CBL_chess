@@ -51,6 +51,8 @@ public class Entity {
      */
     public void setPos(Point newPos) {
         pos = newPos;
+        System.out.println("set to new pos move:" + newPos);
+        Thread.dumpStack();
         updateTransform();
     }
 
