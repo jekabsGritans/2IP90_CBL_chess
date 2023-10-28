@@ -185,6 +185,7 @@ public class ChessScene extends Scene {
                 FloorTileEntity tile = new FloorTileEntity(tileColor);
                 tile.setPos(new Point(boardPos.x + (boardSize.x/tileAmount)*x, boardPos.y + (boardSize.y/tileAmount)*y));
                 tile.setSize(new Point(boardSize.x/tileAmount, boardSize.y/tileAmount+5));
+                tile.board = this;
                 addEntity(tile);
             }
         }
