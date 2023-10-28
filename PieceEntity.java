@@ -28,7 +28,11 @@ class PieceEntity extends Entity implements MouseListener {
     public static ArrayList<Image> textures = new ArrayList<Image>(23);
     
     
-
+    /**
+     * Constructs a piece entity by loading the texture and mouseListener
+     * @param pieceType the type of piece to load, depending on the bits xxxxx???
+     * @param pieceColor the color of piece to load, depending on the bits xxx??xxx
+     */
     public PieceEntity(byte pieceType, byte pieceColor) {
         super();
         this.pieceType = pieceType;
@@ -38,6 +42,9 @@ class PieceEntity extends Entity implements MouseListener {
         initMouseEvents();
     }
 
+    /**
+     * Overwritten mouseListener function, centers the piece to the mouse, and starts dragging it
+     */
     public void mousePressed(MouseEvent e) {
         if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active) {
             return;
@@ -53,6 +60,9 @@ class PieceEntity extends Entity implements MouseListener {
         dragging = true;
      }
  
+    /**
+     * Overwritten mouseListener function, snaps the piece to either its original position, or one of its possible positions
+     */
     public void mouseReleased(MouseEvent e) {
         if(!dragging || !active) {
             return;
@@ -72,16 +82,24 @@ class PieceEntity extends Entity implements MouseListener {
     public void mouseClicked(MouseEvent e) {
 
     }
-
+    /**
+     * Initializes mouseListener
+     */
     public void initMouseEvents() { 
         graphic.addMouseListener(this);
     }
 
+    /**
+     * Sets type
+     * @param newType the type to which the piece will be set depending on the bits xxxxx???
+     */
     public void setType(byte newType) {
         pieceType = newType;
         initTexture();
     }
-
+    /**
+     * initializes the texture depending on the currently set color and type
+     */
     public void initTexture() {
         if(textures.size() == 0) {
             for(int i = 0; i < 23; i++) {
@@ -106,8 +124,11 @@ class PieceEntity extends Entity implements MouseListener {
         }
 
     }
-
+    /**
+     * This is called when the mouse is released and either returns the piece to its original position, or snaps it to one of its possible moves
+     */
     public void stopDrag() {
+        // Finds closest possible move
         Point closestPos = origPos;
         int moveIndex = -1;
         for(int i = 0; i < currentPossibleMoves.size(); i++) {
@@ -127,17 +148,13 @@ class PieceEntity extends Entity implements MouseListener {
         }
         board.removeIndicators();
     }
-
+    /**
+     * Overwrites entity update function, handles updating the position when the piece is being dragged
+     */
     @Override
     public void update() {
         if(dragging) {
             setPos(new Point(getPos().x+InputManager.deltaMousePos.x, getPos().y+InputManager.deltaMousePos.y));
         }
-    }
-
-    @Override
-    public void updateTransform() {
-        // Override so color not set on updateTransform for this entity, as it uses textures
-        graphic.setBounds(getPos().x, getPos().y, getSize().x, getSize().y);
     }
 }

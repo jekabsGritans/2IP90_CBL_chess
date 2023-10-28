@@ -8,6 +8,10 @@ import engine.ChessPiece;
 
 public class IndicatorEntity extends Entity {
     public static Image img;
+    
+    /**
+     * Constructor that calls entity constructor and also loads the appropriate texture
+     */
     public IndicatorEntity() {
         super();
         if(IndicatorEntity.img == null) {

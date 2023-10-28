@@ -3,6 +3,9 @@ import java.awt.Point;
 import java.io.File;
 
 public class MenuScene extends Scene {
+    /**
+     * Constructor that calls Scene constructor and initializes the frame color, buttons and banner
+     */
     public MenuScene() {
         super();
         frame.getContentPane().setBackground(Color.gray);
@@ -10,6 +13,9 @@ public class MenuScene extends Scene {
         initBanner();
     }
 
+    /**
+     * Initializes the possible game mode buttons
+     */
     public void initButtons() {
         PlayerVSPlayerButton startButton = new PlayerVSPlayerButton();
         startButton.setPos(new Point(130, 500));
@@ -19,6 +25,9 @@ public class MenuScene extends Scene {
         addEntity(startCompButton);       
     }
 
+    /**
+     * Initializes the banner image
+     */
     public void initBanner() {
         Entity banner = new Entity();
         banner.setPos(new Point(280, 50));
@@ -29,10 +38,19 @@ public class MenuScene extends Scene {
         addEntity(banner);
     }
 
+    /**
+     * calls Scene addEntity function and also sets the menu variable
+     * @param entity thisis the button to add
+     */
     public void addEntity(PlayerVSPlayerButton entity) {
         super.addEntity(entity);
         entity.menu = this;
     }
+
+    /**
+     * calls Scene addEntity function and also sets the menu variable
+     * @param entity thisis the button to add
+     */
     public void addEntity(PlayerVSComputerButton entity) {
         super.addEntity(entity);
         entity.menu = this;

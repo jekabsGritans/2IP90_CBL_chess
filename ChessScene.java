@@ -39,7 +39,10 @@ public class ChessScene extends Scene {
     Clip moveClip;
     boolean withBot = false;
 
-
+    /** 
+     * Constructs and initializes the ChessScene object
+     * @param withBot decides if the black side will be played by a player, or if if control will be redirected to the ChessBot class
+     */
     public ChessScene(boolean withBot) {
         super();
         this.withBot = withBot;
@@ -47,42 +50,39 @@ public class ChessScene extends Scene {
         initGame();
         initWinBanner();
         initPieces();
-        initMoveIndicators();
+        initIndicators();
         initBoard();
-        initSounds();
+        try {
+            initSounds();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            System.out.println("Failed to load sound effects ");
+            e.printStackTrace();
+        }
     }
 
-    public void initSounds() {
+    /** 
+     * instantiates the ChessGame object, this is done in a function as it is also called when restarting a game
+     */
+    public void initGame() {
+        chessGame = new ChessGame();
+    }
+
+    /** 
+     * Initializes the move.wav audio file into a Clip object
+     */
+    public void initSounds() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         String pathString = System.getProperty("user.dir") + "/sounds/move.wav";
         File moveFile = new File(pathString);
         AudioInputStream moveSound;
-        try {
-            moveSound = AudioSystem.getAudioInputStream(moveFile);
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-            return;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        try {
-            moveClip = AudioSystem.getClip();
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-            return;
-        }
-        try {
-            moveClip.open(moveSound);
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-            return;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        moveSound = AudioSystem.getAudioInputStream(moveFile);
+        moveClip = AudioSystem.getClip();
+        moveClip.open(moveSound);
         moveClip.start();
     }
 
+    /** 
+     * Creates, initializes and hides the banners shown when the game has ended, this is done beforehand as loading these textures takes a bit
+     */
     public void initWinBanner() {
         whiteBanner = new EndingEntity();
         whiteBanner.setPos(new Point(200, 200));
@@ -115,6 +115,10 @@ public class ChessScene extends Scene {
         addEntity(stalemateBanner);
     }
 
+    /** 
+     * Shows the banner that is applicable to the current passed gamestate
+     * @param state this decides what banner is shown
+     */
     public void showWinBanner(GameState state) {
         if(state == GameState.BLACK_WINS) {
             blackBanner.graphic.setVisible(true);
@@ -127,145 +131,10 @@ public class ChessScene extends Scene {
         }
     }
 
-    public void initMoveIndicators() {
-        for(int i = 0; i < 50; i++) {
-            IndicatorEntity indicator = new IndicatorEntity();
-            indicator.setPos(new Point(0, 0));
-            indicator.setSize(new Point((int)(boardSize.x/tileAmount), (int)((boardSize.y/tileAmount))));
-            moveIndicators.add(indicator);
-            indicator.graphic.setVisible(false);
-            addEntity(indicator, 5);
-        }
-    }
 
-
-    public ArrayList<Point> getPossibleMovePositions(PieceEntity piece) {
-        ChessPosition piecepos = pointToChessPos(piece.getPos());
-        ArrayList<ChessMove> possibleMoves = new ArrayList<ChessMove>(chessGame.getLegalMoves(piecepos));
-        ArrayList<Point> possiblePositions = new ArrayList<Point>();
-
-        for(int i = 0; i < possibleMoves.size(); i++) {
-            possiblePositions.add(chessPosToPoint(possibleMoves.get(i).getTo()));
-            System.out.println(possibleMoves.get(i).getTo());
-        }
-        showIndicators(possiblePositions);
-        currentPiecePossibleMoves = possibleMoves;
-        return possiblePositions;
-    }
-    // moveIndex being the index of the move made, which should correspond to a move kept in the currentPiecePossibleMoves list
-    public void nextTurn(int moveIndex) {
-        moveClip.stop();
-        ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
-        GameState state = chessGame.makeMove(madeMove);
-        if(state != GameState.ACTIVE) {
-            showWinBanner(state);
-        }
-        updateBoard();
-        turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
-        if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
-            ChessBot bot = new ChessBot();
-            ChessBot.currentGame = chessGame;
-            bot.start();
-        }
-        moveClip.setFramePosition(0);
-        moveClip.start();
-        frame.repaint(0, 0, 900, 900);
-    }
-
-    public void updateBoard() {
-        updateBoardPieces(chessGame.getBoard());
-    }
-    public void updateBoardPieces(ChessBoard board) {
-        Point pieceSize = new Point((int)((boardSize.x/tileAmount)), (int)((boardSize.y/tileAmount)));
-        for(int row = 0; row < tileAmount; row++) {
-            for(int col = 0; col < tileAmount; col++) {
-                PieceEntity crntPiece = null;
-                Point realPos = chessPosToPoint(new ChessPosition(row, col));
-
-                ArrayList<PieceEntity> posPieces = getPieceFromPoint(realPos);
-                if(posPieces.size() > 1) {
-                    for(int i = 0; i < posPieces.size(); i++) {
-                        removeEntity(posPieces.get(i));
-                        posPieces.get(i).graphic.setVisible(false);
-                        posPieces.get(i).active = false;
-                        pieces.remove(posPieces.get(i));
-                    }
-                    if(!ChessPiece.isEmpty(board.getPiece(row, col))) {
-                        col--;
-                    }
-                    continue;
-                }
-                if(posPieces.size() == 1) {
-                    crntPiece = posPieces.get(0);
-                }
-
-
-                if(ChessPiece.isEmpty(board.getPiece(row, col))) {
-                    if(crntPiece != null) {
-                        crntPiece.graphic.setVisible(false);
-                        crntPiece.active = false;
-                        pieces.remove(crntPiece);
-                        removeEntity(crntPiece);
-                    }
-                    continue;
-                }
-                if(crntPiece == null) {
-                    PieceEntity newPiece = new PieceEntity(ChessPiece.getType(board.getPiece(row, col)), ChessPiece.getColor(board.getPiece(row, col)));
-                    newPiece.setSize(pieceSize);
-                    newPiece.setPos(realPos);
-                    addEntity(newPiece);
-                    continue;
-                }
-                if(ChessPiece.isColor(crntPiece.pieceColor, ChessPiece.White) != ChessPiece.isColor(board.getPiece(row, col), ChessPiece.White)) {
-                    crntPiece.pieceColor = ChessPiece.getColor(board.getPiece(row, col));
-                    crntPiece.initTexture();
-                }
-                if(ChessPiece.getType(board.getPiece(row, col)) != crntPiece.pieceType) {
-                    crntPiece.pieceType = ChessPiece.getType(board.getPiece(row, col));
-                    crntPiece.initTexture();
-                }
-            }
-        }
-        frame.setVisible(true);
-    }
-
-    public ArrayList<PieceEntity> getPieceFromPoint(Point point) {
-        ArrayList<PieceEntity> returnPieces = new ArrayList<PieceEntity>();
-        for(int i = 0; i < pieces.size(); i++) {
-            if(pieces.get(i).getPos().x >= point.x-40 &&  pieces.get(i).getPos().x <= point.x+40 && pieces.get(i).getPos().y >= point.y-40 && pieces.get(i).getPos().y <= point.y + 40) {
-                returnPieces.add(pieces.get(i));
-            }
-        }
-        return returnPieces;
-    }
-
-    public void showIndicators(List<Point> positions) {
-        for(int i = 0; i < positions.size(); i++) {
-            moveIndicators.get(i).setPos(positions.get(i));
-            moveIndicators.get(i).graphic.setVisible(true);
-        }
-    }
-
-    public void removeIndicators() {
-        for(int i = 0; i < moveIndicators.size(); i++) {
-            moveIndicators.get(i).graphic.setVisible(false);
-        }
-    }
-
-    public ChessPosition pointToChessPos(Point point) {
-        int row = (int)Math.rint(((double)(point.y-boardPos.y))/((double)(boardSize.y/tileAmount)));
-        int col = (int)Math.rint(((double)(point.x-boardPos.x))/((double)(boardSize.x/tileAmount)));
-        return new ChessPosition(row, col);
-    }
-
-    public Point chessPosToPoint(ChessPosition pos) {
-        return new Point(pos.col()*(boardSize.x/tileAmount)+boardPos.x, pos.row()*(boardSize.y/tileAmount)+boardPos.y);
-    }
-
-    public void initGame() {
-        chessGame = new ChessGame();
-    }
- 
+    /** 
+     * Creates, initializes and places the visible black and white pieces
+     */
     public void initPieces() {
         double tileSize = boardSize.x / tileAmount;
         Point pieceSize = new Point((int)tileSize, (int)tileSize);
@@ -305,6 +174,9 @@ public class ChessScene extends Scene {
         }
     }
 
+    /** 
+     * Initializes board tile entities, this has no non-aesthetic purposes
+     */
     public void initBoard() {
         // Initialize FloorTiles
         for(int x = 0; x < tileAmount; x++) {
@@ -318,6 +190,192 @@ public class ChessScene extends Scene {
         }
     }
 
+    /** 
+     * Creates and Initializes the movement indicators, this is done at the start as instantiating them each time would be unnecesarrily costly
+     */
+    public void initIndicators() {
+        for(int i = 0; i < 50; i++) {
+            IndicatorEntity indicator = new IndicatorEntity();
+            indicator.setPos(new Point(0, 0));
+            indicator.setSize(new Point((int)(boardSize.x/tileAmount), (int)((boardSize.y/tileAmount))));
+            moveIndicators.add(indicator);
+            indicator.graphic.setVisible(false);
+            addEntity(indicator, 5);
+        }
+    }
+
+    /** 
+     * Sets the indicators to the current possible positions the held piece can move to, and makes them visible
+     * @param positions this is the list of possible points where the currently held piece can move to, this is where the indicators areplaced
+     */
+    public void showIndicators(List<Point> positions) {
+        for(int i = 0; i < positions.size(); i++) {
+            moveIndicators.get(i).setPos(positions.get(i));
+            moveIndicators.get(i).graphic.setVisible(true);
+        }
+    }
+
+    /** 
+     * Hides the movement indicators, after piece is released
+     */
+    public void removeIndicators() {
+        for(int i = 0; i < moveIndicators.size(); i++) {
+            moveIndicators.get(i).graphic.setVisible(false);
+        }
+    }
+
+    /** 
+     * This function is called when a piece is dropped into its new position, it applies the made move to the chessGame object and switches turn colors
+     * @param moveIndex this is the index of the list of the generated possible moves, when generated this list is stored as to not have to convert real coordinates back to ChessMove objects
+     */
+    public void nextTurn(int moveIndex) {
+        moveClip.stop();
+        ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
+        GameState state = chessGame.makeMove(madeMove);
+        if(state != GameState.ACTIVE) {
+            showWinBanner(state);
+        }
+        updateBoardPieces(chessGame.getBoard());
+        turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
+        if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
+            doBotTurn();
+        }
+        moveClip.setFramePosition(0);
+        moveClip.start();
+        frame.repaint(0, 0, 900, 900);
+    } 
+
+    /** 
+     * Creates a new thread for the bot to run on, as not to make the gui pause while the bot is thinking up a new move
+     */
+    public void doBotTurn() {
+        ChessBot bot = new ChessBot();
+        ChessBot.currentGame = chessGame;
+        bot.start();
+    }
+
+    /** 
+     * Creates, repositions and deletes any pieces that do not correspond to the state of the board, this is called after every turn
+     * @param board this is the board structure which the gui changes itself to
+     */
+    public void updateBoardPieces(ChessBoard board) {
+        Point pieceSize = new Point((int)((boardSize.x/tileAmount)), (int)((boardSize.y/tileAmount)));
+        for(int row = 0; row < tileAmount; row++) {
+            for(int col = 0; col < tileAmount; col++) {
+                PieceEntity crntPiece = null;
+                Point realPos = chessPosToPoint(new ChessPosition(row, col));
+
+                ArrayList<PieceEntity> posPieces = getPieceFromPoint(realPos);
+                // If more than 1 piece at a position, both are removed and goes over the same spot again if there is a piece there
+                if(posPieces.size() > 1) {
+                    for(int i = 0; i < posPieces.size(); i++) {
+                        removeEntity(posPieces.get(i));
+                        posPieces.get(i).graphic.setVisible(false);
+                        posPieces.get(i).active = false;
+                        pieces.remove(posPieces.get(i));
+                    }
+                    if(!ChessPiece.isEmpty(board.getPiece(row, col))) {
+                        col--;
+                    }
+                    continue;
+                }
+                // If there is a single piece, the crntPiece will be set to it
+                if(posPieces.size() == 1) {
+                    crntPiece = posPieces.get(0);
+                }
+
+                // If there is no piece at the current point, and there is one on the physical board
+                // It is removed from the physical board
+                if(ChessPiece.isEmpty(board.getPiece(row, col))) {
+                    if(crntPiece != null) {
+                        crntPiece.graphic.setVisible(false);
+                        crntPiece.active = false;
+                        pieces.remove(crntPiece);
+                        removeEntity(crntPiece);
+                    }
+                    continue;
+                }
+                // If the crntPiece is null (and it can only reach this when there should be a piece here)
+                // A new one is created and placed at the current position
+                if(crntPiece == null) {
+                    PieceEntity newPiece = new PieceEntity(ChessPiece.getType(board.getPiece(row, col)), ChessPiece.getColor(board.getPiece(row, col)));
+                    newPiece.setSize(pieceSize);
+                    newPiece.setPos(realPos);
+                    addEntity(newPiece);
+                    continue;
+                }
+                // Updates if the colors dont match
+                if(ChessPiece.isColor(crntPiece.pieceColor, ChessPiece.White) != ChessPiece.isColor(board.getPiece(row, col), ChessPiece.White)) {
+                    crntPiece.pieceColor = ChessPiece.getColor(board.getPiece(row, col));
+                    crntPiece.initTexture();
+                }
+                // Updates if the types dont match
+                if(ChessPiece.getType(board.getPiece(row, col)) != crntPiece.pieceType) {
+                    crntPiece.pieceType = ChessPiece.getType(board.getPiece(row, col));
+                    crntPiece.initTexture();
+                }
+            }
+        }
+        frame.setVisible(true);
+    }
+
+    /** 
+     * Gets a list of the possible positions a given piece can move to
+     * @param piece this is the piece of which the possible move positions are returned
+     * @return list of point where the specified piece can move to
+     */
+    public ArrayList<Point> getPossibleMovePositions(PieceEntity piece) {
+        ChessPosition piecepos = pointToChessPos(piece.getPos());
+        ArrayList<ChessMove> possibleMoves = new ArrayList<ChessMove>(chessGame.getLegalMoves(piecepos));
+        ArrayList<Point> possiblePositions = new ArrayList<Point>();
+
+        for(int i = 0; i < possibleMoves.size(); i++) {
+            possiblePositions.add(chessPosToPoint(possibleMoves.get(i).getTo()));
+        }
+        showIndicators(possiblePositions);
+        currentPiecePossibleMoves = possibleMoves;
+        return possiblePositions;
+    }
+
+
+    /** 
+     * Gets the piece at a given point
+     * @param point this is the point where a piece is looked for
+     * @return returns a list of all pieces at said point, this is a list instead of a single object as this property is used in the updateBoardPieces function
+     */
+    public ArrayList<PieceEntity> getPieceFromPoint(Point point) {
+        ArrayList<PieceEntity> returnPieces = new ArrayList<PieceEntity>();
+        for(int i = 0; i < pieces.size(); i++) {
+            if(pieces.get(i).getPos().x >= point.x-40 &&  pieces.get(i).getPos().x <= point.x+40 && pieces.get(i).getPos().y >= point.y-40 && pieces.get(i).getPos().y <= point.y + 40) {
+                returnPieces.add(pieces.get(i));
+            }
+        }
+        return returnPieces;
+    }
+
+    /** 
+     * Gets the piece at a given point
+     * @param pos position in the ChessPosition format
+     * @return returns the ChessPosition format converted to Point format as absolute position
+     */
+    public Point chessPosToPoint(ChessPosition pos) {
+        return new Point(pos.col()*(boardSize.x/tileAmount)+boardPos.x, pos.row()*(boardSize.y/tileAmount)+boardPos.y);
+    }
+
+    /** 
+     * Gets the piece at a given point
+     * @param point position in Point format as absolute position
+     * @return returns the point value, converted to the pos in ChessPosition format
+     */
+    public ChessPosition pointToChessPos(Point point) {
+        int row = (int)Math.rint(((double)(point.y-boardPos.y))/((double)(boardSize.y/tileAmount)));
+        int col = (int)Math.rint(((double)(point.x-boardPos.x))/((double)(boardSize.x/tileAmount)));
+        return new ChessPosition(row, col);
+    }
+ 
+    /** 
+     * overwrites Scene update function, handles the ChessBot thread by checking if it is finished generating the move
+     */
     public void update() {
         super.update();
         if(withBot && ChessPiece.isColor(turnColor, ChessPiece.Black)) {
@@ -326,7 +384,7 @@ public class ChessScene extends Scene {
             }
             GameState botState = chessGame.makeMove(ChessBot.currentMove);
             ChessBot.currentMove = null;
-            updateBoard();
+            updateBoardPieces(chessGame.getBoard());
             turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
             if(botState != GameState.ACTIVE) {
                 showWinBanner(botState);
@@ -336,6 +394,9 @@ public class ChessScene extends Scene {
         }
     }
 
+    /** 
+     * addEntity function for pieces, adding it to the list of pieces and setting the board variable
+     */
     public void addEntity(PieceEntity entity) {
         super.addEntity(entity, 2);
         entity.board = this;
@@ -343,6 +404,9 @@ public class ChessScene extends Scene {
     }
 
     
+    /** 
+     * removeEntity function for pieces, removing it from the list of pieces
+     */
     public void removeEntity(PieceEntity entity) {
         super.removeEntity(entity);
         pieces.remove(entity);

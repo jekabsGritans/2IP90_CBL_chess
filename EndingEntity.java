@@ -7,13 +7,18 @@ import java.awt.event.MouseListener;
 
 public class EndingEntity extends Entity implements MouseListener {
     ChessScene scene;
+    /**
+     * Constructor that calls entity constructor and also initializes mouseListener
+     */
     public EndingEntity() {
         super();
         initMouseEvents();
     }
 
+    /**
+     * Overwritten mouseListener function, loads menu scene on release
+     */
     public void mouseReleased(MouseEvent e) {
-        System.out.println("clicked end game");
         if(!scene.withBot) {
             scene.game.endPlayerChessGame();
             return;
@@ -37,6 +42,9 @@ public class EndingEntity extends Entity implements MouseListener {
 
     }
 
+    /**
+     * Initializes mouseListener
+     */
     public void initMouseEvents() { 
         graphic.addMouseListener(this);
     }

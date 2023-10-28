@@ -7,6 +7,10 @@ import java.awt.event.MouseListener;
 
 public class PlayerVSComputerButton extends Entity implements MouseListener {
     MenuScene menu;
+
+    /**
+     * calls entity constructor and sets the size, texture and initializes the mouseListener
+     */
     public PlayerVSComputerButton() {
         super();
         setSize(new Point(600, 315));
@@ -16,6 +20,9 @@ public class PlayerVSComputerButton extends Entity implements MouseListener {
         initMouseEvents();
     }
 
+    /**
+     * binds the player vs bot scene when releasing the button
+     */
     public void mouseReleased(MouseEvent e) {
         menu.game.bindScene(menu.game.playerVSBotScene);
     }
@@ -36,6 +43,9 @@ public class PlayerVSComputerButton extends Entity implements MouseListener {
 
     }
 
+    /**
+     * Initializes the mouseListener
+     */
     public void initMouseEvents() { 
         graphic.addMouseListener(this);
     }
