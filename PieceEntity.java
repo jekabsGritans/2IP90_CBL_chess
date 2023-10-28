@@ -141,8 +141,8 @@ class PieceEntity extends Entity implements MouseListener {
         double distance = Math.sqrt(Math.pow(getPos().x-closestPos.x, 2)+Math.pow(getPos().y-closestPos.y, 2));
         //If in the same tile as the possible move, move to the possible move, otherwise go back to original position
         if(distance < board.boardSize.x/board.tileAmount && distance != 0 && moveIndex != -1) {
-            board.nextTurn(moveIndex);
             setPos(closestPos);    
+            board.nextTurn(moveIndex);
         } else {
             setPos(origPos);
         }
