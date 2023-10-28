@@ -237,7 +237,7 @@ public class ChessGame {
      * Checks if the current position has been repeated three times.
      */
     private boolean isThreefoldRepetition() {
-        return positionCount.getOrDefault(board, 0) >= 3;
+        return positionCount.getOrDefault(this, 0) >= 3;
     }
 
     /**
