@@ -46,6 +46,7 @@ class PieceEntity extends Entity implements MouseListener {
      * Overwritten mouseListener function, centers the piece to the mouse, and starts dragging it
      */
     public void mousePressed(MouseEvent e) {
+        board.mouseReleased = false;
         if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active) {
             return;
         }

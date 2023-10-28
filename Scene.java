@@ -90,7 +90,6 @@ class Scene implements MouseListener {
    */
   @Override
   public void mousePressed(MouseEvent e) {
-    System.out.println("down");
     mouseDown = true;
   }
   /**
@@ -98,7 +97,6 @@ class Scene implements MouseListener {
    */
   @Override
   public void mouseReleased(MouseEvent e) {
-    System.out.println("up");
     mouseDown = false;
     mouseReleased = true;
   }
