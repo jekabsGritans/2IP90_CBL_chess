@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.List;
 import java.util.HashMap;
 
-//TODO move to engine (access to 1d coords, no gui dependency)
 /**
  * Chess bot that uses minimax with
  * - alpha-beta pruning 
@@ -21,8 +20,7 @@ import java.util.HashMap;
 public class ChessBot extends Thread {
     private static long MAX_SEARCH_TIME = 1000; // ms
     private static long startTime;
-    private static HashMap<ChessGame, Entry> transpoTable = new HashMap<ChessGame, Entry>();
-    private static int searchDepth;
+    private static HashMap<ChessGame, TableEntry> transpoTable = new HashMap<ChessGame, TableEntry>();
     public static ChessMove currentMove = null;
     public static ChessGame currentGame = null;
 
@@ -30,137 +28,154 @@ public class ChessBot extends Thread {
         currentMove = generateMove(currentGame);
     }
 
-    // debug - bot controls both sides, so should almost always win
-    public static void main(String[] args) {
-        ChessGame game = new ChessGame("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
-  
-        while (game.getGameState() == GameState.ACTIVE) {
-            ChessMove move = generateMove(game);
-            game.makeMove(move);
-            game.getBoard().print();
-        }
-        System.out.println(game.getGameState());
-    }
-
+    /**
+     * Finds the best legal move for the current player.
+     * @param game the game to search
+     * @return the best legal move
+     */
     public static ChessMove generateMove(ChessGame game) {
 
         // iteratively search deeper until time limit reached
         // not inefficient because transposition table stores previous results
         // in fact it allows us to first search the best move from the previous search
         // which is likely to be the best move in the current search
-        searchDepth = 1;
+        int searchDepth = 1;
         startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < MAX_SEARCH_TIME) {
-            minimax(game, searchDepth);
-            System.out.println("depth %s searched in %s ms".formatted(searchDepth, System.currentTimeMillis() - startTime));
-            searchDepth++;
+        while (true) {
+            try {
+                minimax(game, searchDepth);
+                System.out.println("depth %s searched in %s ms".formatted(searchDepth, System.currentTimeMillis() - startTime));
+                searchDepth++;
+            } catch (TimeLimitReachedException e) {
+                // immediately stop searching and use last result
+                searchDepth--;
+                break;
+            }
         }
 
         ChessMove move = transpoTable.get(game).bestMove;
-        System.out.println("best move: %s".formatted(move));
+        System.out.println("best move at depth %d: %s".formatted(searchDepth, move));
 
         return move;
     }
 
-    /*
+    /**
      * Entry point for minimax.
+     * @param game the game to search
+     * @param depth the depth to search
      */
     private static int minimax(ChessGame game, int depth) {
         return minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
     }
 
-    // alpha - best score for maximizing player
-    // beta - best score for minimizing player
-    private static int minimax(ChessGame game, int depth, int alpha, int beta, boolean isBlackMove) {
+    /**
+     * Recursive minimax function.
+     * @param game the game to search
+     * @param depth the remaining depth to search
+     * @param alpha the alpha value (best guaranteed value for maximizer)
+     * @param beta the beta value (best guaranteed value for minimizer)
+     * @param isMaximizer whether the current node is a maximizer
+     * @return the heuristic value of the game
+     */
+    private static int minimax(ChessGame game, int depth, int alpha, int beta, boolean isMaximizer) {
+        // exit search if time limit reached
+        if (System.currentTimeMillis() - startTime > MAX_SEARCH_TIME) {
+            throw new TimeLimitReachedException();
+        }
 
         // don't recalculate if previously calculated at sufficient depth
-        Entry tableEntry = transpoTable.getOrDefault(game, null);
-        if (tableEntry != null && tableEntry.depth >= depth) {
-            return tableEntry.score;
+        TableEntry entry = transpoTable.getOrDefault(game, null);
+        if (entry != null && entry.depth >= depth) {
+            return entry.score;
         }
-
-        // if depth reached or game over, return heuristic value
+        
+        // if depth reached or game over, return heuristic value from maximizer's perspective
         if (depth == 0 || game.getGameState() != GameState.ACTIVE) {
-            return evaluate(game);
+            boolean isWhiteMaximizer = game.isWhiteMove() == isMaximizer;
+            return evaluate(game, isWhiteMaximizer);
         }
 
-        int bestScore = isBlackMove ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         List<ChessMove> moves = game.getLegalMoves();
         Collections.shuffle(moves);
 
-        // first search the best move from the transposition table
-        if (tableEntry != null) {
-            moves.remove(tableEntry.bestMove);
-            moves.add(0, tableEntry.bestMove);
+        // first search the best move from lower depth search
+        // this move might not be the best but it's a good first guess for pruning
+        if (entry != null) {
+            moves.remove(entry.bestMove);
+            moves.add(0, entry.bestMove);
         }
         
-        // this will be searched first in the future
-        ChessMove bestMove = moves.get(0);
+        int bestScore = isMaximizer ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        ChessMove bestMove = null;
 
         for (ChessMove move : moves) {
-            ChessGame newGame = makeMove(game, move);
-            int score = minimax(newGame, depth - 1, alpha, beta, !isBlackMove);
 
-            if (isBlackMove) {
-                if (score >= bestScore) {
+            ChessGame newGame = makeMove(game, move);
+            int score = minimax(newGame, depth - 1, alpha, beta, !isMaximizer);
+
+            if (isMaximizer) {
+                if (score > bestScore) {
                     bestScore = score;
                     bestMove = move;
                 }
-                alpha = Math.max(alpha, bestScore);
+                // maximizer is guaranteed at least this score
+                alpha = Math.max(alpha, bestScore); 
             } else {
-                if (score <= bestScore) { // best from opponent's perspective not bot's
+                if (score < bestScore) {
                     bestScore = score;
                     bestMove = move;
                 }
-                beta = Math.min(beta, bestScore);
+                // minimizer is guaranteed at most this score
+                beta = Math.min(beta, bestScore); 
             }
+            // if, on this branch, minimizer can guarantee a score
+            // lower than what maximizer can already guarantee on a different branch
+            // then this branch should be pruned
             if (beta <= alpha) {
-                break; // alpha-beta pruning
-            }
-            if (System.currentTimeMillis() - startTime > MAX_SEARCH_TIME) {
-                break; // time limit reached
+                break; 
             }
         }
 
         // update table entry
-        tableEntry = new Entry(depth, bestMove, bestScore);
-        // tableEntry = new Entry(depth, bestScore);
-        transpoTable.put(game, tableEntry);
+        entry = new TableEntry(depth, bestMove, bestScore);
+        transpoTable.put(game, entry);
 
         return bestScore;
     }
 
     /*
-     * Gets the heuristic value of the game state from white's perspective.
+     * Gets the heuristic value of the game from the perspective of one player.
      */
-    private static int evaluate(ChessGame game) {
-        GameState state = game.getGameState();
-
+    private static int evaluate(ChessGame game, boolean isWhitePerspective) {
         // heuristic value of end game state
+        GameState state = game.getGameState();
         if (state != GameState.ACTIVE) {
-            return gameStateValues.get(state);
+            return isWhitePerspective ? gameStateValues.get(state) : -gameStateValues.get(state);
         }
 
-        // heuristic value of material from black's perspective
+        // heuristic value of material
         ChessBoard board = game.getBoard();
         Map<Byte, Set<Integer>> whiteMaterial = board.getMaterial(true);
         Map<Byte, Set<Integer>> blackMaterial = board.getMaterial(false);
+        int materialScore = scoreMaterial(whiteMaterial, true) - scoreMaterial(blackMaterial, false);
 
-        return scoreMaterial(blackMaterial, true) - scoreMaterial(whiteMaterial, false); 
+        return isWhitePerspective ? materialScore : -materialScore;
     }
 
     /*
      * Gets the total value of one side's material.
      */
-    private static int scoreMaterial(Map<Byte, Set<Integer>> material, boolean isBlack) {
+    private static int scoreMaterial(Map<Byte, Set<Integer>> material, boolean isWhiteMaterial) {
         int score = 0;
         for (Map.Entry<Byte, Set<Integer>> entry : material.entrySet()) {
-            byte type = entry.getKey();
+            byte pieceType = entry.getKey();
 
             for (int pos : entry.getValue()) {
-                score += pieceTypeValues.get(type);
-                int[] positionBonuses = piecePositionBonuses.get(type);
-                score += isBlack ? positionBonuses[pos] : positionBonuses[143 - pos];
+                score += pieceTypeValues.get(pieceType);
+                int[] positionBonuses = piecePositionBonuses.get(pieceType);
+
+                // mirror positions for black
+                score += isWhiteMaterial ? positionBonuses[pos] : positionBonuses[143 - pos];
             }
         }
         return score;
@@ -176,6 +191,7 @@ public class ChessBot extends Thread {
     }
 
     // FIXED HEURISTIC VALUES
+    // from https://www.chessprogramming.org/Simplified_Evaluation_Function
 
     private static Map<Byte, Integer> pieceTypeValues = Map.of(
         ChessPiece.Pawn , 100,
@@ -183,32 +199,33 @@ public class ChessBot extends Thread {
         ChessPiece.Bishop , 330,
         ChessPiece.Rook , 500,
         ChessPiece.Queen , 900,
-        ChessPiece.King , 9000
+        ChessPiece.King , 20000
     );
 
     private static Map<GameState, Integer> gameStateValues = Map.of(
-        GameState.WHITE_WINS, -100000,
-        GameState.BLACK_WINS, 100000,
+        GameState.WHITE_WINS, 100000,
+        GameState.BLACK_WINS, -100000,
         GameState.STALEMATE, 0,
         GameState.DRAW, 0
     );
 
-    // POSITIONAL BONUSES
-
-    private static int[] white2DToBlack1D(int[][] white2D) {
-        // create white 1D
-        int[] black1D = new int[144];
+    /*
+     * Maps position values from a 2D board representation to 1D.
+     */
+    private static int[] board2DTo1D(int[][] board2D) {
+        int[] board1D = new int[144];
         for (int rowIdx = 0; rowIdx < 8; rowIdx++) {
             for (int colIdx = 0; colIdx < 8; colIdx++) {
+                // find 1D position
                 ChessPosition pos = new ChessPosition(rowIdx, colIdx);
-                black1D[143 - pos.get1D()] = white2D[rowIdx][colIdx];
+                board1D[pos.get1D()] = board2D[rowIdx][colIdx];
             }
         }
-        return black1D;
+        return board1D;
     }
 
-    // position bonus values from https://www.chessprogramming.org/Simplified_Evaluation_Function
-    // these are from white's perspective and will be mapped to black's 1d indices upon init
+    // incentivize optimal piece positioning
+    // these are from white's perspective (flipped for black)
     private static int[][][] positionBonuses = {
         { // Pawn
             {0,  0,  0,  0,  0,  0,  0,  0},
@@ -273,29 +290,29 @@ public class ChessBot extends Thread {
     };
 
     private static Map<Byte, int[]> piecePositionBonuses = Map.of(
-        ChessPiece.Pawn, white2DToBlack1D(positionBonuses[0]),
-        ChessPiece.Knight, white2DToBlack1D(positionBonuses[1]),
-        ChessPiece.Bishop, white2DToBlack1D(positionBonuses[2]),
-        ChessPiece.Rook, white2DToBlack1D(positionBonuses[3]),
-        ChessPiece.Queen, white2DToBlack1D(positionBonuses[4]),
-        ChessPiece.King, white2DToBlack1D(positionBonuses[5])
+        ChessPiece.Pawn, board2DTo1D(positionBonuses[0]),
+        ChessPiece.Knight, board2DTo1D(positionBonuses[1]),
+        ChessPiece.Bishop, board2DTo1D(positionBonuses[2]),
+        ChessPiece.Rook, board2DTo1D(positionBonuses[3]),
+        ChessPiece.Queen, board2DTo1D(positionBonuses[4]),
+        ChessPiece.King, board2DTo1D(positionBonuses[5])
     );
-    // private static Map<Byte, Integer[]> 
 
     /*
      * Represents a transposition table entry.
      */
-    private record Entry(
+    private record TableEntry(
         int depth,
-        // NodeType nodeType,
         ChessMove bestMove,
         int score
-        // boolean old
     ) {};
 
-    // private enum NodeType {
-    //     EXACT,
-    //     LOWERBOUND,
-    //     UPPERBOUND
-    // }
+    /*
+     * Exception thrown when time limit reached.
+     */
+    private static class TimeLimitReachedException extends RuntimeException {
+        public TimeLimitReachedException() {
+            super();
+        }
+    }
 }
