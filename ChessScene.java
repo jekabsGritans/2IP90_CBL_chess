@@ -267,7 +267,9 @@ public class ChessScene extends Scene {
             Point snappedPos = new Point();
             snappedPos.x = (int)(Math.rint(((double)(pieces.get(i).getPos().x-boardPos.x))/100)*100)+boardPos.x;
             snappedPos.y = (int)(Math.rint(((double)(pieces.get(i).getPos().y-boardPos.y))/100)*100)+boardPos.y;
+            System.out.println("from: " + pieces.get(i).getPos());
             pieces.get(i).setPos(snappedPos);
+            System.out.println("snapped to: " + snappedPos);
         }
 
 
