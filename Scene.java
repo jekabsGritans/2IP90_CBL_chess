@@ -31,6 +31,7 @@ class Scene implements MouseListener {
     frame.setTitle("Chess Game");
     frame.setLocationRelativeTo(null);
     frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    frame.setResizable(false);
     pane = new JLayeredPane();
     pane.setSize(900, 900);
     pane.setLayout(null);
