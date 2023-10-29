@@ -42,7 +42,7 @@ class PieceEntity extends Entity implements MouseListener {
      */
     public void mousePressed(MouseEvent e) {
         board.mouseReleased = false;
-        if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active) {
+        if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active || board.ended) {
             return;
         }
         if(ChessPiece.isColor(pieceColor, ChessPiece.Black) && board.withBot) {

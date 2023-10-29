@@ -39,6 +39,7 @@ public class ChessScene extends Scene {
     EndingEntity drawBanner;
     Clip moveClip;
     boolean withBot = false;
+    boolean ended = false;
 
     /** 
      * Constructs and initializes the ChessScene object
@@ -144,6 +145,7 @@ public class ChessScene extends Scene {
         else if(state == GameState.DRAW) {
             stalemateBanner.graphic.setVisible(true);
         }
+        ended = true;
     }
 
 
@@ -248,13 +250,12 @@ public class ChessScene extends Scene {
         moveClip.stop();
         ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
         GameState state = chessGame.makeMove(madeMove);
-        System.out.println("state: " + state.name());
         if(state != GameState.ACTIVE) {
             showWinBanner(state);
         }
         updateBoardPieces(chessGame.getBoard());
         turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
-        if(ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
+        if(!ended && ChessPiece.isColor(turnColor, ChessPiece.Black) && withBot) {
             doBotTurn();
         }
         moveClip.setFramePosition(0);
@@ -403,7 +404,6 @@ public class ChessScene extends Scene {
             ChessBot.currentMove = null;
             updateBoardPieces(chessGame.getBoard());
             turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
-            System.out.println("state: " + botState.name());
             if(botState != GameState.ACTIVE) {
                 showWinBanner(botState);
             }
