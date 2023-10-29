@@ -1,20 +1,16 @@
-import java.awt.Color;
 import java.awt.Image;
-import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.text.Position;
 
 import engine.ChessPiece;
 
-class PieceEntity extends Entity implements MouseListener {
+class PieceEntity extends Entity implements MouseListener, MouseMotionListener {
     boolean dragging = false;
     byte pieceColor;
     Point lastMousePos;
@@ -46,19 +42,7 @@ class PieceEntity extends Entity implements MouseListener {
      * Overwritten mouseListener function, centers the piece to the mouse, and starts dragging it
      */
     public void mousePressed(MouseEvent e) {
-        board.mouseReleased = false;
-        if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active) {
-            return;
-        }
-        if(ChessPiece.isColor(pieceColor, ChessPiece.Black) && board.withBot) {
-            return;
-        }
-        currentPossibleMoves = board.getPossibleMovePositions(this);
-        origPos = getPos();
-        int xOffset = getPos().x-InputManager.lastMousePos.x+55;
-        int yOffset = getPos().y-InputManager.lastMousePos.y+90;
-        setPos(new Point(getPos().x - xOffset, getPos().y - yOffset));
-        dragging = true;
+
      }
  
     public void mouseReleased(MouseEvent e) {
@@ -81,11 +65,32 @@ class PieceEntity extends Entity implements MouseListener {
     public void mouseClicked(MouseEvent e) {
 
     }
+
+    public void mouseDragged(MouseEvent e) {
+        if(!dragging) {
+            if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active) {
+                return;
+            }
+            if(ChessPiece.isColor(pieceColor, ChessPiece.Black) && board.withBot) {
+                return;
+            }
+            startDrag();
+        } else {
+            setPos(new Point(e.getX(), e.getY()));
+        }
+
+    }
+
+    public void mouseMoved(MouseEvent e) {
+
+    }
+
     /**
      * Initializes mouseListener
      */
     public void initMouseEvents() { 
         graphic.addMouseListener(this);
+        graphic.addMouseMotionListener(this);
     }
 
     /**
@@ -122,6 +127,12 @@ class PieceEntity extends Entity implements MouseListener {
             updateTextureImage(textures.get(pieceType+pieceColor));
         }
 
+    }
+
+    public void startDrag() {
+        currentPossibleMoves = board.getPossibleMovePositions(this);
+        origPos = getPos();
+        dragging = true;
     }
     /**
      * This is called when the mouse is released and either returns the piece to its original position, or snaps it to one of its possible moves
@@ -160,7 +171,6 @@ class PieceEntity extends Entity implements MouseListener {
                 stopDrag();
                 return;
             }
-            setPos(new Point(getPos().x+InputManager.deltaMousePos.x, getPos().y+InputManager.deltaMousePos.y));
         }
     }
 }
