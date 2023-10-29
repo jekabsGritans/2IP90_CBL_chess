@@ -33,6 +33,7 @@ public class ChessBot extends Thread {
 
     /**
      * Finds the best legal move for the current player.
+
      * @param game the game to search
      * @return the best legal move
      */

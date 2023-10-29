@@ -8,7 +8,7 @@ import com.jekabsthomas.chess.core.GameMain;
  * @author Thomas de Bock
  */
 public class App {
-  public static void main(String[] args) {
-    (new GameMain()).startGame();
-  }
+    public static void main(String[] args) {
+        (new GameMain()).startGame();
+    }
 }
