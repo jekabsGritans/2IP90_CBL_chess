@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.Map;
 
 /**
- * Static methods for legal moves and checking if king is in check.
+ * Static methods for legal move generation and checking if king is in check.
  */
 public class ChessRules {
     /**
@@ -67,8 +67,8 @@ public class ChessRules {
      * @param board
      */
     public static boolean isInsufficientMaterial(ChessBoard board) {
-        Map<Byte, Set<Integer>> whiteMaterial = board.getMaterial(true);
-        Map<Byte, Set<Integer>> blackMaterial = board.getMaterial(false);
+        Map<Byte, Set<ChessPosition>> whiteMaterial = board.getMaterial(true);
+        Map<Byte, Set<ChessPosition>> blackMaterial = board.getMaterial(false);
 
         return isInsufficientMaterial(whiteMaterial) && isInsufficientMaterial(blackMaterial);
     }
@@ -79,7 +79,7 @@ public class ChessRules {
      * (e.g. bishops on same color are not detected)
      * But other cases are caught by the 50 move rule, so infinite loops are not possible.
      */
-    private static boolean isInsufficientMaterial(Map<Byte, Set<Integer>> material) {
+    private static boolean isInsufficientMaterial(Map<Byte, Set<ChessPosition>> material) {
 
         // if any pawn, queen, or rook, not insufficient material
         byte[] types = new byte[] {ChessPiece.Pawn, ChessPiece.Queen, ChessPiece.Rook};

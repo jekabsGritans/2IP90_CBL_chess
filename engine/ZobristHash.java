@@ -6,6 +6,9 @@ import engine.ChessBoard.CastlingAvailability;
 
 /**
  * Zobrist hashing for chess game state.
+ * Used for transposition table in the bot.
+ * A Zobrist hash is constructed by xor-ing random bitstrings
+ * that correspond to elements of the chess game state.
  */
 public class ZobristHash {
     private final long[][][] table = new long[2][6][144];
@@ -63,6 +66,9 @@ public class ZobristHash {
         return hash;
     }
 
+    /**
+     * Constructs a new Zobrist hash table.
+     */
     public ZobristHash() {
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 6; j++) {
@@ -83,8 +89,11 @@ public class ZobristHash {
         }
     }
 
+    /**
+     * Generates a pseudo-random long.
+     * @return a pseudo-random long
+     */
     public long random() {
-        //TODO replace with something better
         Random random = new Random();
         return random.nextLong();
     }

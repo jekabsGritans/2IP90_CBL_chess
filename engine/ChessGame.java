@@ -8,6 +8,7 @@ import engine.ChessBoard.ChessPosition;
 
 /**
  * Represents a chess game.
+ * Handles game flow and keeps track of legal moves.
  */
 public class ChessGame {
     private GameState state;
@@ -178,22 +179,6 @@ public class ChessGame {
         return state;
     }
 
-    @Override
-    public int hashCode() {
-        // room for improvement, 64 bits would reduce collisions for transposition table
-        // but then we'd need a custom hash map implementation...
-        return Long.hashCode(zobristHash.getHash(this)); 
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (!(obj instanceof ChessGame)) return false;
-        ChessGame game = (ChessGame) obj;
-        // imperfect, but better than 32-bit hash and fast
-        return zobristHash.getHash(this) == zobristHash.getHash(game); 
-    }
-
     /**
      * Gets the chess board.
      * @return the chess board
@@ -224,6 +209,22 @@ public class ChessGame {
      */
     public boolean isWhiteMove() {
         return isWhiteMove;
+    }
+
+    @Override
+    public int hashCode() {
+        // room for improvement, 64 bits would reduce collisions for transposition table
+        // but then we'd need a custom hash map implementation...
+        return Long.hashCode(zobristHash.getHash(this)); 
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof ChessGame)) return false;
+        ChessGame game = (ChessGame) obj;
+        // imperfect, but better than 32-bit hash and fast
+        return zobristHash.getHash(this) == zobristHash.getHash(game); 
     }
 
     /*
