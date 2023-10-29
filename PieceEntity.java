@@ -5,6 +5,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.function.IntPredicate;
 
 import javax.swing.ImageIcon;
 
@@ -74,9 +75,14 @@ class PieceEntity extends Entity implements MouseListener, MouseMotionListener {
             if(ChessPiece.isColor(pieceColor, ChessPiece.Black) && board.withBot) {
                 return;
             }
+            int xOffset = getPos().x-InputManager.lastMousePos.x+55;
+            int yOffset = getPos().y-InputManager.lastMousePos.y+90;
+            setPos(new Point(getPos().x - xOffset, getPos().y - yOffset));
             startDrag();
+            lastMousePos = new Point(e.getX(), e.getY());
         } else {
-            setPos(new Point(e.getX(), e.getY()));
+            Point deltaMouse = new Point(e.getX()-lastMousePos.x, e.getY()-lastMousePos.y);
+            setPos(new Point(getPos().x + deltaMouse.x, getPos().y + deltaMouse.y));
         }
 
     }
