@@ -37,7 +37,7 @@ public class ChessPiece {
 
     /**
      * Gets the color of the piece.
-     * @param piece
+     * @param piece the piece
      * @return the color of the piece
      */
     public static byte getColor(byte piece) {
@@ -57,7 +57,7 @@ public class ChessPiece {
     }
 
     /**
-     * Sets the type of a piece
+     * Sets the type of a piece.
      * @param piece the piece
      * @param type the type to set
      * @return the piece with the type set
@@ -72,7 +72,7 @@ public class ChessPiece {
      * @return the name of the piece type
      */
     public static String typeToString(byte type) {
-        switch(type) {
+        switch (type) {
             case Pawn:
                 return "Pawn";
             case Knight:

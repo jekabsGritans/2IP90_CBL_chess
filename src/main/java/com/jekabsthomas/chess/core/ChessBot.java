@@ -1,20 +1,20 @@
 package com.jekabsthomas.chess.core;
 
 import com.jekabsthomas.chess.engine.ChessBoard;
-import com.jekabsthomas.chess.engine.ChessGame;
-import com.jekabsthomas.chess.engine.ChessPiece;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessMove;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessPosition;
+import com.jekabsthomas.chess.engine.ChessGame;
 import com.jekabsthomas.chess.engine.ChessGame.GameState;
-
+import com.jekabsthomas.chess.engine.ChessPiece;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.HashMap;
 
 /**
- * Chess bot that uses minimax with
+ * Chess bot that uses minimax.
+ * Features:
  * - alpha-beta pruning 
  * - transposition table (stores previous search results)
  * - iterative deepening (allows to adhere to a time limit)
@@ -22,7 +22,8 @@ import java.util.HashMap;
 public class ChessBot extends Thread {
     private static long MAX_SEARCH_TIME = 1000; // ms
     private static long startTime;
-    private static HashMap<ChessGame, TableEntry> transpoTable = new HashMap<ChessGame, TableEntry>();
+    private static HashMap<ChessGame, TableEntry> transpoTable =
+        new HashMap<ChessGame, TableEntry>();
     public static ChessMove currentMove = null;
     public static ChessGame currentGame = null;
 
@@ -46,7 +47,8 @@ public class ChessBot extends Thread {
         while (true) {
             try {
                 minimax(game, searchDepth);
-                System.out.println("depth %s searched in %s ms".formatted(searchDepth, System.currentTimeMillis() - startTime));
+                System.out.println("depth %s searched in %s ms".formatted(
+                    searchDepth, System.currentTimeMillis() - startTime));
                 searchDepth++;
             } catch (TimeLimitReachedException e) {
                 // immediately stop searching and use last result
@@ -79,7 +81,8 @@ public class ChessBot extends Thread {
      * @param isMaximizer whether the current node is a maximizer
      * @return the heuristic value of the game
      */
-    private static int minimax(ChessGame game, int depth, int alpha, int beta, boolean isMaximizer) {
+    private static int minimax(ChessGame game, int depth, int alpha, int beta,
+        boolean isMaximizer) {
         // exit search if time limit reached
         if (System.currentTimeMillis() - startTime > MAX_SEARCH_TIME) {
             throw new TimeLimitReachedException();
@@ -159,7 +162,8 @@ public class ChessBot extends Thread {
         ChessBoard board = game.getBoard();
         Map<Byte, Set<ChessPosition>> whiteMaterial = board.getMaterial(true);
         Map<Byte, Set<ChessPosition>> blackMaterial = board.getMaterial(false);
-        int materialScore = scoreMaterial(whiteMaterial, true) - scoreMaterial(blackMaterial, false);
+        int materialScore = scoreMaterial(whiteMaterial, true)
+            - scoreMaterial(blackMaterial, false);
 
         return isWhitePerspective ? materialScore : -materialScore;
     }
@@ -167,7 +171,8 @@ public class ChessBot extends Thread {
     /*
      * Gets the total value of one side's material.
      */
-    private static int scoreMaterial(Map<Byte, Set<ChessPosition>> material, boolean isWhiteMaterial) {
+    private static int scoreMaterial(Map<Byte, Set<ChessPosition>> material,
+        boolean isWhiteMaterial) {
         int score = 0;
         for (Map.Entry<Byte, Set<ChessPosition>> entry : material.entrySet()) {
             byte pieceType = entry.getKey();
@@ -197,12 +202,12 @@ public class ChessBot extends Thread {
     // from https://www.chessprogramming.org/Simplified_Evaluation_Function
 
     private static Map<Byte, Integer> pieceTypeValues = Map.of(
-        ChessPiece.Pawn , 100,
-        ChessPiece.Knight , 320,
-        ChessPiece.Bishop , 330,
-        ChessPiece.Rook , 500,
-        ChessPiece.Queen , 900,
-        ChessPiece.King , 20000
+        ChessPiece.Pawn, 100,
+        ChessPiece.Knight, 320,
+        ChessPiece.Bishop, 330,
+        ChessPiece.Rook, 500,
+        ChessPiece.Queen, 900,
+        ChessPiece.King, 20000
     );
 
     private static Map<GameState, Integer> gameStateValues = Map.of(
@@ -216,71 +221,71 @@ public class ChessBot extends Thread {
     // these are from white's perspective (flipped for black)
     private static Map<Byte, int[][]> pieceTypePositionBonuses = Map.ofEntries(
         Map.entry(ChessPiece.Pawn,
-        new int[][] {
-            {0,  0,  0,  0,  0,  0,  0,  0},
-            {50, 50, 50, 50, 50, 50, 50, 50},
-            {10, 10, 20, 30, 30, 20, 10, 10},
-            {5,  5, 10, 25, 25, 10,  5,  5},
-            {0,  0,  0, 20, 20,  0,  0,  0},
-            {5, -5,-10,  0,  0,-10, -5,  5},
-            {5, 10, 10,-20,-20, 10, 10,  5},
-            {0,  0,  0,  0,  0,  0,  0,  0},
-        }),
+            new int[][] {
+                {0,  0,  0,  0,  0,  0,  0,  0},
+                {50, 50, 50, 50, 50, 50, 50, 50},
+                {10, 10, 20, 30, 30, 20, 10, 10},
+                {5,  5, 10, 25, 25, 10,  5,  5},
+                {0,  0,  0, 20, 20,  0,  0,  0},
+                {5, -5, -10,  0,  0, -10, -5,  5},
+                {5, 10, 10, -20, -20, 10, 10,  5},
+                {0,  0,  0,  0,  0,  0,  0,  0},
+            }),
         Map.entry(ChessPiece.Knight,
-        new int[][] {
-            {-50,-40,-30,-30,-30,-30,-40,-50},
-            {-40,-20,  0,  0,  0,  0,-20,-40},
-            {-30,  0, 10, 15, 15, 10,  0,-30},
-            {-30,  5, 15, 20, 20, 15,  5,-30},
-            {-30,  0, 15, 20, 20, 15,  0,-30},
-            {-30,  5, 10, 15, 15, 10,  5,-30},
-            {-40,-20,  0,  5,  5,  0,-20,-40},
-            {-50,-40,-30,-30,-30,-30,-40,-50},
-        }),
+            new int[][] {
+                {-50, -40, -30, -30, -30, -30, -40, -50},
+                {-40, -20,  0,  0,  0,  0, -20, -40},
+                {-30,  0, 10, 15, 15, 10,  0, -30},
+                {-30,  5, 15, 20, 20, 15,  5, -30},
+                {-30,  0, 15, 20, 20, 15,  0, -30},
+                {-30,  5, 10, 15, 15, 10,  5, -30},
+                {-40, -20,  0,  5,  5,  0, -20, -40},
+                {-50, -40, -30, -30, -30, -30, -40, -50},
+            }),
         Map.entry(ChessPiece.Bishop,
-        new int[][] {
-            {-20,-10,-10,-10,-10,-10,-10,-20},
-            {-10,  0,  0,  0,  0,  0,  0,-10},
-            {-10,  0,  5, 10, 10,  5,  0,-10},
-            {-10,  5,  5, 10, 10,  5,  5,-10},
-            {-10,  0, 10, 10, 10, 10,  0,-10},
-            {-10, 10, 10, 10, 10, 10, 10,-10},
-            {-10,  5,  0,  0,  0,  0,  5,-10},
-            {-20,-10,-10,-10,-10,-10,-10,-20},
-        }),
+            new int[][] {
+                {-20, -10, -10, -10, -10, -10, -10, -20},
+                {-10,  0,  0,  0,  0,  0,  0, -10},
+                {-10,  0,  5, 10, 10,  5,  0, -10},
+                {-10,  5,  5, 10, 10,  5,  5, -10},
+                {-10,  0, 10, 10, 10, 10,  0, -10},
+                {-10, 10, 10, 10, 10, 10, 10, -10},
+                {-10,  5,  0,  0,  0,  0,  5, -10},
+                {-20, -10, -10, -10, -10, -10, -10, -20},
+            }),
         Map.entry(ChessPiece.Rook,
-        new int[][] {
-            {0,  0,  0,  0,  0,  0,  0,  0},
-            {5, 10, 10, 10, 10, 10, 10,  5},
-            {-5,  0,  0,  0,  0,  0,  0, -5},
-            {-5,  0,  0,  0,  0,  0,  0, -5},
-            {-5,  0,  0,  0,  0,  0,  0, -5},
-            {-5,  0,  0,  0,  0,  0,  0, -5},
-            {-5,  0,  0,  0,  0,  0,  0, -5},
-            {0,  0,  0,  5,  5,  0,  0,  0},
-        }),
+            new int[][] {
+                {0,  0,  0,  0,  0,  0,  0,  0},
+                {5, 10, 10, 10, 10, 10, 10,  5},
+                {-5,  0,  0,  0,  0,  0,  0, -5},
+                {-5,  0,  0,  0,  0,  0,  0, -5},
+                {-5,  0,  0,  0,  0,  0,  0, -5},
+                {-5,  0,  0,  0,  0,  0,  0, -5},
+                {-5,  0,  0,  0,  0,  0,  0, -5},
+                {0,  0,  0,  5,  5,  0,  0,  0},
+            }),
         Map.entry(ChessPiece.Queen,
-        new int[][] {
-            {-20,-10,-10, -5, -5,-10,-10,-20},
-            {-10,  0,  0,  0,  0,  0,  0,-10},
-            {-10,  0,  5,  5,  5,  5,  0,-10},
-            {-5,  0,  5,  5,  5,  5,  0, -5},
-            {0,  0,  5,  5,  5,  5,  0, -5},
-            {-10,  5,  5,  5,  5,  5,  0,-10},
-            {-10,  0,  5,  0,  0,  0,  0,-10},
-            {-20,-10,-10, -5, -5,-10,-10,-20},
-        }),
+            new int[][] {
+                {-20, -10, -10, -5, -5, -10, -10, -20},
+                {-10,  0,  0,  0,  0,  0,  0, -10},
+                {-10,  0,  5,  5,  5,  5,  0, -10},
+                {-5,  0,  5,  5,  5,  5,  0, -5},
+                {0,  0,  5,  5,  5,  5,  0, -5},
+                {-10,  5,  5,  5,  5,  5,  0, -10},
+                {-10,  0,  5,  0,  0,  0,  0, -10},
+                {-20, -10, -10, -5, -5, -10, -10, -20},
+            }),
         Map.entry(ChessPiece.King,
-        new int[][] {
-            {-30,-40,-40,-50,-50,-40,-40,-30},
-            {-30,-40,-40,-50,-50,-40,-40,-30},
-            {-30,-40,-40,-50,-50,-40,-40,-30},
-            {-30,-40,-40,-50,-50,-40,-40,-30},
-            {-20,-30,-30,-40,-40,-30,-30,-20},
-            {-10,-20,-20,-20,-20,-20,-20,-10},
-            {20, 20,  0,  0,  0,  0, 20, 20},
-            {20, 30, 10,  0,  0, 10, 30, 20},
-        })
+            new int[][] {
+                {-30, -40, -40, -50, -50, -40, -40, -30},
+                {-30, -40, -40, -50, -50, -40, -40, -30},
+                {-30, -40, -40, -50, -50, -40, -40, -30},
+                {-30, -40, -40, -50, -50, -40, -40, -30},
+                {-20, -30, -30, -40, -40, -30, -30, -20},
+                {-10, -20, -20, -20, -20, -20, -20, -10},
+                {20, 20,  0,  0,  0,  0, 20, 20},
+                {20, 30, 10,  0,  0, 10, 30, 20},
+            })
     );
 
     /*
@@ -290,7 +295,7 @@ public class ChessBot extends Thread {
         int depth,
         ChessMove bestMove,
         int score
-    ) {};
+    ) {}
 
     /*
      * Exception thrown when time limit reached.

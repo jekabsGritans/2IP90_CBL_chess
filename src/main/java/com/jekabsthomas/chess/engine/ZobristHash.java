@@ -1,8 +1,7 @@
 package com.jekabsthomas.chess.engine;
 
-import java.util.Random;
-
 import com.jekabsthomas.chess.engine.ChessBoard.CastlingAvailability;
+import java.util.Random;
 
 /**
  * Zobrist hashing for chess game state.
@@ -18,7 +17,7 @@ public class ZobristHash {
 
     /**
      * Returns the hash of the given board.
-     * @param board the board
+     * @param game the game
      * @return the hash of the board
      */
     public long getHash(ChessGame game) {
