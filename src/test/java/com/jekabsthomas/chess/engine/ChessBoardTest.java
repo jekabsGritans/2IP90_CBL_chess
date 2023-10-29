@@ -1,5 +1,7 @@
 package com.jekabsthomas.chess.engine;
 
+import static org.junit.Assert.assertEquals;
+
 import com.jekabsthomas.chess.engine.ChessBoard.CastlingAvailability;
 import com.jekabsthomas.chess.engine.ChessBoard.CastlingMove;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessMove;
@@ -7,15 +9,15 @@ import com.jekabsthomas.chess.engine.ChessBoard.ChessPosition;
 import com.jekabsthomas.chess.engine.ChessBoard.EnPassantMove;
 import com.jekabsthomas.chess.engine.ChessBoard.PawnDoubleMove;
 import com.jekabsthomas.chess.engine.ChessBoard.PromotionMove;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
+import org.junit.Test;
 
-import org.junit.*;
-import static org.junit.Assert.*;
-
+/**
+ * Tests for the ChessBoard class.
+ */
 public class ChessBoardTest {
     @Test
     public void testChessPosition() {
@@ -44,7 +46,8 @@ public class ChessBoardTest {
 
     @Test
     public void testGetFenCastlingAvailability() {
-        // tests if the castling availability is correctly loaded into the board and then regenerated
+        // tests if the castling availability is correctly
+        // loaded into the board and then regenerated
         ChessBoard board = new ChessBoard("8/8/8/8/8/8/8/8", "KQkq", "-");
         assertEquals(board.getFenCastlingAvailability(), "KQkq");
         board = new ChessBoard("8/8/8/8/8/8/8/8", "KQ", "-");
@@ -84,7 +87,7 @@ public class ChessBoardTest {
         assertEquals(board.getPiece(0, 0), ChessPiece.Empty);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSetPieceInvalid() {
         // tests if illegal positions are caught
         ChessBoard board = new ChessBoard("8/8/8/8/8/8/8/8", "-", "-");
@@ -137,7 +140,7 @@ public class ChessBoardTest {
     }
 
     // Note: we dont test for move legality here, as legality validation is not done
-    // instead, legal moves are generated and this generation is tested elsewhere elsewhere elsewhere elsewhere
+    // instead, legal moves are tested in the ChessGamePerftTest class
 
     @Test
     public void testMakeMoveCapture() {
@@ -167,14 +170,16 @@ public class ChessBoardTest {
         ChessPosition to = new ChessPosition("c1");
         ChessPosition rookFrom = new ChessPosition("a1");
         ChessPosition rookTo = new ChessPosition("d1");
-        CastlingMove move = board.new CastlingMove(from.get1D(), to.get1D(), rookFrom.get1D(), rookTo.get1D());
+        CastlingMove move = board.new CastlingMove(
+                from.get1D(), to.get1D(), rookFrom.get1D(), rookTo.get1D());
         board.makeMove(move);
 
         // pieces are moved correctly
         assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
         assertEquals(ChessPiece.White | ChessPiece.King, board.getPiece(to.row(), to.col()));
         assertEquals(ChessPiece.Empty, board.getPiece(rookFrom.row(), rookFrom.col()));
-        assertEquals(ChessPiece.White | ChessPiece.Rook, board.getPiece(rookTo.row(), rookTo.col()));
+        assertEquals(ChessPiece.White | ChessPiece.Rook,
+            board.getPiece(rookTo.row(), rookTo.col()));
         CastlingAvailability castling = board.getCastlingAvailability();
 
         // castling availability is updated correctly
@@ -191,7 +196,8 @@ public class ChessBoardTest {
         ChessPosition from = new ChessPosition("a2");
         ChessPosition to = new ChessPosition("a4");
         ChessPosition enPassantTarget = new ChessPosition("a3");
-        PawnDoubleMove move = board.new PawnDoubleMove(from.get1D(), to.get1D(), enPassantTarget.get1D());
+        PawnDoubleMove move = board.new PawnDoubleMove(from.get1D(),
+            to.get1D(), enPassantTarget.get1D());
         board.makeMove(move);
         assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
         assertEquals(ChessPiece.White | ChessPiece.Pawn, board.getPiece(to.row(), to.col()));
