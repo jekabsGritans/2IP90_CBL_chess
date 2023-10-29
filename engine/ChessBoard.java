@@ -6,32 +6,18 @@ import java.util.HashSet;
 
 /**
  * Represents the board of a chess game.
- * Handles position indexing, printing, initialization from a FEN string.
+ * Handles position indexing, printing, initialization from a FEN string,
+ * material caching, and making moves.
  */
 public class ChessBoard {
     // pieces stored as bytes (see ChessPiece.java)
-    // 1D array for easier offsets. 1D coordinates are never exposed outside of engine
+    // internal representation is a 1D array for easier offsets
+    // 1D coordinates are never exposed outside of the engine
     private final byte[] board1D; 
     private CastlingAvailability CastlingAvailability;
     private int enPassantTarget1D; // -1 if no en passant target
-    private Map <Byte, Set<Integer>> whiteMaterial;
-    private Map <Byte, Set<Integer>> blackMaterial;
-
-    // for testing
-    public static void main(String[] args) {
-        ChessBoard board = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "kqKQ", "-");
-        board.print();
-
-        int pos1d = board.getKingPos1D(true);
-        ChessPosition whiteKingPos = new ChessPosition(pos1d);
-        ChessMove kingMove = board.new ChessMove(pos1d, new ChessPosition("e5").get1D());
-
-        board.makeMove(kingMove);
-        board.print();
-
-        whiteKingPos = new ChessPosition(board.getKingPos1D(true));
-        System.out.println("White king position: " + whiteKingPos);
-    }
+    private Map <Byte, Set<ChessPosition>> whiteMaterial;
+    private Map <Byte, Set<ChessPosition>> blackMaterial;
 
     /**
      * Creates a chess board.
@@ -104,8 +90,8 @@ public class ChessBoard {
     }
 
     /**
-     * Gets the fen piece placement component of the board.
-     * @return the fen piece placement component of the board
+     * Gets the FEN piece placement component of the board.
+     * @return the FEN piece placement component of the board
      */
     public String getFenPiecePlacement() {
         StringBuilder fen = new StringBuilder();
@@ -141,16 +127,16 @@ public class ChessBoard {
     }
 
     /**
-     * Gets the fen castling availability component of the board.
-     * @return the fen castling availability component of the board
+     * Gets the FEN castling availability component of the board.
+     * @return the FEN castling availability component of the board
      */
     public String getFenCastlingAvailability() {
         return CastlingAvailability.toString();
     }
 
     /**
-     * Gets the fen en passant target component of the board.
-     * @return the fen en passant target component of the board
+     * Gets the FEN en passant target component of the board.
+     * @return the FEN en passant target component of the board
      */
     public String getFenEnPassantTarget() {
         return enPassantTarget1D == -1 ? "-" : new ChessPosition(enPassantTarget1D).toString();
@@ -224,7 +210,7 @@ public class ChessBoard {
         setPiece(move.to1D, piece);
         setPiece(move.from1D, ChessPiece.Empty);
 
-        // reset en passant target
+        // reset en passant target by default
         enPassantTarget1D = -1;
 
         // special moves
@@ -255,15 +241,12 @@ public class ChessBoard {
     /**
      * Gets the material for a player.
      * @param isWhite true if white material, false if black material
-     * @return map of pieces to number of such pieces on the board
+     * @return map of pieces to set of positions where such pieces are
      */
-    public Map<Byte, Set<Integer>> getMaterial(boolean isWhite) {
+    public Map<Byte, Set<ChessPosition>> getMaterial(boolean isWhite) {
         return isWhite ? whiteMaterial : blackMaterial;
     }
  
-
-    // package private for ChessRules, shouldn't be exposed to client
-
     /*
      * Sets the piece at the given 1D position.
      */
@@ -274,19 +257,19 @@ public class ChessBoard {
         board1D[pos1D] = piece;
 
         // update material
-        Map<Byte, Set<Integer>> material;
+        Map<Byte, Set<ChessPosition>> material;
         byte type;
 
         if (ChessPiece.isPiece(piece)) {
             material= ChessPiece.isWhite(piece) ? whiteMaterial : blackMaterial;
             type = ChessPiece.getType(piece);
-            material.get(type).add(pos1D);
+            material.get(type).add(new ChessPosition(pos1D));
         }
 
         if (ChessPiece.isPiece(capturedPiece)) {
             material = ChessPiece.isWhite(capturedPiece) ? whiteMaterial : blackMaterial;
             type = ChessPiece.getType(capturedPiece);
-            material.get(type).remove(pos1D);
+            material.get(type).remove(new ChessPosition(pos1D));
         }
     }
 
@@ -297,53 +280,52 @@ public class ChessBoard {
         return board1D[pos1D];
     }
 
-    /**
+    /*
      * Gets the castling availability.
      */
     CastlingAvailability getCastlingAvailability() {
         return CastlingAvailability;
     }
 
-    /**
-     * Gets the 1D index of the king.
-     * @param isWhite true if white king, false if black king
+    /*
+     * Gets the 1D position of the king.
      */
     int getKingPos1D(boolean isWhite) {
-        return getMaterial(isWhite).get(ChessPiece.King).iterator().next();
+        return getMaterial(isWhite).get(ChessPiece.King).iterator().next().get1D();
     }
 
-    /**
-     * Gets the 1D index of the en passant target.
+    /*
+     * Gets the 1D position of the en passant target.
      */
     int getEnPassantTarget1D() {
         return enPassantTarget1D;
     }
 
     /*
-     * Initializes the material maps.
+     * Initializes a material map.
      */
-    private Map<Byte, Set<Integer>> initMaterialMap() {
+    private Map<Byte, Set<ChessPosition>> initMaterialMap() {
         return Map.of(
-            ChessPiece.Pawn, new HashSet<Integer>(),
-            ChessPiece.Knight, new HashSet<Integer>(),
-            ChessPiece.Bishop, new HashSet<Integer>(),
-            ChessPiece.Rook, new HashSet<Integer>(),
-            ChessPiece.Queen, new HashSet<Integer>(),
-            ChessPiece.King, new HashSet<Integer>()
+            ChessPiece.Pawn, new HashSet<ChessPosition>(),
+            ChessPiece.Knight, new HashSet<ChessPosition>(),
+            ChessPiece.Bishop, new HashSet<ChessPosition>(),
+            ChessPiece.Rook, new HashSet<ChessPosition>(),
+            ChessPiece.Queen, new HashSet<ChessPosition>(),
+            ChessPiece.King, new HashSet<ChessPosition>()
         );
     }
 
     /*
      * Creates a deep copy of a material map.
      */
-    private Map<Byte, Set<Integer>> copyMaterialMap(Map<Byte, Set<Integer>> material) {
-        Map<Byte, Set<Integer>> copy = Map.of(
-            ChessPiece.Pawn, new HashSet<Integer>(material.get(ChessPiece.Pawn)),
-            ChessPiece.Knight, new HashSet<Integer>(material.get(ChessPiece.Knight)),
-            ChessPiece.Bishop, new HashSet<Integer>(material.get(ChessPiece.Bishop)),
-            ChessPiece.Rook, new HashSet<Integer>(material.get(ChessPiece.Rook)),
-            ChessPiece.Queen, new HashSet<Integer>(material.get(ChessPiece.Queen)),
-            ChessPiece.King, new HashSet<Integer>(material.get(ChessPiece.King))
+    private Map<Byte, Set<ChessPosition>> copyMaterialMap(Map<Byte, Set<ChessPosition>> material) {
+        Map<Byte, Set<ChessPosition>> copy = Map.of(
+            ChessPiece.Pawn, new HashSet<ChessPosition>(material.get(ChessPiece.Pawn)),
+            ChessPiece.Knight, new HashSet<ChessPosition>(material.get(ChessPiece.Knight)),
+            ChessPiece.Bishop, new HashSet<ChessPosition>(material.get(ChessPiece.Bishop)),
+            ChessPiece.Rook, new HashSet<ChessPosition>(material.get(ChessPiece.Rook)),
+            ChessPiece.Queen, new HashSet<ChessPosition>(material.get(ChessPiece.Queen)),
+            ChessPiece.King, new HashSet<ChessPosition>(material.get(ChessPiece.King))
         );
         
         return copy;
@@ -358,7 +340,7 @@ public class ChessBoard {
     private final static int BK = new ChessPosition("e8").get1D();
 
     /*
-     * Update castling availability after a move.
+     * Updates castling availability after a move.
      */
     private CastlingAvailability updateCastlingAvailability(CastlingAvailability availability, ChessMove move) {
         return new CastlingAvailability(
@@ -389,41 +371,37 @@ public class ChessBoard {
             this(8 - Character.getNumericValue(algPos.charAt(1)), algPos.charAt(0) - 'a');
         }
 
-        /**
+        /*
          * Creates a position from 1D coordinates.
          */
         ChessPosition(int pos1D) {
             this(pos1D / 12 - 2, pos1D % 12 - 2);
         }
 
-        /**
-         * Gets the 1D index of the position.
-         * @return
-         */
-        public int get1D() {
-            return (row + 2) * 12 + (col + 2);
-        }
-
         @Override
         public String toString() {
             return (char) (col + 'a') + "" + (8 - row);
+        }
+
+        /*
+         * Gets the 1D index of the position.
+         */
+        int get1D() {
+            return (row + 2) * 12 + (col + 2);
         }
     }
 
     /**
      * Represents a move on the board.
+     * Moves cannot be instantiated outside of the engine
+     * as the engine provides a list of immutable legal moves
+     * from which the players can choose.
      */
     public class ChessMove {
-        // engine can still access 1D coordinates
         final int from1D;
         final int to1D;
 
-        /**
-         * Creates a move from 1D coordinates.
-         * @param from1D the 1D index of the piece to move
-         * @param to1D the 1D index of the destination
-         */
-        public ChessMove(int from1D, int to1D) {
+        ChessMove(int from1D, int to1D) {
             this.from1D = from1D;
             this.to1D = to1D;
         }
@@ -450,25 +428,17 @@ public class ChessBoard {
         }
     }
 
-    // SPECIAL MOVES
-    // game client doesn't see difference between special and standard moves,
-    // but private variables can be used within makeMove
+    // special moves only differ from regular moves within the engine,
+    // to adjust other involved pieces accordingly when making a special move
 
     /*
      * Represents a castling move.
      */
-    public class CastlingMove extends ChessMove {
-        private final int rookFrom1D;
-        private final int rookTo1D;
+    class CastlingMove extends ChessMove {
+        final int rookFrom1D;
+        final int rookTo1D;
 
-        /**
-         * Creates a castling move.
-         * @param from1D the 1D index of the king
-         * @param to1D the 1D index of the king's destination
-         * @param rookFrom1D the 1D index of the rook
-         * @param rookTo1D the 1D index of the rook's destination
-         */
-        public CastlingMove(int from1D, int to1D, int rookFrom1D, int rookTo1D) {
+        CastlingMove(int from1D, int to1D, int rookFrom1D, int rookTo1D) {
             super(from1D, to1D);
             this.rookFrom1D = rookFrom1D;
             this.rookTo1D = rookTo1D;
@@ -478,16 +448,10 @@ public class ChessBoard {
     /*
      * Represents a Pawn move two squares forward.
      */
-    public class PawnDoubleMove extends ChessMove {
-        private final int enPassantTarget1D;
+    class PawnDoubleMove extends ChessMove {
+        final int enPassantTarget1D;
 
-        /**
-         * Creates a pawn double move.
-         * @param from1D the 1D index of the pawn
-         * @param to1D the 1D index of the pawn's destination
-         * @param enPassantTarget1D the 1D index of the en passant target
-         */
-        public PawnDoubleMove(int from1D, int to1D, int enPassantTarget1D) {
+        PawnDoubleMove(int from1D, int to1D, int enPassantTarget1D) {
             super(from1D, to1D);
             this.enPassantTarget1D = enPassantTarget1D;
         }
@@ -496,16 +460,10 @@ public class ChessBoard {
     /*
      * Represents an en passant move.
      */
-    public class EnPassantMove extends ChessMove {
-        private final int capturedPawn1D;
+    class EnPassantMove extends ChessMove {
+        final int capturedPawn1D;
 
-        /**
-         * Creates an en passant move.
-         * @param from1D the 1D index of the pawn
-         * @param to1D the 1D index of the pawn's destination
-         * @param capturedPawn1D the 1D index of the captured pawn
-         */
-        public EnPassantMove(int from1D, int to1D, int capturedPawn1D) {
+        EnPassantMove(int from1D, int to1D, int capturedPawn1D) {
             super(from1D, to1D);
             this.capturedPawn1D = capturedPawn1D;
         }
@@ -514,16 +472,10 @@ public class ChessBoard {
     /*
      * Represents a promotion move.
      */
-    public class PromotionMove extends ChessMove {
-        private final byte promotionType;
+    class PromotionMove extends ChessMove {
+        final byte promotionType;
 
-        /**
-         * Creates a promotion move.
-         * @param from1D the 1D index of the pawn
-         * @param to1D the 1D index of the pawn's destination
-         * @param promotionType the type of the promotion piece
-         */
-        public PromotionMove(int from1D, int to1D, byte promotionType) {
+        PromotionMove(int from1D, int to1D, byte promotionType) {
             super(from1D, to1D);
             this.promotionType = promotionType;
         }
@@ -532,17 +484,13 @@ public class ChessBoard {
     /*
      * Represents castling availability for both players.
      */
-    public record CastlingAvailability(
+    record CastlingAvailability(
         boolean whiteKingSide,
         boolean whiteQueenSide,
         boolean blackKingSide,
         boolean blackQueenSide
     ) {
-        /**
-         * Creates castling availability from a FEN string.
-         * @param fen the FEN string castling availability component
-         */
-        public CastlingAvailability(String fen) {
+        CastlingAvailability(String fen) {
             this(
                 fen.contains("K"),
                 fen.contains("Q"),

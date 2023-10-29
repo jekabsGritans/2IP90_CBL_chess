@@ -14,7 +14,7 @@ import java.util.HashMap;
 /**
  * Chess bot that uses minimax with
  * - alpha-beta pruning 
- * - transposition table
+ * - transposition table (stores previous search results)
  * - iterative deepening (allows to adhere to a time limit)
  */
 public class ChessBot extends Thread {
@@ -155,8 +155,8 @@ public class ChessBot extends Thread {
 
         // heuristic value of material
         ChessBoard board = game.getBoard();
-        Map<Byte, Set<Integer>> whiteMaterial = board.getMaterial(true);
-        Map<Byte, Set<Integer>> blackMaterial = board.getMaterial(false);
+        Map<Byte, Set<ChessPosition>> whiteMaterial = board.getMaterial(true);
+        Map<Byte, Set<ChessPosition>> blackMaterial = board.getMaterial(false);
         int materialScore = scoreMaterial(whiteMaterial, true) - scoreMaterial(blackMaterial, false);
 
         return isWhitePerspective ? materialScore : -materialScore;
@@ -165,17 +165,18 @@ public class ChessBot extends Thread {
     /*
      * Gets the total value of one side's material.
      */
-    private static int scoreMaterial(Map<Byte, Set<Integer>> material, boolean isWhiteMaterial) {
+    private static int scoreMaterial(Map<Byte, Set<ChessPosition>> material, boolean isWhiteMaterial) {
         int score = 0;
-        for (Map.Entry<Byte, Set<Integer>> entry : material.entrySet()) {
+        for (Map.Entry<Byte, Set<ChessPosition>> entry : material.entrySet()) {
             byte pieceType = entry.getKey();
 
-            for (int pos : entry.getValue()) {
+            for (ChessPosition pos : entry.getValue()) {
                 score += pieceTypeValues.get(pieceType);
-                int[] positionBonuses = piecePositionBonuses.get(pieceType);
+                int[][] positionBonuses = pieceTypePositionBonuses.get(pieceType);
 
-                // mirror positions for black
-                score += isWhiteMaterial ? positionBonuses[pos] : positionBonuses[143 - pos];
+                int row = isWhiteMaterial ? pos.row() : 7 - pos.row(); // mirror if black
+                int col = pos.col();
+                score += positionBonuses[row][col];
             }
         }
         return score;
@@ -209,25 +210,11 @@ public class ChessBot extends Thread {
         GameState.DRAW, 0
     );
 
-    /*
-     * Maps position values from a 2D board representation to 1D.
-     */
-    private static int[] board2DTo1D(int[][] board2D) {
-        int[] board1D = new int[144];
-        for (int rowIdx = 0; rowIdx < 8; rowIdx++) {
-            for (int colIdx = 0; colIdx < 8; colIdx++) {
-                // find 1D position
-                ChessPosition pos = new ChessPosition(rowIdx, colIdx);
-                board1D[pos.get1D()] = board2D[rowIdx][colIdx];
-            }
-        }
-        return board1D;
-    }
-
     // incentivize optimal piece positioning
     // these are from white's perspective (flipped for black)
-    private static int[][][] positionBonuses = {
-        { // Pawn
+    private static Map<Byte, int[][]> pieceTypePositionBonuses = Map.ofEntries(
+        Map.entry(ChessPiece.Pawn,
+        new int[][] {
             {0,  0,  0,  0,  0,  0,  0,  0},
             {50, 50, 50, 50, 50, 50, 50, 50},
             {10, 10, 20, 30, 30, 20, 10, 10},
@@ -236,8 +223,9 @@ public class ChessBot extends Thread {
             {5, -5,-10,  0,  0,-10, -5,  5},
             {5, 10, 10,-20,-20, 10, 10,  5},
             {0,  0,  0,  0,  0,  0,  0,  0},
-        },
-        { // Knight
+        }),
+        Map.entry(ChessPiece.Knight,
+        new int[][] {
             {-50,-40,-30,-30,-30,-30,-40,-50},
             {-40,-20,  0,  0,  0,  0,-20,-40},
             {-30,  0, 10, 15, 15, 10,  0,-30},
@@ -246,8 +234,9 @@ public class ChessBot extends Thread {
             {-30,  5, 10, 15, 15, 10,  5,-30},
             {-40,-20,  0,  5,  5,  0,-20,-40},
             {-50,-40,-30,-30,-30,-30,-40,-50},
-        },
-        { // Bishop
+        }),
+        Map.entry(ChessPiece.Bishop,
+        new int[][] {
             {-20,-10,-10,-10,-10,-10,-10,-20},
             {-10,  0,  0,  0,  0,  0,  0,-10},
             {-10,  0,  5, 10, 10,  5,  0,-10},
@@ -256,8 +245,9 @@ public class ChessBot extends Thread {
             {-10, 10, 10, 10, 10, 10, 10,-10},
             {-10,  5,  0,  0,  0,  0,  5,-10},
             {-20,-10,-10,-10,-10,-10,-10,-20},
-        },
-        { // Rook
+        }),
+        Map.entry(ChessPiece.Rook,
+        new int[][] {
             {0,  0,  0,  0,  0,  0,  0,  0},
             {5, 10, 10, 10, 10, 10, 10,  5},
             {-5,  0,  0,  0,  0,  0,  0, -5},
@@ -266,8 +256,9 @@ public class ChessBot extends Thread {
             {-5,  0,  0,  0,  0,  0,  0, -5},
             {-5,  0,  0,  0,  0,  0,  0, -5},
             {0,  0,  0,  5,  5,  0,  0,  0},
-        },
-        { // Queen
+        }),
+        Map.entry(ChessPiece.Queen,
+        new int[][] {
             {-20,-10,-10, -5, -5,-10,-10,-20},
             {-10,  0,  0,  0,  0,  0,  0,-10},
             {-10,  0,  5,  5,  5,  5,  0,-10},
@@ -276,8 +267,9 @@ public class ChessBot extends Thread {
             {-10,  5,  5,  5,  5,  5,  0,-10},
             {-10,  0,  5,  0,  0,  0,  0,-10},
             {-20,-10,-10, -5, -5,-10,-10,-20},
-        },
-        { // King
+        }),
+        Map.entry(ChessPiece.King,
+        new int[][] {
             {-30,-40,-40,-50,-50,-40,-40,-30},
             {-30,-40,-40,-50,-50,-40,-40,-30},
             {-30,-40,-40,-50,-50,-40,-40,-30},
@@ -286,16 +278,7 @@ public class ChessBot extends Thread {
             {-10,-20,-20,-20,-20,-20,-20,-10},
             {20, 20,  0,  0,  0,  0, 20, 20},
             {20, 30, 10,  0,  0, 10, 30, 20},
-        }
-    };
-
-    private static Map<Byte, int[]> piecePositionBonuses = Map.of(
-        ChessPiece.Pawn, board2DTo1D(positionBonuses[0]),
-        ChessPiece.Knight, board2DTo1D(positionBonuses[1]),
-        ChessPiece.Bishop, board2DTo1D(positionBonuses[2]),
-        ChessPiece.Rook, board2DTo1D(positionBonuses[3]),
-        ChessPiece.Queen, board2DTo1D(positionBonuses[4]),
-        ChessPiece.King, board2DTo1D(positionBonuses[5])
+        })
     );
 
     /*
