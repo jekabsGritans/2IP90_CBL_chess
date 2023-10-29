@@ -19,14 +19,13 @@ public class ChessGame {
     private ZobristHash zobristHash;
 
     // for threefold repetition draw
-    private HashMap<ChessGame, Integer> positionCount = new HashMap<ChessGame, Integer>();
+    private HashMap<String, Integer> positionCount = new HashMap<String, Integer>();
 
     // for debug
     public static void main(String[] args) {
         ChessGame game = new ChessGame();
         ChessBoard board = game.getBoard();
         board.print();
-        System.out.println(game.getFenString());
     }
 
     /**
@@ -48,6 +47,7 @@ public class ChessGame {
         this.halfMoveClock = game.halfMoveClock;
         this.fullMoveNumber = game.fullMoveNumber;
         this.zobristHash = game.zobristHash;
+        this.positionCount = new HashMap<String, Integer>(game.positionCount);
     }
 
     /**
@@ -222,23 +222,25 @@ public class ChessGame {
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (!(obj instanceof ChessGame)) return false;
-        ChessGame game = (ChessGame) obj;
-        // imperfect, but better than 32-bit hash and fast
-        return zobristHash.getHash(this) == zobristHash.getHash(game); 
+
+        ChessGame other = (ChessGame) obj;
+        return getFenString().equals(other.getFenString());
     }
 
     /*
      * Updates the position count for threefold repetition draw.
      */
     private void updatePositionCount() {
-        positionCount.put(this, positionCount.getOrDefault(this, 0) + 1);
+        String boardFenString = getBoard().getFenString();
+        positionCount.put(boardFenString, positionCount.getOrDefault(boardFenString, 0) + 1);
     }
 
     /*
      * Checks if the current position has been repeated three times.
      */
     private boolean isThreefoldRepetition() {
-        return positionCount.getOrDefault(this, 0) >= 3;
+        String boardFenString = getBoard().getFenString();
+        return positionCount.getOrDefault(boardFenString, 0) >= 3;
     }
 
     /**

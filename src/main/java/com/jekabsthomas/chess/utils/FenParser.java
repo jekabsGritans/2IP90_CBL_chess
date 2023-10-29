@@ -61,5 +61,4 @@ public class FenParser {
         public int halfMoveClock;
         public int fullMoveNumber;
     }
-    
 }

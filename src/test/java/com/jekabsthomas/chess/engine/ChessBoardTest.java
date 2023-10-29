@@ -8,6 +8,8 @@ import com.jekabsthomas.chess.engine.ChessBoard.EnPassantMove;
 import com.jekabsthomas.chess.engine.ChessBoard.PawnDoubleMove;
 import com.jekabsthomas.chess.engine.ChessBoard.PromotionMove;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
 
@@ -92,11 +94,16 @@ public class ChessBoardTest {
 
     @Test
     public void testPrint() {
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
         // tests if no exceptions are thrown when printing
         ChessBoard board = new ChessBoard("8/8/8/8/8/8/8/8", "-", "-");
         board.print();
         board = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "KQkq", "-");
         board.print();
+
+        System.setOut(System.out);
     }
 
     @Test

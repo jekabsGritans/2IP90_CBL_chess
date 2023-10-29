@@ -244,6 +244,13 @@ public class ChessBoard {
     public Map<Byte, Set<ChessPosition>> getMaterial(boolean isWhite) {
         return isWhite ? whiteMaterial : blackMaterial;
     }
+
+    /*
+     * Gets the fen string for the board.
+     */
+    String getFenString() {
+        return getFenPiecePlacement() + " " + getFenCastlingAvailability() + " " + getFenEnPassantTarget();
+    }
  
     /*
      * Sets the piece at the given 1D position.

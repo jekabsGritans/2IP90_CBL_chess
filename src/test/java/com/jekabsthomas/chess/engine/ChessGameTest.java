@@ -9,11 +9,6 @@ import com.jekabsthomas.chess.engine.ChessBoard.ChessMove;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessPosition;
 
 public class ChessGameTest {
-
-    //TODO add exception to fen parser and test game initialization with invalid FEN string
-    // @Test
-    // public void testConstructor()
-
     @Test
     public void testGetFenString() {
         // tests whether the reconstructed FEN string is the same as the input
@@ -110,20 +105,25 @@ public class ChessGameTest {
         game.makeMove(blackRookAMove);
         game.makeMove(whiteRookBMove);
         game.makeMove(blackRookBMove);
+        // back at initial position
 
         game.makeMove(whiteRookAMove);
         game.makeMove(blackRookAMove);
         game.makeMove(whiteRookBMove);
-        game.makeMove(blackRookBMove);
+        GameState state = game.makeMove(blackRookBMove);
+        // back at initial position
 
-        game.makeMove(whiteRookAMove);
-        // game.makeMove(blackRookAMove);
-        // game.makeMove(whiteRookBMove);
-        // game.makeMove(blackRookBMove);
-
+        assertEquals(GameState.DRAW, state);
     }
 
     @Test
     public void testDrawByFiftyMoveRule() {
+        ChessGame game = new ChessGame("KQ5R/QQ6/8/8/8/8/6qq/r5qk w - - 99 1");
+        ChessBoard board = game.getBoard();
+        ChessPosition from = new ChessPosition("h8");
+        ChessPosition to = new ChessPosition("h7");
+        ChessMove move = board.new ChessMove(from.get1D(), to.get1D());
+        GameState state = game.makeMove(move);
+        assertEquals(GameState.DRAW, state);
     }
 }
