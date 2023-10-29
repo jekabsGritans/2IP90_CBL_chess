@@ -78,8 +78,6 @@ public class ChessBoard {
                         board1D[pos1D] = ChessPiece.Empty; // don't add to material
                         colIdx++;
                     }
-
-                    colIdx += numEmptySquares;
                 } else {
                     byte piece = ChessPiece.getPieceFromFenCharacter(fenChar);
                     setPiece(rowIdx, colIdx, piece); // add to material
