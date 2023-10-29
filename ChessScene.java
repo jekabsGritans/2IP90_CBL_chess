@@ -248,6 +248,7 @@ public class ChessScene extends Scene {
         moveClip.stop();
         ChessMove madeMove = currentPiecePossibleMoves.get(moveIndex);
         GameState state = chessGame.makeMove(madeMove);
+        System.out.println("state: " + state.name());
         if(state != GameState.ACTIVE) {
             showWinBanner(state);
         }
