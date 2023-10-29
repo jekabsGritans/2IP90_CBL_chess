@@ -431,6 +431,15 @@ public class ChessBoard {
         public String toString() {
             return getFrom() + " -> " + getTo();
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ChessMove) {
+                ChessMove other = (ChessMove) obj;
+                return from1D == other.from1D && to1D == other.to1D;
+            }
+            return false;
+        }
     }
 
     // special moves only differ from regular moves within the engine,
