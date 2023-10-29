@@ -1,20 +1,19 @@
 package com.jekabsthomas.chess.scenes;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 import com.jekabsthomas.chess.core.GameMain;
 import com.jekabsthomas.chess.entities.Entity;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.WindowConstants;
 
+/**
+ * Base class scene off of which all classes are built.
+
+ * @author Thomas de Bock
+ */
 public class Scene implements MouseListener {
   public ArrayList<Entity> entities  = new ArrayList<Entity>();
   public String name;
@@ -26,7 +25,7 @@ public class Scene implements MouseListener {
   public static int maxEntities = 1000;
 
   /**
-   * Scene constructor, initializes the frame and pane
+   * Scene constructor, initializes the frame and pane.
    */
   public Scene() {
     frame = new JFrame();
@@ -42,35 +41,41 @@ public class Scene implements MouseListener {
     frame.add(pane);
     frame.addMouseListener(this);
   }
+
   /**
-   * Initializes the scene, and adds the specified entities
-   * @param entities
+   * Initializes the scene, and adds the specified entities.
+
+   * @param entities entities to initialize scene with
    */
   public Scene(ArrayList<Entity> entities) {
     this();
-    for(int i = 0; i < entities.size(); i++) {
+    for (int i = 0; i < entities.size(); i++) {
       addEntity(entities.get(i));
     }
   }
+
   /**
-   * Calls update on all the scene's entities
+   * Calls update on all the scene's entities.
    */
   public void update() {
-    for(int i = 0; i < entities.size(); i++) {
+    for (int i = 0; i < entities.size(); i++) {
       entities.get(i).update();
     }
   }
 
   /**
-   * Adds an entity to the entities and adds the graphic to the layered pane
+   * Adds an entity to the entities and adds the graphic to the layered pane.
+
    * @param entity this is the entity to add
    */
   public void addEntity(Entity entity) {
     entities.add(entity);
     pane.add(entity.graphic);
   }
+
   /**
-   * Adds an entity to the entities and adds the graphic to the layered pane at the specified layer
+   * Adds an entity to the entities and adds the graphic to the layered pane at the specified layer.
+
    * @param entity this is the entity to add
    * @param layer layer to add entity to the layeredPane
    */
@@ -80,41 +85,49 @@ public class Scene implements MouseListener {
   }
 
   /**
-   * Removes an entity from the entities and removes the graphic from the layered pane
+   * Removes an entity from the entities and removes the graphic from the layered pane.
+
    * @param entity this is the entity to remove
    */
   public void removeEntity(Entity entity) {
     entities.remove(entity);
     pane.remove(entity.graphic);
   }
+
   @Override
   public void mouseClicked(MouseEvent e) {
 
   }
 
   /**
-   * Sets the MouseDown bool true, cant be done in input manager as the listener needs to be attached to the scene
+   * Sets the MouseDown bool true, 
+   * cant be done in input manager as the listener needs to be attached to the scene.
    */
   @Override
   public void mousePressed(MouseEvent e) {
     mouseDown = true;
   }
+
   /**
-   * Sets the MouseDown bool false, cant be done in input manager as the listener needs to be attached to the scene
+   * Sets the MouseDown bool false, 
+   * cant be done in input manager as the listener needs to be attached to the scene.
    */
   @Override
   public void mouseReleased(MouseEvent e) {
     mouseDown = false;
-    // Mouse released is used as a boolean that decides if anywhere on the screen the mouse is released, thus when
+    // Mouse released is used as a boolean that decides 
+    // if anywhere on the screen the mouse is released, thus when
     // neccesary, it should be implemented in all corresponding components
     mouseReleased = true;
   }
+
   @Override
   public void mouseEntered(MouseEvent e) {
-    // TODO Auto-generated method stub
+
   }
+  
   @Override
   public void mouseExited(MouseEvent e) {
-    // TODO Auto-generated method stub
+
   }
 }
