@@ -1,10 +1,10 @@
 package com.jekabsthomas.chess.engine;
 
-import java.util.HashMap;
-import java.util.List;
-import com.jekabsthomas.chess.utils.FenParser;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessMove;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessPosition;
+import com.jekabsthomas.chess.utils.FenParser;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents a chess game.
@@ -52,7 +52,7 @@ public class ChessGame {
 
     /**
      * Creates a chess game from a FEN string.
-     * @param fen FEN string representation of the game
+     * @param fenStr FEN string representation of the game
      */
     public ChessGame(String fenStr) {
         FenParser.FenResult fen = FenParser.parseFen(fenStr);
@@ -77,7 +77,9 @@ public class ChessGame {
         String halfMoveClock = String.valueOf(this.halfMoveClock);
         String fullMoveNumber = String.valueOf(this.fullMoveNumber);
 
-        return String.join(" ", piecePositions, activeColor, castlingAvailability, enPassantTarget, halfMoveClock, fullMoveNumber);
+        return String.join(" ",
+            piecePositions, activeColor, castlingAvailability,
+            enPassantTarget, halfMoveClock, fullMoveNumber);
     }
 
     /**
@@ -94,8 +96,8 @@ public class ChessGame {
 
         int from1D = from.get1D();
         byte piece = board.getPiece(from1D);
-        if (ChessPiece.isEmpty(piece) ||
-            ChessPiece.isWhite(piece) != isWhiteMove) {
+        if (ChessPiece.isEmpty(piece)
+            || ChessPiece.isWhite(piece) != isWhiteMove) {
             throw new IllegalArgumentException("No friendly piece at position " + from);
         }
 
@@ -220,8 +222,13 @@ public class ChessGame {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (!(obj instanceof ChessGame)) return false;
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof ChessGame)) {
+            return false;
+        }
 
         ChessGame other = (ChessGame) obj;
         return getFenString().equals(other.getFenString());
