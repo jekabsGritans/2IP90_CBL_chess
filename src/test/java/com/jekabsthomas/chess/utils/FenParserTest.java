@@ -1,8 +1,12 @@
 package com.jekabsthomas.chess.utils;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
+
+/**
+ * Tests for FenParser class.
+ */
 public class FenParserTest {
     @Test
     public void testParseFenValid() {

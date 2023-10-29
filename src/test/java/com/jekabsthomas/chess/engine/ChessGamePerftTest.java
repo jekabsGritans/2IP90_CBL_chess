@@ -1,21 +1,22 @@
 package com.jekabsthomas.chess.engine;
 
-import com.jekabsthomas.chess.engine.ChessBoard.ChessMove;
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+import com.jekabsthomas.chess.engine.ChessBoard.ChessMove;
+import org.junit.Test;
+
+/**
+ * Counts number of nodes in the game tree at the given depth.
+ * Comparing result with known hard cases allows us to verify that the game tree is being
+ * generated correctly. Hence, that the legal moves are being generated correctly.
+ * 
+ * Depth is limited because of runtime.
+ * 
+ * Data from https://www.chessprogramming.org/Perft_Results
+*/
 public class ChessGamePerftTest {
 
-    /*
-     * Counts number of nodes in the game tree at the given depth.
-     * Comparing result with known hard cases allows us to verify that the game tree is being
-     * generated correctly. Hence, that the legal moves are being generated correctly.
-     * 
-     * Depth is limited because of runtime.
-     * 
-     * Data from https://www.chessprogramming.org/Perft_Results
-     */
-
+    
     @Test
     public void testStartingPosition() {
         ChessGame game = new ChessGame("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
@@ -26,7 +27,8 @@ public class ChessGamePerftTest {
 
     @Test
     public void testPositionTwo() {
-        ChessGame game = new ChessGame("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
+        ChessGame game = new ChessGame(
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
         assertEquals(48, perft(game, 1));
         assertEquals(2039, perft(game, 2));
     }
@@ -41,7 +43,8 @@ public class ChessGamePerftTest {
 
     @Test
     public void testPositionFour() {
-        ChessGame game = new ChessGame("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+        ChessGame game = new ChessGame(
+            "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
         assertEquals(6, perft(game, 1));
         assertEquals(264, perft(game, 2));
         assertEquals(9467, perft(game, 3));
@@ -56,7 +59,8 @@ public class ChessGamePerftTest {
 
     @Test
     public void testPositionSix() {
-        ChessGame game = new ChessGame("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10");
+        ChessGame game = new ChessGame(
+            "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10");
         assertEquals(46, perft(game, 1));
         assertEquals(2079, perft(game, 2));
     }

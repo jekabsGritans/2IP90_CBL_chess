@@ -1,8 +1,12 @@
 package com.jekabsthomas.chess.engine;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
+
+/**
+ * Tests for ZobristHash class.
+ */
 public class ZobristHashTest {
     @Test
     public void testGetHash() {

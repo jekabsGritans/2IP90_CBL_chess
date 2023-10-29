@@ -1,13 +1,16 @@
 package com.jekabsthomas.chess.engine;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import com.jekabsthomas.chess.engine.ChessGame.GameState;
-import java.util.List;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessMove;
 import com.jekabsthomas.chess.engine.ChessBoard.ChessPosition;
+import com.jekabsthomas.chess.engine.ChessGame.GameState;
+import java.util.List;
+import org.junit.Test;
 
+/**
+ * Tests for ChessGame class.
+ */
 public class ChessGameTest {
     @Test
     public void testGetFenString() {
@@ -46,8 +49,9 @@ public class ChessGameTest {
         // white's turn before nullMove
         ChessGame game = new ChessGame("Q6k/Q7/1Q6/2Q5/3Q4/4Q3/5Q2/K5Qp w - - 0 1");
         ChessBoard board = game.getBoard();
-        ChessPosition pos = new ChessPosition ("h1");
-        ChessMove nullMove = board.new ChessMove(pos.get1D(), pos.get1D()); // move black pawn to itself
+        ChessPosition pos = new ChessPosition("h1");
+        // move black pawn to itself
+        ChessMove nullMove = board.new ChessMove(pos.get1D(), pos.get1D());
         ChessGame.GameState state = game.makeMove(nullMove);
         assertEquals(GameState.WHITE_WINS, state);
     }
@@ -69,8 +73,9 @@ public class ChessGameTest {
         // white's turn before nullMove
         ChessGame game = new ChessGame("Q6B/Q5Bk/1Q5B/2Q5/8/4Q3/5Q2/K5Qp w - - 0 1");
         ChessBoard board = game.getBoard();
-        ChessPosition pos = new ChessPosition ("h1");
-        ChessMove nullMove = board.new ChessMove(pos.get1D(), pos.get1D()); // move black pawn to itself
+        ChessPosition pos = new ChessPosition("h1");
+        // move black pawn to itself
+        ChessMove nullMove = board.new ChessMove(pos.get1D(), pos.get1D());
         ChessGame.GameState state = game.makeMove(nullMove);
         assertEquals(GameState.STALEMATE, state);
     }
@@ -81,8 +86,9 @@ public class ChessGameTest {
         // as we're just testing whether the game enters a draw state
         ChessGame game = new ChessGame("k7/8/K7/8/8/8/8/7p w - - 0 1");
         ChessBoard board = game.getBoard();
-        ChessPosition pos = new ChessPosition ("h1");
-        ChessMove nullMove = board.new ChessMove(pos.get1D(), pos.get1D()); // move black pawn to itself
+        ChessPosition pos = new ChessPosition("h1");
+        // move black pawn to itself
+        ChessMove nullMove = board.new ChessMove(pos.get1D(), pos.get1D());
         ChessGame.GameState state = game.makeMove(nullMove);
         assertEquals(GameState.DRAW, state);
     }

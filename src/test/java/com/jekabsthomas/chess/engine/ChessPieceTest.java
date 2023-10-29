@@ -1,8 +1,14 @@
 package com.jekabsthomas.chess.engine;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
+/**
+ * Tests for ChessPiece class.
+ */
 public class ChessPieceTest {
     @Test
     public void testGetType() {
@@ -84,19 +90,32 @@ public class ChessPieceTest {
     public void testGetFenCharacter() {
 
         // assertEquals is ambiguous for char
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Pawn | ChessPiece.White)) == 'P');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Pawn | ChessPiece.Black)) == 'p');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Knight | ChessPiece.White)) == 'N');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Knight | ChessPiece.Black)) == 'n');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Bishop | ChessPiece.White)) == 'B');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Bishop | ChessPiece.Black)) == 'b');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Rook | ChessPiece.White)) == 'R');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Rook | ChessPiece.Black)) == 'r');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Queen | ChessPiece.White)) == 'Q');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.Queen | ChessPiece.Black)) == 'q');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.King | ChessPiece.White)) == 'K');
-        assertTrue(ChessPiece.getFenCharacter((byte) (ChessPiece.King | ChessPiece.Black)) == 'k');
-        assertTrue(ChessPiece.getFenCharacter(ChessPiece.Empty) == '1');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Pawn | ChessPiece.White)) == 'P');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Pawn | ChessPiece.Black)) == 'p');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Knight | ChessPiece.White)) == 'N');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Knight | ChessPiece.Black)) == 'n');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Bishop | ChessPiece.White)) == 'B');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Bishop | ChessPiece.Black)) == 'b');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Rook | ChessPiece.White)) == 'R');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Rook | ChessPiece.Black)) == 'r');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Queen | ChessPiece.White)) == 'Q');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.Queen | ChessPiece.Black)) == 'q');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.King | ChessPiece.White)) == 'K');
+        assertTrue(
+            ChessPiece.getFenCharacter((byte) (ChessPiece.King | ChessPiece.Black)) == 'k');
+        assertTrue(
+            ChessPiece.getFenCharacter(ChessPiece.Empty) == '1');
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -106,19 +125,32 @@ public class ChessPieceTest {
 
     @Test
     public void testGetPieceFromFenCharacter() {
-        assertEquals(ChessPiece.Pawn | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('P'));
-        assertEquals(ChessPiece.Pawn | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('p'));
-        assertEquals(ChessPiece.Knight | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('N'));
-        assertEquals(ChessPiece.Knight | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('n'));
-        assertEquals(ChessPiece.Bishop | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('B'));
-        assertEquals(ChessPiece.Bishop | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('b'));
-        assertEquals(ChessPiece.Rook | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('R'));
-        assertEquals(ChessPiece.Rook | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('r'));
-        assertEquals(ChessPiece.Queen | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('Q'));
-        assertEquals(ChessPiece.Queen | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('q'));
-        assertEquals(ChessPiece.King | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('K'));
-        assertEquals(ChessPiece.King | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('k'));
-        assertEquals(ChessPiece.Empty, ChessPiece.getPieceFromFenCharacter('1'));
+        assertEquals(
+            ChessPiece.Pawn | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('P'));
+        assertEquals(
+            ChessPiece.Pawn | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('p'));
+        assertEquals(
+            ChessPiece.Knight | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('N'));
+        assertEquals(
+            ChessPiece.Knight | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('n'));
+        assertEquals(
+            ChessPiece.Bishop | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('B'));
+        assertEquals(
+            ChessPiece.Bishop | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('b'));
+        assertEquals(
+            ChessPiece.Rook | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('R'));
+        assertEquals(
+            ChessPiece.Rook | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('r'));
+        assertEquals(
+            ChessPiece.Queen | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('Q'));
+        assertEquals(
+            ChessPiece.Queen | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('q'));
+        assertEquals(
+            ChessPiece.King | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('K'));
+        assertEquals(
+            ChessPiece.King | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('k'));
+        assertEquals(
+            ChessPiece.Empty, ChessPiece.getPieceFromFenCharacter('1'));
     }
 
     @Test(expected = IllegalArgumentException.class)
