@@ -36,6 +36,7 @@ public class ChessScene extends Scene {
     EndingEntity whiteBanner;
     EndingEntity blackBanner;
     EndingEntity stalemateBanner;
+    EndingEntity drawBanner;
     Clip moveClip;
     boolean withBot = false;
 
@@ -113,6 +114,17 @@ public class ChessScene extends Scene {
         stalemateBanner.graphic.setVisible(false);
         stalemateBanner.scene = this;
         addEntity(stalemateBanner, 10);
+
+
+        drawBanner = new EndingEntity();
+        drawBanner.setPos(new Point(200, 200));
+        drawBanner.setSize(new Point(600, 315));
+        imgPath = System.getProperty("user.dir") + "/textures/draw.png";
+        imgFile = new File(imgPath);
+        drawBanner.loadTexture(imgFile);
+        drawBanner.graphic.setVisible(false);
+        drawBanner.scene = this;
+        addEntity(drawBanner, 10);
     }
 
     /** 
@@ -127,6 +139,9 @@ public class ChessScene extends Scene {
             whiteBanner.graphic.setVisible(true);
         }
         else if(state == GameState.STALEMATE) {
+            stalemateBanner.graphic.setVisible(true);
+        }
+        else if(state == GameState.DRAW) {
             stalemateBanner.graphic.setVisible(true);
         }
     }
