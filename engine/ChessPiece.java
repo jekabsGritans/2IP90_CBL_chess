@@ -152,6 +152,10 @@ public class ChessPiece {
      * @return the FEN character for the chess piece
      */
     public static Character getFenCharacter(byte piece) {
+        if (!(isPiece(piece) || isEmpty(piece))) {
+            throw new IllegalArgumentException("Invalid piece");
+        }
+
         byte colorLessPiece = (byte) (piece & 7);
         char fenChar = FEN_CHARS[colorLessPiece];
 
@@ -165,12 +169,18 @@ public class ChessPiece {
      * @return the chess piece byte for the FEN character
      */
     public static byte getPieceFromFenCharacter(char fenChar) {
+        if (fenChar == '1') {
+            return Empty;
+        }
+
         String fenChars = new String(FEN_CHARS);
         char lowerFenChar = Character.toLowerCase(fenChar);
         byte piece = (byte) fenChars.indexOf(lowerFenChar);
-        boolean isWhite = Character.isUpperCase(fenChar);
+        if (piece == -1) {
+            throw new IllegalArgumentException("Invalid FEN character");
+        }
 
+        boolean isWhite = Character.isUpperCase(fenChar);
         return isWhite ? (byte) (piece | White) : (byte) (piece | Black); 
     }
-
 }
