@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 class Scene implements MouseListener {
   ArrayList<Entity> entities  = new ArrayList<Entity>();
@@ -29,6 +30,7 @@ class Scene implements MouseListener {
     frame.setLayout(null);
     frame.setTitle("Chess Game");
     frame.setLocationRelativeTo(null);
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     pane = new JLayeredPane();
     pane.setSize(900, 900);
     pane.setLayout(null);
