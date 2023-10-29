@@ -21,20 +21,8 @@ public class ChessRules {
      * @return true if enemy king can be captured
      */
     public static boolean canCaptureKing(ChessBoard board, boolean isWhiteMove) {
-        // pseudo-legal is fine as it does not matter
-        // if I expose my king if I can first capture the enemy king
-        List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove);
-
         int enemyKingPos = board.getKingPos1D(!isWhiteMove);
-
-        // check if any move is to the enemy king's position
-        for (ChessMove move : moves) {
-            if (move.to1D == enemyKingPos) {
-                return true;
-            }
-        }
-
-        return false;
+        return isUnderAttack(board, enemyKingPos, isWhiteMove);
     }
 
     /**
@@ -73,6 +61,21 @@ public class ChessRules {
         return isInsufficientMaterial(whiteMaterial) && isInsufficientMaterial(blackMaterial);
     }
 
+    /*
+     * Check if any enemy pieces can move to the position.
+     */
+    private static boolean isUnderAttack(ChessBoard board, int pos1D, boolean isWhiteMove) {
+        List<ChessMove> moves = getPseudoLegalMoves(board, isWhiteMove, true);
+
+        // check if any move is to the position
+        for (ChessMove move : moves) {
+            if (move.to1D == pos1D) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     /*
      * Unidirectional check for insufficient material.
      * Catches most but not all cases according to tournament rules
@@ -119,7 +122,7 @@ public class ChessRules {
     /*
      * Gets valid moves from a position, not checking for exposed king.
      */
-    private static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove, int from) {
+    private static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove, int from, boolean isCastlingRecursion) {
         byte piece = board.getPiece(from);
         
         boolean isFriendlyPiece = ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) == isWhiteMove;
@@ -139,16 +142,20 @@ public class ChessRules {
             case ChessPiece.Queen:
                 return getValidQueenMoves(board, isWhiteMove, from);
             case ChessPiece.King:
-                return getValidKingMoves(board, isWhiteMove, from);
+                return getValidKingMoves(board, isWhiteMove, from, isCastlingRecursion);
             default:
                 return Arrays.asList();
         }
     }
 
+    private  static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove, int from) {
+        return getPseudoLegalMoves(board, isWhiteMove, from, false);
+    }
+
     /*
      * Gets valid moves, not checking for exposed king.
      */
-    private static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove) {
+    private static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove, boolean isCastlingRecursion) {
         List<ChessMove> moves = new ArrayList<ChessMove>(0);
 
         for (int pos = 0; pos < 144; pos++) {
@@ -156,11 +163,15 @@ public class ChessRules {
             boolean isFriendlyPiece = ChessPiece.isPiece(piece) && ChessPiece.isWhite(piece) == isWhiteMove;
 
             if (isFriendlyPiece) {
-                moves.addAll(getPseudoLegalMoves(board, isWhiteMove, pos));
+                moves.addAll(getPseudoLegalMoves(board, isWhiteMove, pos, isCastlingRecursion));
             }
         }
 
         return moves;
+    }
+
+    private static List<ChessMove> getPseudoLegalMoves(ChessBoard board, boolean isWhiteMove) {
+        return getPseudoLegalMoves(board, isWhiteMove, false);
     }
 
     // VALID 1D MOVE DIRECTIONS FOR EACH PIECE TYPE
@@ -271,7 +282,7 @@ public class ChessRules {
         return getValidSlidingMoves(board, isWhiteMove, from, QUEEN_DIRS);
     }
 
-    private static List<ChessMove> getValidKingMoves(ChessBoard board, boolean isWhiteMove, int from) {
+    private static List<ChessMove> getValidKingMoves(ChessBoard board, boolean isWhiteMove, int from, boolean isCastlingRecursion) {
         List<ChessMove> moves =  getValidNonSlidingMoves(board, isWhiteMove, from, KING_DIRS);
 
         // castling
@@ -291,13 +302,17 @@ public class ChessRules {
         int queenBlocking = isWhiteMove ? CASTLING_WHITE_QUEEN_BLOCKING : CASTLING_BLACK_QUEEN_BLOCKING;
 
         canKingside = canKingside
+            && !isCastlingRecursion
             && ChessPiece.isEmpty(board.getPiece(kingTo))
-            && ChessPiece.isEmpty(board.getPiece(kingRookTo));
+            && ChessPiece.isEmpty(board.getPiece(kingRookTo))
+            && !isUnderAttack(board, kingRookTo, !isWhiteMove);
 
         canQueenside = canQueenside
+            && !isCastlingRecursion
             && ChessPiece.isEmpty(board.getPiece(queenTo))
             && ChessPiece.isEmpty(board.getPiece(queenRookTo))
-            && ChessPiece.isEmpty(board.getPiece(queenBlocking));
+            && ChessPiece.isEmpty(board.getPiece(queenBlocking))
+            && !isUnderAttack(board, queenRookTo, !isWhiteMove);
 
         if (canKingside) {
             moves.add(board.new CastlingMove(from, kingTo, kingRookFrom, kingRookTo));
