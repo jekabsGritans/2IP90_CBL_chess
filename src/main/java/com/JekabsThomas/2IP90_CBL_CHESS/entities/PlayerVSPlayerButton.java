@@ -18,7 +18,7 @@ public class PlayerVSPlayerButton extends Entity implements MouseListener {
     public PlayerVSPlayerButton() {
         super();
         setSize(new Point(600, 315));
-        String imgPath = System.getProperty("user.dir") + "../textures/playervsplayer.png";
+        String imgPath = System.getProperty("user.dir") + "/textures/playervsplayer.png";
         File imgFile = new File(imgPath);
         loadTexture(imgFile);
         initMouseEvents();

@@ -117,7 +117,7 @@ public class PieceEntity extends Entity implements MouseListener {
                 pieceString += "Black.png";
             }
             String texPath = System.getProperty("user.dir");
-            File texFile = new File(texPath + "../" + pieceString);
+            File texFile = new File(texPath + "/" + pieceString);
             Image texImg = new ImageIcon(texFile.getAbsolutePath()).getImage();
             updateTextureImage(texImg);
             textures.set(pieceType+pieceColor, texImg);

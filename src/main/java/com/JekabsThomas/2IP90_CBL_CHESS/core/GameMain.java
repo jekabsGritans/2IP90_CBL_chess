@@ -13,9 +13,6 @@ public class GameMain {
     public ChessScene playerVSBotScene;
     Scene currentScene;
 
-    public static void main(String[] args) {
-        (new GameMain()).startGame();
-    }
 
     /**
      * Main game loop, initializes the scenes and calls the update function on every entity

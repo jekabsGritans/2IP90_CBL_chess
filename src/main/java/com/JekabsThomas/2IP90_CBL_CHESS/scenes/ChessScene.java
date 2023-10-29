@@ -82,7 +82,7 @@ public class ChessScene extends Scene {
      * Initializes the move.wav audio file into a Clip object
      */
     public void initSounds() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        String pathString = System.getProperty("user.dir") + "../sounds/move.wav";
+        String pathString = System.getProperty("user.dir") + "/sounds/move.wav";
         File moveFile = new File(pathString);
         AudioInputStream moveSound;
         moveSound = AudioSystem.getAudioInputStream(moveFile);
@@ -98,7 +98,7 @@ public class ChessScene extends Scene {
         whiteBanner = new EndingEntity();
         whiteBanner.setPos(new Point(200, 200));
         whiteBanner.setSize(new Point(600, 315));
-        String imgPath = System.getProperty("user.dir") + "../textures/whiteWins.png";
+        String imgPath = System.getProperty("user.dir") + "/textures/whiteWins.png";
         File imgFile = new File(imgPath);
         whiteBanner.loadTexture(imgFile);
         whiteBanner.graphic.setVisible(false);
@@ -108,7 +108,7 @@ public class ChessScene extends Scene {
         blackBanner = new EndingEntity();
         blackBanner.setPos(new Point(200, 200));
         blackBanner.setSize(new Point(600, 315));
-        imgPath = System.getProperty("user.dir") + "../textures/blackWins.png";
+        imgPath = System.getProperty("user.dir") + "/textures/blackWins.png";
         imgFile = new File(imgPath);
         blackBanner.loadTexture(imgFile);
         blackBanner.graphic.setVisible(false);
@@ -118,7 +118,7 @@ public class ChessScene extends Scene {
         stalemateBanner = new EndingEntity();
         stalemateBanner.setPos(new Point(200, 200));
         stalemateBanner.setSize(new Point(600, 315));
-        imgPath = System.getProperty("user.dir") + "../textures/stalemate.png";
+        imgPath = System.getProperty("user.dir") + "/textures/stalemate.png";
         imgFile = new File(imgPath);
         stalemateBanner.loadTexture(imgFile);
         stalemateBanner.graphic.setVisible(false);
@@ -129,7 +129,7 @@ public class ChessScene extends Scene {
         drawBanner = new EndingEntity();
         drawBanner.setPos(new Point(200, 200));
         drawBanner.setSize(new Point(600, 315));
-        imgPath = System.getProperty("user.dir") + "../textures/draw.png";
+        imgPath = System.getProperty("user.dir") + "/textures/draw.png";
         imgFile = new File(imgPath);
         drawBanner.loadTexture(imgFile);
         drawBanner.graphic.setVisible(false);
