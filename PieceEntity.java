@@ -33,11 +33,7 @@ class PieceEntity extends Entity implements MouseListener {
         this.pieceType = pieceType;
         this.pieceColor = pieceColor;
         setSize(new Point(100, 100));
-        //initTexture();
-            String imgPath = System.getProperty("user.dir") + "/textures/indicator.png";
-            File imgFile = new File(imgPath);
-            Image img = new ImageIcon(imgFile.getAbsolutePath()).getImage();
-            updateTextureImage(img);
+        initTexture();
         initMouseEvents();
     }
 
@@ -106,7 +102,7 @@ class PieceEntity extends Entity implements MouseListener {
         }
 
         if(textures.get(pieceType+pieceColor) == null) {
-            String pieceString = "textures/" + ChessPiece.typeToString(pieceType);
+            String pieceString = "textures/" + ChessPiece.typeToString(pieceType).toUpperCase();
             if(ChessPiece.isColor(pieceColor, ChessPiece.White)) {
                 pieceString += "White.png";
             } else {
