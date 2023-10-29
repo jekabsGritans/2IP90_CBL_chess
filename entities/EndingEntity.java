@@ -1,13 +1,17 @@
+package entities;
 
 import java.awt.Point;
 import java.awt.event.MouseListener;
 import java.io.File;
+
+import scenes.ChessScene;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class EndingEntity extends Entity implements MouseListener {
-    ChessScene scene;
+    public ChessScene scene;
     /**
      * Constructor that calls entity constructor and also initializes mouseListener
      */
@@ -19,6 +23,7 @@ public class EndingEntity extends Entity implements MouseListener {
     /**
      * Overwritten mouseListener function, loads menu scene on release
      */
+    @Override
     public void mouseReleased(MouseEvent e) {
         if(!scene.withBot) {
             scene.game.endPlayerChessGame();
@@ -27,18 +32,22 @@ public class EndingEntity extends Entity implements MouseListener {
         scene.game.endBotChessGame();
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
 
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
         
     }
  
+    @Override
     public void mouseClicked(MouseEvent e) {
 
     }
     
+    @Override
     public void mousePressed(MouseEvent e) {
 
     }

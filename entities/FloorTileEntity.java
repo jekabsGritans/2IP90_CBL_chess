@@ -1,3 +1,4 @@
+package entities;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
@@ -7,6 +8,7 @@ import java.io.File;
 import javax.swing.ImageIcon;
 
 import engine.ChessPiece;
+import scenes.ChessScene;
 
 public class FloorTileEntity extends Entity implements MouseListener {
     public static Color blackTile = Color.decode("#596A37");

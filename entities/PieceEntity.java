@@ -1,3 +1,4 @@
+package entities;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -7,19 +8,21 @@ import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
+import core.InputManager;
 import engine.ChessPiece;
+import scenes.ChessScene;
 
-class PieceEntity extends Entity implements MouseListener {
-    boolean dragging = false;
-    byte pieceColor;
-    Point lastMousePos;
-    ChessScene board;
-    ChessPiece piece;
-    ArrayList<Point> currentPossibleMoves = new ArrayList<Point>();
-    Point origPos = getPos();
-    byte pieceType;
-    boolean active = true;
-    boolean mouseIn = false;
+public class PieceEntity extends Entity implements MouseListener {
+    public boolean dragging = false;
+    public byte pieceColor;
+    public Point lastMousePos;
+    public ChessScene board;
+    public ChessPiece piece;
+    public ArrayList<Point> currentPossibleMoves = new ArrayList<Point>();
+    public Point origPos = getPos();
+    public byte pieceType;
+    public boolean active = true;
+    public boolean mouseIn = false;
     public static ArrayList<Image> textures = new ArrayList<Image>(23);
     
     
@@ -40,6 +43,7 @@ class PieceEntity extends Entity implements MouseListener {
     /**
      * Overwritten mouseListener function, centers the piece to the mouse, and starts dragging it
      */
+    @Override
     public void mousePressed(MouseEvent e) {
         board.mouseReleased = false;
         if(!ChessPiece.isColor(pieceColor, board.turnColor) || !active || board.ended) {
@@ -54,8 +58,9 @@ class PieceEntity extends Entity implements MouseListener {
         int yOffset = getPos().y-InputManager.lastMousePos.y+90;
         setPos(new Point(getPos().x - xOffset, getPos().y - yOffset));
         dragging = true;
-     }
+    }
  
+    @Override
     public void mouseReleased(MouseEvent e) {
         if(!dragging || !active) {
             board.mouseReleased = true;
@@ -65,14 +70,17 @@ class PieceEntity extends Entity implements MouseListener {
         stopDrag();
     }
 
+    @Override
     public void mouseEntered(MouseEvent e) {
         mouseIn = true;
     }
 
+    @Override
     public void mouseExited(MouseEvent e) {
         mouseIn = false;
     }   
  
+    @Override
     public void mouseClicked(MouseEvent e) {
 
     }

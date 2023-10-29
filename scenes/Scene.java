@@ -1,3 +1,4 @@
+package scenes;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -11,14 +12,17 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-class Scene implements MouseListener {
-  ArrayList<Entity> entities  = new ArrayList<Entity>();
-  String name;
-  JFrame frame;
-  JLayeredPane pane;
-  GameMain game;
-  boolean mouseDown = false;
-  boolean mouseReleased = false;
+import core.GameMain;
+import entities.Entity;
+
+public class Scene implements MouseListener {
+  public ArrayList<Entity> entities  = new ArrayList<Entity>();
+  public String name;
+  public JFrame frame;
+  public JLayeredPane pane;
+  public GameMain game;
+  public boolean mouseDown = false;
+  public boolean mouseReleased = false;
   public static int maxEntities = 1000;
 
   /**

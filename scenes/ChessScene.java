@@ -1,3 +1,5 @@
+package scenes;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -13,6 +15,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
+import core.ChessBot;
 import engine.ChessBoard;
 import engine.ChessGame;
 import engine.ChessPiece;
@@ -24,23 +27,28 @@ import java.util.concurrent.TimeUnit;
 
 import java.util.*;
 
+import entities.EndingEntity;
+import entities.FloorTileEntity;
+import entities.IndicatorEntity;
+import entities.PieceEntity;
+
 public class ChessScene extends Scene {
-    Point boardPos = new Point(50, 50);
-    Point boardSize = new Point(800, 800);
-    int tileAmount = 8;
-    ChessGame chessGame;
-    byte turnColor = ChessPiece.White;
-    ArrayList<ChessMove> currentPiecePossibleMoves = new ArrayList<ChessMove>();
-    ArrayList<PieceEntity> pieces = new ArrayList<PieceEntity>();
-    ArrayList<IndicatorEntity> moveIndicators = new ArrayList<IndicatorEntity>();
-    Image indicatorImage;
-    EndingEntity whiteBanner;
-    EndingEntity blackBanner;
-    EndingEntity stalemateBanner;
-    EndingEntity drawBanner;
-    Clip moveClip;
-    boolean withBot = false;
-    boolean ended = false;
+    public Point boardPos = new Point(50, 50);
+    public Point boardSize = new Point(800, 800);
+    public int tileAmount = 8;
+    public ChessGame chessGame;
+    public byte turnColor = ChessPiece.White;
+    public ArrayList<ChessMove> currentPiecePossibleMoves = new ArrayList<ChessMove>();
+    public ArrayList<PieceEntity> pieces = new ArrayList<PieceEntity>();
+    public ArrayList<IndicatorEntity> moveIndicators = new ArrayList<IndicatorEntity>();
+    public Image indicatorImage;
+    public EndingEntity whiteBanner;
+    public EndingEntity blackBanner;
+    public EndingEntity stalemateBanner;
+    public EndingEntity drawBanner;
+    public Clip moveClip;
+    public boolean withBot = false;
+    public boolean ended = false;
 
     /** 
      * Constructs and initializes the ChessScene object

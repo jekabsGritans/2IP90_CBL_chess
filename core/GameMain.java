@@ -1,12 +1,16 @@
+package core;
 import java.util.ArrayList;
 
 import engine.ChessPiece;
+import scenes.ChessScene;
+import scenes.MenuScene;
+import scenes.Scene;
 
 public class GameMain {
-    ArrayList<Scene> scenes = new ArrayList<Scene>();
-    Scene menuScene;
-    ChessScene playerVSPlayerScene;
-    ChessScene playerVSBotScene;
+    public ArrayList<Scene> scenes = new ArrayList<Scene>();
+    public Scene menuScene;
+    public ChessScene playerVSPlayerScene;
+    public ChessScene playerVSBotScene;
     Scene currentScene;
 
     public static void main(String[] args) {

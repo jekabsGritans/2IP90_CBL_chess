@@ -1,3 +1,4 @@
+package core;
 import engine.ChessBoard;
 import engine.ChessGame;
 import engine.ChessPiece;

@@ -1,3 +1,4 @@
+package entities;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -14,11 +15,11 @@ public class Entity {
     private Point pos = new Point(150, 200);
     private Point size = new Point(100, 100);
     private Color color = Color.PINK;
-    BufferedImage texture;
-    Image textureImage;
-    JLabel textureComponent = new JLabel();
-    int zLayer = 0;
-    JPanel graphic;
+    public BufferedImage texture;
+    public Image textureImage;
+    public JLabel textureComponent = new JLabel();
+    public int zLayer = 0;
+    public JPanel graphic;
 
     /**
      * Initializes the position, size and graphic

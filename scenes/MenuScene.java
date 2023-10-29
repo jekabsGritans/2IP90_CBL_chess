@@ -1,6 +1,11 @@
+package scenes;
 import java.awt.Color;
 import java.awt.Point;
 import java.io.File;
+
+import entities.Entity;
+import entities.PlayerVSComputerButton;
+import entities.PlayerVSPlayerButton;
 
 public class MenuScene extends Scene {
     /**
