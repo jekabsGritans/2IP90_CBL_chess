@@ -92,7 +92,7 @@ public class ChessScene extends Scene {
         whiteBanner.loadTexture(imgFile);
         whiteBanner.graphic.setVisible(false);
         whiteBanner.scene = this;
-        addEntity(whiteBanner);
+        addEntity(whiteBanner, 10);
 
         blackBanner = new EndingEntity();
         blackBanner.setPos(new Point(200, 200));
@@ -102,7 +102,7 @@ public class ChessScene extends Scene {
         blackBanner.loadTexture(imgFile);
         blackBanner.graphic.setVisible(false);
         blackBanner.scene = this;
-        addEntity(blackBanner);
+        addEntity(blackBanner, 10);
 
         stalemateBanner = new EndingEntity();
         stalemateBanner.setPos(new Point(200, 200));
@@ -112,7 +112,7 @@ public class ChessScene extends Scene {
         stalemateBanner.loadTexture(imgFile);
         stalemateBanner.graphic.setVisible(false);
         stalemateBanner.scene = this;
-        addEntity(stalemateBanner);
+        addEntity(stalemateBanner, 10);
     }
 
     /** 

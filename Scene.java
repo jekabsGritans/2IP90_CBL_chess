@@ -98,6 +98,8 @@ class Scene implements MouseListener {
   @Override
   public void mouseReleased(MouseEvent e) {
     mouseDown = false;
+    // Mouse released is used as a boolean that decides if anywhere on the screen the mouse is released, thus when
+    // neccesary, it should be implemented in all corresponding components
     mouseReleased = true;
   }
   @Override
