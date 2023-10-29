@@ -402,6 +402,7 @@ public class ChessScene extends Scene {
             ChessBot.currentMove = null;
             updateBoardPieces(chessGame.getBoard());
             turnColor = turnColor == ChessPiece.White ? ChessPiece.Black : ChessPiece.White;
+            System.out.println("state: " + botState.name());
             if(botState != GameState.ACTIVE) {
                 showWinBanner(botState);
             }
