@@ -33,7 +33,11 @@ class PieceEntity extends Entity implements MouseListener {
         this.pieceType = pieceType;
         this.pieceColor = pieceColor;
         setSize(new Point(100, 100));
-        initTexture();
+        //initTexture();
+            String imgPath = System.getProperty("user.dir") + "/textures/indicator.png";
+            File imgFile = new File(imgPath);
+            Image img = new ImageIcon(imgFile.getAbsolutePath()).getImage();
+            updateTextureImage(img);
         initMouseEvents();
     }
 
