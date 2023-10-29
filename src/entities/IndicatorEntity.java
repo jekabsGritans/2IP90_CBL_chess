@@ -16,7 +16,7 @@ public class IndicatorEntity extends Entity {
     public IndicatorEntity() {
         super();
         if(IndicatorEntity.img == null) {
-            String imgPath = System.getProperty("user.dir") + "/textures/indicator.png";
+            String imgPath = System.getProperty("user.dir") + "../textures/indicator.png";
             File imgFile = new File(imgPath);
             img = new ImageIcon(imgFile.getAbsolutePath()).getImage();
         }
