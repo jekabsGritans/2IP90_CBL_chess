@@ -18,6 +18,7 @@ import java.util.Set;
  * - alpha-beta pruning 
  * - transposition table (stores previous search results)
  * - iterative deepening (allows to adhere to a time limit)
+ * @author Jekabs Gritans
  */
 public class ChessBot extends Thread {
     private static long MAX_SEARCH_TIME = 1000; // ms
@@ -33,7 +34,6 @@ public class ChessBot extends Thread {
 
     /**
      * Finds the best legal move for the current player.
-
      * @param game the game to search
      * @return the best legal move
      */
@@ -149,8 +149,11 @@ public class ChessBot extends Thread {
         return bestScore;
     }
 
-    /*
+    /**
      * Gets the heuristic value of the game from the perspective of one player.
+     * @game the game to evaluate
+     * @isWhitePerspective whether the heuristic value should be from white's perspective
+     * @return the heuristic value of the game
      */
     private static int evaluate(ChessGame game, boolean isWhitePerspective) {
         // heuristic value of end game state
@@ -169,8 +172,11 @@ public class ChessBot extends Thread {
         return isWhitePerspective ? materialScore : -materialScore;
     }
 
-    /*
+    /**
      * Gets the total value of one side's material.
+     * @param material the material to score
+     * @param isWhiteMaterial whether the material is white's
+     * @return the total value of the material
      */
     private static int scoreMaterial(Map<Byte, Set<ChessPosition>> material,
         boolean isWhiteMaterial) {
@@ -190,8 +196,11 @@ public class ChessBot extends Thread {
         return score;
     }
 
-    /*
+    /**
      * Makes a move on a copy of the game and returns the resulting game.
+     * @param game the game to make the move on
+     * @param move the move to make
+     * @return the resulting game
      */
     private static ChessGame makeMove(ChessGame game, ChessMove move) {
         ChessGame newGame = new ChessGame(game);
@@ -203,12 +212,12 @@ public class ChessBot extends Thread {
     // from https://www.chessprogramming.org/Simplified_Evaluation_Function
 
     private static Map<Byte, Integer> pieceTypeValues = Map.of(
-        ChessPiece.Pawn, 100,
-        ChessPiece.Knight, 320,
-        ChessPiece.Bishop, 330,
-        ChessPiece.Rook, 500,
-        ChessPiece.Queen, 900,
-        ChessPiece.King, 20000
+        ChessPiece.PAWN, 100,
+        ChessPiece.KNIGHT, 320,
+        ChessPiece.BISHOP, 330,
+        ChessPiece.ROOK, 500,
+        ChessPiece.QUEEN, 900,
+        ChessPiece.KING, 20000
     );
 
     private static Map<GameState, Integer> gameStateValues = Map.of(
@@ -221,7 +230,7 @@ public class ChessBot extends Thread {
     // incentivize optimal piece positioning
     // these are from white's perspective (flipped for black)
     private static Map<Byte, int[][]> pieceTypePositionBonuses = Map.ofEntries(
-        Map.entry(ChessPiece.Pawn,
+        Map.entry(ChessPiece.PAWN,
             new int[][] {
                 {0,  0,  0,  0,  0,  0,  0,  0},
                 {50, 50, 50, 50, 50, 50, 50, 50},
@@ -232,7 +241,7 @@ public class ChessBot extends Thread {
                 {5, 10, 10, -20, -20, 10, 10,  5},
                 {0,  0,  0,  0,  0,  0,  0,  0},
             }),
-        Map.entry(ChessPiece.Knight,
+        Map.entry(ChessPiece.KNIGHT,
             new int[][] {
                 {-50, -40, -30, -30, -30, -30, -40, -50},
                 {-40, -20,  0,  0,  0,  0, -20, -40},
@@ -243,7 +252,7 @@ public class ChessBot extends Thread {
                 {-40, -20,  0,  5,  5,  0, -20, -40},
                 {-50, -40, -30, -30, -30, -30, -40, -50},
             }),
-        Map.entry(ChessPiece.Bishop,
+        Map.entry(ChessPiece.BISHOP,
             new int[][] {
                 {-20, -10, -10, -10, -10, -10, -10, -20},
                 {-10,  0,  0,  0,  0,  0,  0, -10},
@@ -254,7 +263,7 @@ public class ChessBot extends Thread {
                 {-10,  5,  0,  0,  0,  0,  5, -10},
                 {-20, -10, -10, -10, -10, -10, -10, -20},
             }),
-        Map.entry(ChessPiece.Rook,
+        Map.entry(ChessPiece.ROOK,
             new int[][] {
                 {0,  0,  0,  0,  0,  0,  0,  0},
                 {5, 10, 10, 10, 10, 10, 10,  5},
@@ -265,7 +274,7 @@ public class ChessBot extends Thread {
                 {-5,  0,  0,  0,  0,  0,  0, -5},
                 {0,  0,  0,  5,  5,  0,  0,  0},
             }),
-        Map.entry(ChessPiece.Queen,
+        Map.entry(ChessPiece.QUEEN,
             new int[][] {
                 {-20, -10, -10, -5, -5, -10, -10, -20},
                 {-10,  0,  0,  0,  0,  0,  0, -10},
@@ -276,7 +285,7 @@ public class ChessBot extends Thread {
                 {-10,  0,  5,  0,  0,  0,  0, -10},
                 {-20, -10, -10, -5, -5, -10, -10, -20},
             }),
-        Map.entry(ChessPiece.King,
+        Map.entry(ChessPiece.KING,
             new int[][] {
                 {-30, -40, -40, -50, -50, -40, -40, -30},
                 {-30, -40, -40, -50, -50, -40, -40, -30},
@@ -289,7 +298,7 @@ public class ChessBot extends Thread {
             })
     );
 
-    /*
+    /**
      * Represents a transposition table entry.
      */
     private record TableEntry(
@@ -298,7 +307,7 @@ public class ChessBot extends Thread {
         int score
     ) {}
 
-    /*
+    /**
      * Exception thrown when time limit reached.
      */
     private static class TimeLimitReachedException extends RuntimeException {

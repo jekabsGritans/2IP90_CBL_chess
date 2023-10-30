@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 /**
  * Controls loop of the game, loading and updating scenes.
-
  * @author Thomas de Bock
  * 
  */
@@ -18,7 +17,6 @@ public class GameMain {
     public ChessScene playerVsPlayerScene;
     public ChessScene playerVsBotScene;
     Scene currentScene;
-
 
     /**
      * Main game loop, initializes the scenes and calls the update function on every entity.
@@ -64,7 +62,7 @@ public class GameMain {
 
         playerVsPlayerScene.initGame();
         playerVsPlayerScene.updateBoardPieces(playerVsPlayerScene.chessGame.getBoard());
-        playerVsPlayerScene.turnColor = ChessPiece.White;
+        playerVsPlayerScene.turnColor = ChessPiece.WHITE;
         for (int i = 0; i < playerVsPlayerScene.moveIndicators.size(); i++) {
             playerVsPlayerScene.moveIndicators.get(i).graphic.setVisible(false);
         }
@@ -81,7 +79,7 @@ public class GameMain {
 
         playerVsBotScene.initGame();
         playerVsBotScene.updateBoardPieces(playerVsBotScene.chessGame.getBoard());
-        playerVsBotScene.turnColor = ChessPiece.White;
+        playerVsBotScene.turnColor = ChessPiece.WHITE;
         for (int i = 0; i < playerVsBotScene.moveIndicators.size(); i++) {
             playerVsBotScene.moveIndicators.get(i).graphic.setVisible(false);
         }
@@ -90,9 +88,7 @@ public class GameMain {
 
     /**
      * Binds a scene to the current scene.
-
      * @param newScene the new scene to bind
-     * 
      */
     public void bindScene(Scene newScene) {
         if (currentScene != null) {

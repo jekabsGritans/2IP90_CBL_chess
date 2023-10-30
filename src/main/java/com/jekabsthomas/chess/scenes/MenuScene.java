@@ -1,8 +1,8 @@
 package com.jekabsthomas.chess.scenes;
 
 import com.jekabsthomas.chess.entities.Entity;
-import com.jekabsthomas.chess.entities.PlayerVsComputerButton;
-import com.jekabsthomas.chess.entities.PlayerVsPlayerButton;
+import com.jekabsthomas.chess.entities.PlayerVSComputerButton;
+import com.jekabsthomas.chess.entities.PlayerVSPlayerButton;
 import java.awt.Color;
 import java.awt.Point;
 import java.io.File;
@@ -28,10 +28,10 @@ public class MenuScene extends Scene {
      * Initializes the possible game mode buttons.
      */
     public void initButtons() {
-        PlayerVsPlayerButton startButton = new PlayerVsPlayerButton();
+        PlayerVSPlayerButton startButton = new PlayerVSPlayerButton();
         startButton.setPos(new Point(130, 500));
         addEntity(startButton);
-        PlayerVsComputerButton startCompButton = new PlayerVsComputerButton();
+        PlayerVSComputerButton startCompButton = new PlayerVSComputerButton();
         startCompButton.setPos(new Point(130, 200));
         addEntity(startCompButton);         
     }
@@ -50,21 +50,19 @@ public class MenuScene extends Scene {
     }
 
     /**
-     * calls Scene addEntity function and also sets the menu variable.
-
-     * @param entity thisis the button to add
+     * Calls Scene addEntity function and also sets the menu variable.
+     * @param entity the button to add
      */
-    public void addEntity(PlayerVsPlayerButton entity) {
+    public void addEntity(PlayerVSPlayerButton entity) {
         super.addEntity(entity);
         entity.menu = this;
     }
 
     /**
-     * calls Scene addEntity function and also sets the menu variable.
-
-     * @param entity thisis the button to add
+     * Calls Scene addEntity function and also sets the menu variable.
+     * @param entity the button to add
      */
-    public void addEntity(PlayerVsComputerButton entity) {
+    public void addEntity(PlayerVSComputerButton entity) {
         super.addEntity(entity);
         entity.menu = this;
     }

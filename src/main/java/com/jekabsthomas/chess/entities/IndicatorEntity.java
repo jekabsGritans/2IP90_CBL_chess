@@ -6,9 +6,7 @@ import javax.swing.ImageIcon;
 
 /**
  * Indicator of where the currently held piece can move to (legal moves).
-
  * @author Thomas de Bock
- * 
  */
 public class IndicatorEntity extends Entity {
     public static Image img;

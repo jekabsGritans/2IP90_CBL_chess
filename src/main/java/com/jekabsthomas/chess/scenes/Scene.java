@@ -11,7 +11,6 @@ import javax.swing.WindowConstants;
 
 /**
  * Base class scene off of which all classes are built.
-
  * @author Thomas de Bock
  */
 public class Scene implements MouseListener {
@@ -44,7 +43,6 @@ public class Scene implements MouseListener {
 
     /**
      * Initializes the scene, and adds the specified entities.
-
      * @param entities entities to initialize scene with
      */
     public Scene(ArrayList<Entity> entities) {
@@ -65,7 +63,6 @@ public class Scene implements MouseListener {
 
     /**
      * Adds an entity to the entities and adds the graphic to the layered pane.
-
      * @param entity this is the entity to add
      */
     public void addEntity(Entity entity) {
@@ -74,8 +71,8 @@ public class Scene implements MouseListener {
     }
 
     /**
-     * Adds an entity to the entities and adds the graphic to the layered pane at the specified layer.
-
+     * Adds an entity to the entities and adds the graphic to the layered pane
+     *     at the specified layer.
      * @param entity this is the entity to add
      * @param layer layer to add entity to the layeredPane
      */
@@ -86,7 +83,6 @@ public class Scene implements MouseListener {
 
     /**
      * Removes an entity from the entities and removes the graphic from the layered pane.
-
      * @param entity this is the entity to remove
      */
     public void removeEntity(Entity entity) {
@@ -100,8 +96,8 @@ public class Scene implements MouseListener {
     }
 
     /**
-     * Sets the MouseDown bool true, 
-     * cant be done in input manager as the listener needs to be attached to the scene.
+     * Sets the MouseDown bool true.
+     * Can't be done in input manager as the listener needs to be attached to the scene.
      */
     @Override
     public void mousePressed(MouseEvent e) {
@@ -110,7 +106,7 @@ public class Scene implements MouseListener {
 
     /**
      * Sets the MouseDown bool false, 
-     * cant be done in input manager as the listener needs to be attached to the scene.
+     * Can't be done in input manager as the listener needs to be attached to the scene.
      */
     @Override
     public void mouseReleased(MouseEvent e) {

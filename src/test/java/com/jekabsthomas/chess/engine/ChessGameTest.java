@@ -94,7 +94,7 @@ public class ChessGameTest {
     }
 
     @Test
-    public void testDrawByThreefoldRepetition() { //TODO add game state to map upon initialization
+    public void testDrawByThreefoldRepetition() {
         ChessGame game = new ChessGame("KQ5R/QQ6/8/8/8/8/6qq/r5qk w - - 0 1");
         ChessBoard board = game.getBoard();
         ChessPosition whiteRookA = new ChessPosition("h8");

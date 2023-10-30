@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  * Counts number of nodes in the game tree at the given depth.
  * Comparing result with known hard cases allows us to verify that the game tree is being
- * generated correctly. Hence, that the legal moves are being generated correctly.
+ *     generated correctly. Hence, that the legal moves are being generated correctly.
  * 
  * Depth is limited because of runtime.
  * 

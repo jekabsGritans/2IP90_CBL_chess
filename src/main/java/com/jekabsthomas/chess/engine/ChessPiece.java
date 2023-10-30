@@ -2,6 +2,7 @@ package com.jekabsthomas.chess.engine;
 
 /**
  * Provides static methods for chess piece byte representation.
+ * @author Jekabs Gritans
  */
 public class ChessPiece {
     // Piece type and color are stored in different bits of the byte.
@@ -10,20 +11,20 @@ public class ChessPiece {
     // Idea credit: https://github.com/SebLague/Chess-Coding-Adventure/tree/Chess-V1-Unity
 
     // 3 bits for type
-    public static final byte Empty = 0; // 00 000
-    public static final byte Pawn = 1; // 00 001
-    public static final byte Knight = 2; // 00 010
-    public static final byte Bishop = 3; // 00 011
-    public static final byte Rook = 4; // 00 100
-    public static final byte Queen = 5; // 00 101
-    public static final byte King = 6; // 00 110
+    public static final byte EMPTY = 0; // 00 000
+    public static final byte PAWN = 1; // 00 001
+    public static final byte KNIGHT = 2; // 00 010
+    public static final byte BISHOP = 3; // 00 011
+    public static final byte ROOK = 4; // 00 100
+    public static final byte QUEEN = 5; // 00 101
+    public static final byte KING = 6; // 00 110
 
     // 2 bits for color
-    public static final byte White = 8; // 01 000
-    public static final byte Black = 16; // 10 000
+    public static final byte WHITE = 8; // 01 000
+    public static final byte BLACK = 16; // 10 000
 
     // special value
-    public static final byte Invalid = -128; // 100 00 000 (no color/piece, but also not empty)
+    public static final byte INVALID = -128; // 100 00 000 (no color/piece, but also not empty)
 
     /**
      * Gets the type of the piece.
@@ -73,19 +74,19 @@ public class ChessPiece {
      */
     public static String typeToString(byte type) {
         switch (type) {
-            case Pawn:
+            case PAWN:
                 return "Pawn";
-            case Knight:
+            case KNIGHT:
                 return "Knight";
-            case Bishop:
+            case BISHOP:
                 return "Bishop";
-            case Rook:
+            case ROOK:
                 return "Rook";
-            case Queen:
+            case QUEEN:
                 return "Queen";
-            case King:
+            case KING:
                 return "King";
-            case Empty:
+            case EMPTY:
                 return "Empty";
             default:
                 return "Invalid";
@@ -110,7 +111,7 @@ public class ChessPiece {
      */
     public static boolean isEmpty(byte piece) {
         // empty can't have a color
-        return piece == Empty;
+        return piece == EMPTY;
     }
 
     /**
@@ -120,7 +121,7 @@ public class ChessPiece {
      */
     public static boolean isInvalid(byte piece) {
         // invalid can't have a color
-        return piece == Invalid;
+        return piece == INVALID;
     }
 
     /**
@@ -129,7 +130,7 @@ public class ChessPiece {
      * @return true if the piece is white, false otherwise
      */
     public static boolean isWhite(byte piece) {
-        return isColor(piece, White);
+        return isColor(piece, WHITE);
     }
 
     /**
@@ -160,7 +161,7 @@ public class ChessPiece {
         char fenChar = FEN_CHARS[colorLessPiece];
 
         // colorless pieces (types) are printed as black (lowercase)
-        return isColor(piece, White) ? Character.toUpperCase(fenChar) : fenChar;
+        return isColor(piece, WHITE) ? Character.toUpperCase(fenChar) : fenChar;
     }
 
     /**
@@ -170,7 +171,7 @@ public class ChessPiece {
      */
     public static byte getPieceFromFenCharacter(char fenChar) {
         if (fenChar == '1') {
-            return Empty;
+            return EMPTY;
         }
 
         String fenChars = new String(FEN_CHARS);
@@ -181,6 +182,6 @@ public class ChessPiece {
         }
 
         boolean isWhite = Character.isUpperCase(fenChar);
-        return isWhite ? (byte) (piece | White) : (byte) (piece | Black); 
+        return isWhite ? (byte) (piece | WHITE) : (byte) (piece | BLACK); 
     }
 }

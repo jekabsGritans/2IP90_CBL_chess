@@ -11,6 +11,7 @@ import java.util.Set;
 
 /**
  * Static methods for legal move generation and checking if king is in check.
+ * @author Jekabs Gritans
  */
 public class ChessRules {
     /**
@@ -69,15 +70,15 @@ public class ChessRules {
     private static boolean isInsufficientMaterial(Map<Byte, Set<ChessPosition>> material) {
 
         // if any pawn, queen, or rook, not insufficient material
-        byte[] types = new byte[] {ChessPiece.Pawn, ChessPiece.Queen, ChessPiece.Rook};
+        byte[] types = new byte[] {ChessPiece.PAWN, ChessPiece.QUEEN, ChessPiece.ROOK};
         for (byte type : types) {
             if (material.get(type).size() > 0) {
                 return false;
             }
         }
 
-        int numBishops = material.get(ChessPiece.Bishop).size();
-        int numKnights = material.get(ChessPiece.Knight).size();
+        int numBishops = material.get(ChessPiece.BISHOP).size();
+        int numKnights = material.get(ChessPiece.KNIGHT).size();
 
         return numBishops + numKnights <= 1;
     }
@@ -135,17 +136,17 @@ public class ChessRules {
         }
 
         switch (ChessPiece.getType(piece)) {
-            case ChessPiece.Pawn:
+            case ChessPiece.PAWN:
                 return getValidPawnMoves(board, isWhiteMove, from);
-            case ChessPiece.Knight:
+            case ChessPiece.KNIGHT:
                 return getValidKnightMoves(board, isWhiteMove, from);
-            case ChessPiece.Bishop:
+            case ChessPiece.BISHOP:
                 return getValidBishopMoves(board, isWhiteMove, from);
-            case ChessPiece.Rook:
+            case ChessPiece.ROOK:
                 return getValidRookMoves(board, isWhiteMove, from);
-            case ChessPiece.Queen:
+            case ChessPiece.QUEEN:
                 return getValidQueenMoves(board, isWhiteMove, from);
-            case ChessPiece.King:
+            case ChessPiece.KING:
                 return getValidKingMoves(board, isWhiteMove, from, isCastlingRecursion);
             default:
                 return Arrays.asList();
@@ -232,10 +233,10 @@ public class ChessRules {
         for (ChessMove move : moves) {
             // if at any end
             if (move.to1D / 12 == 2 || move.to1D / 12 == 9) {
-                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.Queen));
-                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.Rook));
-                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.Bishop));
-                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.Knight));
+                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.QUEEN));
+                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.ROOK));
+                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.BISHOP));
+                newMoves.add(board.new PromotionMove(move.from1D, move.to1D, ChessPiece.KNIGHT));
             } else {
                 newMoves.add(move);
             }

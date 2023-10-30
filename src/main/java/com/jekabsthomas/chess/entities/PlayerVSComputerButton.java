@@ -7,18 +7,16 @@ import java.awt.event.MouseListener;
 import java.io.File;
 
 /**
- *    Button on the menu that loads the player vs bot scene.
-
+ * Button on the menu that loads the player vs bot scene.
  * @author Thomas de Bock
  */
-
-public class PlayerVsComputerButton extends Entity implements MouseListener {
+public class PlayerVSComputerButton extends Entity implements MouseListener {
     public MenuScene menu;
 
     /**
      * calls entity constructor and sets the size, texture and initializes the mouseListener.
      */
-    public PlayerVsComputerButton() {
+    public PlayerVSComputerButton() {
         super();
         setSize(new Point(600, 315));
         String imgPath = System.getProperty("user.dir") + "/textures/playervscomputer.png";

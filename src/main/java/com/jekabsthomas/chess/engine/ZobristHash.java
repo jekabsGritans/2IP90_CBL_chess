@@ -5,9 +5,10 @@ import java.util.Random;
 
 /**
  * Zobrist hashing for chess game state.
- * Used for transposition table in the bot.
+ *     Used for transposition table in the bot.
  * A Zobrist hash is constructed by xor-ing random bitstrings
- * that correspond to elements of the chess game state.
+ *     that correspond to elements of the chess game state.
+ * @author Jekabs Gritans
  */
 public class ZobristHash {
     private final long[][][] table = new long[2][6][144];

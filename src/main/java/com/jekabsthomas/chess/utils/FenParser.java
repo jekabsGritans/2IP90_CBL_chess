@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 /**
  * Provides utilities for parsing FEN strings.
+ * @author Jekabs Gritans
  */
 public class FenParser {
     private static final String FEN_REGEX = "^" // beginning of string

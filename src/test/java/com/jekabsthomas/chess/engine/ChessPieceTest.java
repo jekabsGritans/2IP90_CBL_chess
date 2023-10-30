@@ -12,78 +12,78 @@ import org.junit.Test;
 public class ChessPieceTest {
     @Test
     public void testGetType() {
-        byte piece = ChessPiece.Knight | ChessPiece.White;
+        byte piece = ChessPiece.KNIGHT | ChessPiece.WHITE;
         byte type = ChessPiece.getType(piece);
-        assertEquals(ChessPiece.Knight, type);
+        assertEquals(ChessPiece.KNIGHT, type);
     }
 
     @Test
     public void testGetColor() {
-        byte piece = ChessPiece.Knight | ChessPiece.White;
+        byte piece = ChessPiece.KNIGHT | ChessPiece.WHITE;
         byte color = ChessPiece.getColor(piece);
-        assertEquals(ChessPiece.White, color);
+        assertEquals(ChessPiece.WHITE, color);
     }
 
     @Test
     public void testIsType() {
-        byte piece = ChessPiece.Knight | ChessPiece.White;
-        boolean isKnight = ChessPiece.isType(piece, ChessPiece.Knight);
+        byte piece = ChessPiece.KNIGHT | ChessPiece.WHITE;
+        boolean isKnight = ChessPiece.isType(piece, ChessPiece.KNIGHT);
         assertTrue(isKnight);
     }
 
     @Test
     public void testSetType() {
-        byte piece = ChessPiece.Knight | ChessPiece.White;
-        byte newPiece = ChessPiece.setType(piece, ChessPiece.Pawn);
-        assertEquals(ChessPiece.Pawn | ChessPiece.White, newPiece);
+        byte piece = ChessPiece.KNIGHT | ChessPiece.WHITE;
+        byte newPiece = ChessPiece.setType(piece, ChessPiece.PAWN);
+        assertEquals(ChessPiece.PAWN | ChessPiece.WHITE, newPiece);
     }
 
     @Test
     public void testTypeToString() {
-        assertEquals("Knight", ChessPiece.typeToString(ChessPiece.Knight));
-        assertEquals("Empty", ChessPiece.typeToString(ChessPiece.Empty));
-        assertEquals("Invalid", ChessPiece.typeToString(ChessPiece.Invalid));
+        assertEquals("Knight", ChessPiece.typeToString(ChessPiece.KNIGHT));
+        assertEquals("Empty", ChessPiece.typeToString(ChessPiece.EMPTY));
+        assertEquals("Invalid", ChessPiece.typeToString(ChessPiece.INVALID));
         assertEquals("Invalid", ChessPiece.typeToString((byte) 42));
     }
 
     @Test
     public void testIsColor() {
-        byte piece = ChessPiece.Knight | ChessPiece.White;
-        boolean isWhite = ChessPiece.isColor(piece, ChessPiece.White);
+        byte piece = ChessPiece.KNIGHT | ChessPiece.WHITE;
+        boolean isWhite = ChessPiece.isColor(piece, ChessPiece.WHITE);
         assertTrue(isWhite);
     }
 
     @Test
     public void testIsEmpty() {
-        assertTrue(ChessPiece.isEmpty(ChessPiece.Empty));
-        assertFalse(ChessPiece.isEmpty(ChessPiece.Knight));
-        assertFalse(ChessPiece.isEmpty(ChessPiece.Invalid));
+        assertTrue(ChessPiece.isEmpty(ChessPiece.EMPTY));
+        assertFalse(ChessPiece.isEmpty(ChessPiece.KNIGHT));
+        assertFalse(ChessPiece.isEmpty(ChessPiece.INVALID));
     }
 
     @Test
     public void testIsInvalid() {
-        assertTrue(ChessPiece.isInvalid(ChessPiece.Invalid));
-        byte piece = ChessPiece.Knight | ChessPiece.White;
+        assertTrue(ChessPiece.isInvalid(ChessPiece.INVALID));
+        byte piece = ChessPiece.KNIGHT | ChessPiece.WHITE;
         assertFalse(ChessPiece.isInvalid(piece));
-        assertFalse(ChessPiece.isInvalid(ChessPiece.Empty));
+        assertFalse(ChessPiece.isInvalid(ChessPiece.EMPTY));
     }
 
     @Test
     public void testIsWhite() {
-        byte whitePiece = ChessPiece.Knight | ChessPiece.White;
-        byte blackPiece = ChessPiece.Knight | ChessPiece.Black;
+        byte whitePiece = ChessPiece.KNIGHT | ChessPiece.WHITE;
+        byte blackPiece = ChessPiece.KNIGHT | ChessPiece.BLACK;
         assertTrue(ChessPiece.isWhite(whitePiece));
         assertFalse(ChessPiece.isWhite(blackPiece));
-        assertFalse(ChessPiece.isWhite(ChessPiece.Empty));
+        assertFalse(ChessPiece.isWhite(ChessPiece.EMPTY));
     }
 
     @Test
     public void testIsPiece() {
-        byte piece = ChessPiece.Knight | ChessPiece.White;
+        byte piece = ChessPiece.KNIGHT | ChessPiece.WHITE;
         boolean isPiece = ChessPiece.isPiece(piece);
         assertTrue(isPiece);
-        assertFalse(ChessPiece.isPiece(ChessPiece.Empty));
-        assertFalse(ChessPiece.isPiece(ChessPiece.Invalid));
+        assertFalse(ChessPiece.isPiece(ChessPiece.EMPTY));
+        assertFalse(ChessPiece.isPiece(ChessPiece.INVALID));
     }
 
     @Test
@@ -91,66 +91,66 @@ public class ChessPieceTest {
 
         // assertEquals is ambiguous for char
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Pawn | ChessPiece.White)) == 'P');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.PAWN | ChessPiece.WHITE)) == 'P');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Pawn | ChessPiece.Black)) == 'p');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.PAWN | ChessPiece.BLACK)) == 'p');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Knight | ChessPiece.White)) == 'N');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.KNIGHT | ChessPiece.WHITE)) == 'N');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Knight | ChessPiece.Black)) == 'n');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.KNIGHT | ChessPiece.BLACK)) == 'n');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Bishop | ChessPiece.White)) == 'B');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.BISHOP | ChessPiece.WHITE)) == 'B');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Bishop | ChessPiece.Black)) == 'b');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.BISHOP | ChessPiece.BLACK)) == 'b');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Rook | ChessPiece.White)) == 'R');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.ROOK | ChessPiece.WHITE)) == 'R');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Rook | ChessPiece.Black)) == 'r');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.ROOK | ChessPiece.BLACK)) == 'r');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Queen | ChessPiece.White)) == 'Q');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.QUEEN | ChessPiece.WHITE)) == 'Q');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.Queen | ChessPiece.Black)) == 'q');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.QUEEN | ChessPiece.BLACK)) == 'q');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.King | ChessPiece.White)) == 'K');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.KING | ChessPiece.WHITE)) == 'K');
         assertTrue(
-            ChessPiece.getFenCharacter((byte) (ChessPiece.King | ChessPiece.Black)) == 'k');
+            ChessPiece.getFenCharacter((byte) (ChessPiece.KING | ChessPiece.BLACK)) == 'k');
         assertTrue(
-            ChessPiece.getFenCharacter(ChessPiece.Empty) == '1');
+            ChessPiece.getFenCharacter(ChessPiece.EMPTY) == '1');
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetFenCharacterInvalid() {
-        ChessPiece.getFenCharacter(ChessPiece.Invalid);
+        ChessPiece.getFenCharacter(ChessPiece.INVALID);
     }
 
     @Test
     public void testGetPieceFromFenCharacter() {
         assertEquals(
-            ChessPiece.Pawn | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('P'));
+            ChessPiece.PAWN | ChessPiece.WHITE, ChessPiece.getPieceFromFenCharacter('P'));
         assertEquals(
-            ChessPiece.Pawn | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('p'));
+            ChessPiece.PAWN | ChessPiece.BLACK, ChessPiece.getPieceFromFenCharacter('p'));
         assertEquals(
-            ChessPiece.Knight | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('N'));
+            ChessPiece.KNIGHT | ChessPiece.WHITE, ChessPiece.getPieceFromFenCharacter('N'));
         assertEquals(
-            ChessPiece.Knight | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('n'));
+            ChessPiece.KNIGHT | ChessPiece.BLACK, ChessPiece.getPieceFromFenCharacter('n'));
         assertEquals(
-            ChessPiece.Bishop | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('B'));
+            ChessPiece.BISHOP | ChessPiece.WHITE, ChessPiece.getPieceFromFenCharacter('B'));
         assertEquals(
-            ChessPiece.Bishop | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('b'));
+            ChessPiece.BISHOP | ChessPiece.BLACK, ChessPiece.getPieceFromFenCharacter('b'));
         assertEquals(
-            ChessPiece.Rook | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('R'));
+            ChessPiece.ROOK | ChessPiece.WHITE, ChessPiece.getPieceFromFenCharacter('R'));
         assertEquals(
-            ChessPiece.Rook | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('r'));
+            ChessPiece.ROOK | ChessPiece.BLACK, ChessPiece.getPieceFromFenCharacter('r'));
         assertEquals(
-            ChessPiece.Queen | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('Q'));
+            ChessPiece.QUEEN | ChessPiece.WHITE, ChessPiece.getPieceFromFenCharacter('Q'));
         assertEquals(
-            ChessPiece.Queen | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('q'));
+            ChessPiece.QUEEN | ChessPiece.BLACK, ChessPiece.getPieceFromFenCharacter('q'));
         assertEquals(
-            ChessPiece.King | ChessPiece.White, ChessPiece.getPieceFromFenCharacter('K'));
+            ChessPiece.KING | ChessPiece.WHITE, ChessPiece.getPieceFromFenCharacter('K'));
         assertEquals(
-            ChessPiece.King | ChessPiece.Black, ChessPiece.getPieceFromFenCharacter('k'));
+            ChessPiece.KING | ChessPiece.BLACK, ChessPiece.getPieceFromFenCharacter('k'));
         assertEquals(
-            ChessPiece.Empty, ChessPiece.getPieceFromFenCharacter('1'));
+            ChessPiece.EMPTY, ChessPiece.getPieceFromFenCharacter('1'));
     }
 
     @Test(expected = IllegalArgumentException.class)

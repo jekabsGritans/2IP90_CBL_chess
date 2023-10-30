@@ -69,29 +69,29 @@ public class ChessBoardTest {
     public void testGetPiece() {
         // tests if pieces are correctly retrieved
         ChessBoard board = new ChessBoard("8/8/8/8/8/8/8/8", "-", "-");
-        byte piece = ChessPiece.White | ChessPiece.Pawn;
+        byte piece = ChessPiece.WHITE | ChessPiece.PAWN;
         board.setPiece(0, 0, piece);
         assertEquals(board.getPiece(0, 0), piece);
-        assertEquals(board.getPiece(0, 1), ChessPiece.Empty);
-        assertEquals(board.getPiece(1, 0), ChessPiece.Empty);
+        assertEquals(board.getPiece(0, 1), ChessPiece.EMPTY);
+        assertEquals(board.getPiece(1, 0), ChessPiece.EMPTY);
     }
 
     @Test
     public void testSetPiece() {
         // tests if the piece is correctly set
         ChessBoard board = new ChessBoard("8/8/8/8/8/8/8/8", "-", "-");
-        byte piece = ChessPiece.White | ChessPiece.Pawn;
+        byte piece = ChessPiece.WHITE | ChessPiece.PAWN;
         board.setPiece(0, 0, piece);
         assertEquals(board.getPiece(0, 0), piece);
-        board.setPiece(0, 0, ChessPiece.Empty);
-        assertEquals(board.getPiece(0, 0), ChessPiece.Empty);
+        board.setPiece(0, 0, ChessPiece.EMPTY);
+        assertEquals(board.getPiece(0, 0), ChessPiece.EMPTY);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetPieceInvalid() {
         // tests if illegal positions are caught
         ChessBoard board = new ChessBoard("8/8/8/8/8/8/8/8", "-", "-");
-        byte piece = ChessPiece.White | ChessPiece.Pawn;
+        byte piece = ChessPiece.WHITE | ChessPiece.PAWN;
         board.setPiece(0, 8, piece);
     }
 
@@ -115,10 +115,10 @@ public class ChessBoardTest {
         ChessBoard board = new ChessBoard("8/8/8/8/8/8/8/P7", "-", "-");
         Map<Byte, Set<ChessPosition>> whiteMaterial = board.getMaterial(true);
         Map<Byte, Set<ChessPosition>> blackMaterial = board.getMaterial(false);
-        assertEquals(1, whiteMaterial.get(ChessPiece.Pawn).size());
-        System.out.println(whiteMaterial.get(ChessPiece.Pawn));
-        assertEquals(true, whiteMaterial.get(ChessPiece.Pawn).contains(new ChessPosition("a1")));
-        assertEquals(0, blackMaterial.get(ChessPiece.Pawn).size());
+        assertEquals(1, whiteMaterial.get(ChessPiece.PAWN).size());
+        System.out.println(whiteMaterial.get(ChessPiece.PAWN));
+        assertEquals(true, whiteMaterial.get(ChessPiece.PAWN).contains(new ChessPosition("a1")));
+        assertEquals(0, blackMaterial.get(ChessPiece.PAWN).size());
     }
 
     @Test
@@ -131,12 +131,12 @@ public class ChessBoardTest {
         ChessMove move = board.new ChessMove(from.get1D(), to.get1D());
         board.makeMove(move);
         // piece moved correctly
-        assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
-        assertEquals(ChessPiece.White | ChessPiece.Pawn, board.getPiece(to.row(), to.col()));
+        assertEquals(ChessPiece.EMPTY, board.getPiece(from.row(), from.col()));
+        assertEquals(ChessPiece.WHITE | ChessPiece.PAWN, board.getPiece(to.row(), to.col()));
         // material updated correctly
         Map<Byte, Set<ChessPosition>> whiteMaterial = board.getMaterial(true);
-        assertEquals(1, whiteMaterial.get(ChessPiece.Pawn).size());
-        assertEquals(true, whiteMaterial.get(ChessPiece.Pawn).contains(to));
+        assertEquals(1, whiteMaterial.get(ChessPiece.PAWN).size());
+        assertEquals(true, whiteMaterial.get(ChessPiece.PAWN).contains(to));
     }
 
     // Note: we dont test for move legality here, as legality validation is not done
@@ -152,14 +152,14 @@ public class ChessBoardTest {
         ChessMove move = board.new ChessMove(from.get1D(), to.get1D());
         board.makeMove(move);
         // piece moved correctly
-        assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
-        assertEquals(ChessPiece.White | ChessPiece.Pawn, board.getPiece(to.row(), to.col()));
+        assertEquals(ChessPiece.EMPTY, board.getPiece(from.row(), from.col()));
+        assertEquals(ChessPiece.WHITE | ChessPiece.PAWN, board.getPiece(to.row(), to.col()));
         // material updated correctly (black pawn captured)
         Map<Byte, Set<ChessPosition>> whiteMaterial = board.getMaterial(true);
-        assertEquals(1, whiteMaterial.get(ChessPiece.Pawn).size());
-        assertEquals(true, whiteMaterial.get(ChessPiece.Pawn).contains(to));
+        assertEquals(1, whiteMaterial.get(ChessPiece.PAWN).size());
+        assertEquals(true, whiteMaterial.get(ChessPiece.PAWN).contains(to));
         Map<Byte, Set<ChessPosition>> blackMaterial = board.getMaterial(false);
-        assertEquals(0, blackMaterial.get(ChessPiece.Pawn).size());
+        assertEquals(0, blackMaterial.get(ChessPiece.PAWN).size());
     }
 
     @Test
@@ -175,10 +175,10 @@ public class ChessBoardTest {
         board.makeMove(move);
 
         // pieces are moved correctly
-        assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
-        assertEquals(ChessPiece.White | ChessPiece.King, board.getPiece(to.row(), to.col()));
-        assertEquals(ChessPiece.Empty, board.getPiece(rookFrom.row(), rookFrom.col()));
-        assertEquals(ChessPiece.White | ChessPiece.Rook,
+        assertEquals(ChessPiece.EMPTY, board.getPiece(from.row(), from.col()));
+        assertEquals(ChessPiece.WHITE | ChessPiece.KING, board.getPiece(to.row(), to.col()));
+        assertEquals(ChessPiece.EMPTY, board.getPiece(rookFrom.row(), rookFrom.col()));
+        assertEquals(ChessPiece.WHITE | ChessPiece.ROOK,
             board.getPiece(rookTo.row(), rookTo.col()));
         CastlingAvailability castling = board.getCastlingAvailability();
 
@@ -199,8 +199,8 @@ public class ChessBoardTest {
         PawnDoubleMove move = board.new PawnDoubleMove(from.get1D(),
             to.get1D(), enPassantTarget.get1D());
         board.makeMove(move);
-        assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
-        assertEquals(ChessPiece.White | ChessPiece.Pawn, board.getPiece(to.row(), to.col()));
+        assertEquals(ChessPiece.EMPTY, board.getPiece(from.row(), from.col()));
+        assertEquals(ChessPiece.WHITE | ChessPiece.PAWN, board.getPiece(to.row(), to.col()));
         assertEquals(enPassantTarget.get1D(), board.getEnPassantTarget1D());
     }
 
@@ -216,13 +216,13 @@ public class ChessBoardTest {
         board.makeMove(move);
 
         // pieces are moved correctly
-        assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
-        assertEquals(ChessPiece.White | ChessPiece.Pawn, board.getPiece(to.row(), to.col()));
-        assertEquals(ChessPiece.Empty, board.getPiece(captured.row(), captured.col()));
+        assertEquals(ChessPiece.EMPTY, board.getPiece(from.row(), from.col()));
+        assertEquals(ChessPiece.WHITE | ChessPiece.PAWN, board.getPiece(to.row(), to.col()));
+        assertEquals(ChessPiece.EMPTY, board.getPiece(captured.row(), captured.col()));
 
         // material is updated correctly
         Map<Byte, Set<ChessPosition>> blackMaterial = board.getMaterial(false);
-        assertEquals(0, blackMaterial.get(ChessPiece.Pawn).size());
+        assertEquals(0, blackMaterial.get(ChessPiece.PAWN).size());
 
         // en passant target is reset
         assertEquals("-", board.getFenEnPassantTarget());
@@ -234,16 +234,16 @@ public class ChessBoardTest {
         ChessBoard board = new ChessBoard("8/P7/8/8/8/8/8/8", "-", "-");
         ChessPosition from = new ChessPosition("a7");
         ChessPosition to = new ChessPosition("a8");
-        byte promotionType = ChessPiece.Queen;
+        byte promotionType = ChessPiece.QUEEN;
         PromotionMove move = board.new PromotionMove(from.get1D(), to.get1D(), promotionType);
         board.makeMove(move);
 
         // piece moved correctly and promoted
-        assertEquals(ChessPiece.Empty, board.getPiece(from.row(), from.col()));
-        assertEquals(ChessPiece.White | ChessPiece.Queen, board.getPiece(to.row(), to.col()));
+        assertEquals(ChessPiece.EMPTY, board.getPiece(from.row(), from.col()));
+        assertEquals(ChessPiece.WHITE | ChessPiece.QUEEN, board.getPiece(to.row(), to.col()));
 
         // material updated correctly
         Map<Byte, Set<ChessPosition>> whiteMaterial = board.getMaterial(true);
-        assertEquals(true, whiteMaterial.get(ChessPiece.Queen).contains(to));
+        assertEquals(true, whiteMaterial.get(ChessPiece.QUEEN).contains(to));
     }
 }

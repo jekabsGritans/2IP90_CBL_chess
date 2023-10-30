@@ -8,9 +8,7 @@ import java.awt.event.MouseListener;
 
 /**
  * Floor tile indicating the row and column of the board.
-
  * @author Thomas de Bock
- * 
  */
 public class FloorTileEntity extends Entity implements MouseListener {
     public static Color blackTile = Color.decode("#596A37");
@@ -19,13 +17,12 @@ public class FloorTileEntity extends Entity implements MouseListener {
 
     /**
      * Constructor that calls entity constructor and also sets appropriate color.
-
      * @param floorColor the color to which the file is set, depending on bits xxx??xxx
      */
     public FloorTileEntity(byte floorColor) {
         super();
         graphic.setOpaque(true);
-        setColor(ChessPiece.isColor(floorColor, ChessPiece.White) ? whiteTile : blackTile);
+        setColor(ChessPiece.isColor(floorColor, ChessPiece.WHITE) ? whiteTile : blackTile);
     }
 
     @Override

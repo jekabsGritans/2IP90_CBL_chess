@@ -11,9 +11,7 @@ import javax.swing.JPanel;
 
 /**
  * Base class off of which all game entities are built.
-
  * @author Thomas de Bock
- * 
  */
 public class Entity {
     private Point pos = new Point(150, 200);
@@ -42,7 +40,6 @@ public class Entity {
 
     /**
      * Sets color.
-
      * @param newColor color to set entity graphic to
      */
     public void setColor(Color newColor) {
@@ -52,7 +49,6 @@ public class Entity {
 
     /**
      * Sets position.
-
      * @param newPos position to set entity and graphic to
      */
     public void setPos(Point newPos) {
@@ -62,6 +58,7 @@ public class Entity {
 
     /**
      * Gets entity position.
+     * @return position of entity
      */
     public Point getPos() {
         return pos;
@@ -69,7 +66,6 @@ public class Entity {
 
     /**
      * Sets size.
-
      * @param newSize size to set entity and graphic to
      */
     public void setSize(Point newSize) {
@@ -80,6 +76,7 @@ public class Entity {
 
     /**
      * Gets size.
+     * @return size of entity
      */
     public Point getSize() {
         return size;
@@ -109,7 +106,6 @@ public class Entity {
 
     /**
      * Load texture from File object.
-
      * @param texFile file to load
      */
     public void loadTexture(File texFile) {
@@ -119,7 +115,6 @@ public class Entity {
 
     /**
      * Updates texture displayed on the graphic.
-
      * @param newImage image to set to
      */
     public void updateTextureImage(Image newImage) {

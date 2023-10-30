@@ -6,18 +6,14 @@ import java.awt.event.MouseListener;
 
 /**
  * Button that shows the result of the game and goes back to the menu.
-
  * @author Thomas de Bock
- * 
  */
 public class EndingEntity extends Entity implements MouseListener {
     public ChessScene scene;
 
-
     /**
      * Constructor that calls entity constructor and also initializes mouseListener.
      */
-
     public EndingEntity() {
         super();
         initMouseEvents();
