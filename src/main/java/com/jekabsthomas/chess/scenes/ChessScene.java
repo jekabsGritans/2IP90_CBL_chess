@@ -442,10 +442,10 @@ public class ChessScene extends Scene {
                 return;
             }
 
-            updateBoardPieces(chessGame.getBoard());
             turnColor = turnColor == ChessPiece.WHITE ? ChessPiece.BLACK : ChessPiece.WHITE;
             GameState botState = chessGame.makeMove(ChessBot.currentMove);
             ChessBot.currentMove = null;
+            updateBoardPieces(chessGame.getBoard());
             if (botState != GameState.ACTIVE) {
                 showWinBanner(botState);
             }
